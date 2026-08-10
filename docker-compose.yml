@@ -1,0 +1,17 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: doblex_postgres_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: doblex_smu
+      POSTGRES_USER: doblex_user
+      POSTGRES_PASSWORD: doblex_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+volumes:
+  db_data:
+    driver: local
