@@ -1,0 +1,133 @@
+<script setup>
+import { useRoute } from 'vue-router';
+import { Button } from '@/components/ui/button';
+
+const props = defineProps({
+  open: { type: Boolean, default: false }
+});
+
+defineEmits(['close']);
+
+const route = useRoute();
+
+const menuItems = [
+  { name: 'Dashboard', path: '/', icon: '📊', routeName: 'dashboard' },
+  { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: '📋', routeName: 'ots' },
+];
+
+const logicItems = [
+  { name: 'Inventarios', icon: '📦', phase: 'F2' },
+  { name: 'Vehículos', icon: '🚚', phase: 'F2' },
+];
+
+const financeItems = [
+  { name: 'Viáticos', icon: '💵', phase: 'F3' },
+  { name: 'Personal', icon: '👥', phase: 'F4' },
+];
+
+const isRouteActive = (item) => {
+  if (item.routeName === 'dashboard') {
+    return route.path === '/';
+  }
+  return route.path.startsWith(item.path);
+};
+</script>
+
+<template>
+  <aside 
+    class="h-screen sticky top-0 bg-white dark:bg-neutral-950 flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-neutral-900"
+    :class="[
+      // Comportamiento responsivo móvil (flotante)
+      'fixed z-50',
+      open 
+        ? 'translate-x-0 w-64 p-6 border-r opacity-100' 
+        : '-translate-x-full w-0 p-0 border-r-0 opacity-0 pointer-events-none',
+      // Comportamiento responsivo escritorio (empuja el contenido)
+      'md:sticky md:z-20 md:translate-x-0',
+      open
+        ? 'md:w-64 md:p-6 md:border-r md:opacity-100'
+        : 'md:w-0 md:p-0 md:border-r-0 md:opacity-0 md:pointer-events-none'
+    ]"
+  >
+    <!-- Logotipo principal & Botón Cerrar (en móvil) -->
+    <div class="min-w-[200px] flex items-center justify-between mb-10 pl-2">
+      <div class="flex items-center gap-2">
+        <span class="text-primary text-xl font-bold filter drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">▲</span>
+        <span class="font-bold tracking-wider text-sm bg-gradient-to-r from-neutral-800 to-neutral-500 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent">
+          SMU DOBLEX
+        </span>
+      </div>
+      <Button 
+        @click="$emit('close')" 
+        variant="ghost" 
+        size="icon" 
+        class="h-8 w-8 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5 md:hidden"
+        title="Cerrar Menú"
+      >
+        ✕
+      </Button>
+    </div>
+
+    <!-- Menú Principal (Fase 1) -->
+    <nav class="min-w-[200px] flex-1 flex flex-col gap-1">
+      <router-link 
+        v-for="item in menuItems" 
+        :key="item.path" 
+        :to="item.path" 
+        @click="$emit('close')"
+        class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
+        :class="isRouteActive(item) 
+          ? 'bg-primary/10 border border-primary/20 text-primary dark:text-white font-semibold shadow-sm' 
+          : 'text-neutral-600 dark:text-neutral-400 border border-transparent hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5'"
+      >
+        <span class="text-lg">{{ item.icon }}</span>
+        <span>{{ item.name }}</span>
+      </router-link>
+
+      <!-- Módulos de Logística y Recursos (Fase 2) -->
+      <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 mt-6 mb-2 tracking-wider uppercase pl-2">
+        Logística y Recursos
+      </div>
+      <div 
+        v-for="item in logicItems" 
+        :key="item.name" 
+        class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium opacity-60 cursor-not-allowed text-neutral-500 dark:text-neutral-400"
+        title="Disponible en Fase 2"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-lg">{{ item.icon }}</span>
+          <span>{{ item.name }}</span>
+        </div>
+        <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
+          {{ item.phase }}
+        </span>
+      </div>
+
+      <!-- Módulos de Finanzas y RRHH (Fases 3 y 4) -->
+      <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 mt-6 mb-2 tracking-wider uppercase pl-2">
+        Finanzas y RRHH
+      </div>
+      <div 
+        v-for="item in financeItems" 
+        :key="item.name" 
+        class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium opacity-60 cursor-not-allowed text-neutral-500 dark:text-neutral-400"
+        :title="`Disponible en Fase ${item.phase}`"
+      >
+        <div class="flex items-center gap-3">
+          <span class="text-lg">{{ item.icon }}</span>
+          <span>{{ item.name }}</span>
+        </div>
+        <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
+          {{ item.phase }}
+        </span>
+      </div>
+    </nav>
+
+    <!-- Versión / Info Base -->
+    <div class="min-w-[200px] border-t border-neutral-200 dark:border-neutral-900 pt-4 mt-auto">
+      <div class="text-[10px] text-neutral-400 dark:text-neutral-600 text-center">
+        SMU Baseline v1.0.0
+      </div>
+    </div>
+  </aside>
+</template>

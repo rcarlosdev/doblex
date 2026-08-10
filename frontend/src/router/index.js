@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
 // Importamos las vistas directamente (lazy load puede hacerse después)
 import LoginView from '../views/LoginView.vue';
+import AppLayout from '../layouts/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
 import OtsView from '../views/OtsView.vue';
 
@@ -13,15 +14,20 @@ const routes = [
     },
     {
         path: '/',
-        name: 'dashboard',
-        component: DashboardView,
-        meta: { requiresAuth: true }
-    },
-    {
-        path: '/ordenes-trabajo',
-        name: 'ots',
-        component: OtsView,
-        meta: { requiresAuth: true }
+        component: AppLayout,
+        meta: { requiresAuth: true },
+        children: [
+            {
+                path: '',
+                name: 'dashboard',
+                component: DashboardView
+            },
+            {
+                path: 'ordenes-trabajo',
+                name: 'ots',
+                component: OtsView
+            }
+        ]
     },
     // Redirección por defecto
     {
