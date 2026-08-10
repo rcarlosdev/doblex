@@ -1,41 +1,51 @@
 import axios from 'axios';
 
-// Crear instancia de Axios configurada
+// URL del backend local (Laravel corre por defecto en el puerto 8000)
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+
 const client = axios.create({
-    baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api',
-    withCredentials: true, // Requerido para que Laravel Sanctum maneje sesiones con cookies
-    headers: {
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-    }
+  baseURL: `${API_URL}/api`,
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+  withCredentials: true // Necesario para el intercambio de cookies/sesiones CORS si se requiere
 });
 
-// Interceptor para manejar errores comunes (como 401 Unauthorized o 419 CSRF Token Mismatch)
-client.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        const status = error.response ? error.response.status : null;
-
-        if (status === 401) {
-            // Manejar redirección a login o limpiar estado de sesión
-            console.warn('Sesión no autorizada o expirada.');
-            // Aquí se puede emitir un evento global o limpiar el estado de Pinia
-        }
-
-        if (status === 419) {
-            // El token CSRF expiró. Intentar obtener uno nuevo y reintentar la petición podría ser una opción
-            console.error('Token CSRF de Laravel expirado.');
-        }
-
-        return Promise.reject(error);
+// Interceptor para inyectar de forma automatica el token Sanctum en cada peticion
+client.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('smu_token');
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
 );
 
-// Función para obtener el token CSRF antes de peticiones de login/registro (Stateful Sanctum)
-export const getCsrfCookie = () => {
-    const sanctumUrl = import.meta.env.VITE_SANCTUM_CSRF_URL || 'http://localhost:8000/sanctum/csrf-cookie';
-    return axios.get(sanctumUrl, { withCredentials: true });
-};
+// Interceptor de respuesta para manejar sesiones expiradas (error 401)
+client.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Limpiar local storage y redirigir a login
+      localStorage.removeItem('smu_authenticated');
+      localStorage.removeItem('smu_token');
+      localStorage.removeItem('smu_username');
+      localStorage.removeItem('smu_role');
+      localStorage.removeItem('smu_name');
+      
+      // Solo redirigir si no estamos ya en la ruta de login
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default client;

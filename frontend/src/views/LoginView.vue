@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import client from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 
-const username = ref('admin@doblex.com');
+const username = ref('admin.doblex');
 const password = ref('admin123');
 const error = ref('');
 const loading = ref(false);
@@ -14,16 +15,30 @@ const handleLogin = async () => {
   loading.value = true;
   error.value = '';
   
-  setTimeout(() => {
-    if (username.value === 'admin@doblex.com' && password.value === 'admin123') {
+  try {
+    const response = await client.post('/login', {
+      username: username.value,
+      password: password.value
+    });
+    
+    if (response.data.status === 'success') {
       localStorage.setItem('smu_authenticated', 'true');
-      localStorage.setItem('smu_username', 'Administrador Doblex');
+      localStorage.setItem('smu_token', response.data.token);
+      localStorage.setItem('smu_username', response.data.user.username);
+      localStorage.setItem('smu_role', response.data.user.role);
+      localStorage.setItem('smu_name', response.data.user.name);
+      
       router.push({ name: 'dashboard' });
-    } else {
-      error.value = 'Credenciales de prueba inválidas. Use admin@doblex.com y admin123';
     }
+  } catch (err) {
+    if (err.response && err.response.data && err.response.data.message) {
+      error.value = err.response.data.message;
+    } else {
+      error.value = 'No se pudo establecer conexión con la API del Servidor.';
+    }
+  } finally {
     loading.value = false;
-  }, 800);
+  }
 };
 </script>
 
@@ -33,7 +48,7 @@ const handleLogin = async () => {
       <!-- Decoración de fondo brillo rojo sutil -->
       <div class="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-primary/10 blur-3xl pointer-events-none"></div>
       
-      <div class="text-center mb-8 relative z-10">
+      <div class="text-center mb-8 relative z-10 select-none">
         <div class="inline-flex items-center gap-2 bg-white/5 px-4 py-1.5 rounded-full border border-white/10 mb-4">
           <span class="text-primary text-sm filter drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">▲</span>
           <span class="font-semibold tracking-wider text-xs text-white">SMU DOBLEX</span>
@@ -44,14 +59,14 @@ const handleLogin = async () => {
 
       <form @submit.prevent="handleLogin" class="space-y-4 relative z-10">
         <div class="space-y-2">
-          <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400" for="username">Usuario o Correo</label>
+          <label class="text-xs font-semibold uppercase tracking-wider text-neutral-400" for="username">Nombre de Usuario</label>
           <Input 
-            type="email" 
+            type="text" 
             id="username" 
             v-model="username" 
             required 
-            placeholder="admin@doblex.com"
-            class="bg-neutral-950/40 border-white/10 text-white placeholder:text-neutral-500 focus-visible:ring-primary focus-visible:border-primary"
+            placeholder="admin.doblex"
+            class="bg-neutral-950/40 border-white/10 text-white placeholder:text-neutral-505 focus-visible:ring-primary focus-visible:border-primary"
           />
         </div>
 
@@ -63,11 +78,11 @@ const handleLogin = async () => {
             v-model="password" 
             required 
             placeholder="••••••••"
-            class="bg-neutral-950/40 border-white/10 text-white placeholder:text-neutral-500 focus-visible:ring-primary focus-visible:border-primary"
+            class="bg-neutral-950/40 border-white/10 text-white placeholder:text-neutral-505 focus-visible:ring-primary focus-visible:border-primary"
           />
         </div>
 
-        <div v-if="error" class="bg-red-500/10 border border-red-500/20 text-red-500 text-xs py-2 px-3 rounded-md text-center">
+        <div v-if="error" class="bg-red-500/10 border border-red-500/20 text-red-400 text-xs py-2 px-3 rounded-md text-center font-medium">
           {{ error }}
         </div>
 
@@ -77,7 +92,7 @@ const handleLogin = async () => {
         </Button>
       </form>
 
-      <div class="text-center mt-8 relative z-10">
+      <div class="text-center mt-8 relative z-10 select-none">
         <p class="text-[10px] text-neutral-500">&copy; 2026 DOBLEX. Todos los derechos reservados.</p>
       </div>
     </div>

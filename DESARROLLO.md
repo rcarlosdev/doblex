@@ -1,4 +1,4 @@
-# Guía de Uso para el Desarrollo - SMU DOBLEX
+# Guía de Uso para el Desarrollo - DOBLEX SAS
 
 Esta guía detalla la arquitectura de la aplicación, los flujos de comunicación y las pautas técnicas necesarias para extender y desarrollar nuevas funcionalidades dentro del **Sistema de Gestión de Obra Civil (SMU)**.
 
@@ -24,7 +24,8 @@ graph LR
 
 Para proteger las rutas y autenticar a los usuarios, utilizamos la autenticación basada en cookies de **Laravel Sanctum**. Este método es el más seguro para aplicaciones SPA hospedadas en el mismo dominio o subdominios relacionados.
 
-### Proceso de Autenticación:
+### Proceso de Autenticación
+
 1. **Petición CSRF:** Antes de que el frontend intente iniciar sesión, realiza una petición GET a `/sanctum/csrf-cookie` para obtener un token CSRF y guardarlo en las cookies del navegador.
 2. **Login:** El frontend envía las credenciales (`email` y `password`) mediante POST a `/api/login`.
 3. **Validación:** Laravel valida las credenciales y establece una cookie de sesión encriptada en el navegador del usuario.
@@ -35,16 +36,20 @@ Para proteger las rutas y autenticar a los usuarios, utilizamos la autenticació
 ## 3. Guía de Desarrollo Backend (Laravel)
 
 ### 3.1. Base de Datos y Modelos
+
 Al crear una nueva funcionalidad, generalmente iniciamos con la estructura de datos.
 
 1. **Crear Migración y Modelo:**
+
    ```bash
    php artisan make:model NombreModelo -m
    ```
+
    *Esto creará el archivo del modelo en `app/Models/` y el archivo de migración en `database/migrations/`.*
 
 2. **Definir la Migración:**
    En la migración, define los campos de la tabla de forma estricta. Utiliza tipos de datos adecuados de PostgreSQL.
+
    ```php
    Schema::create('ordenes_trabajo', function (Blueprint $table) {
        $table->id();
@@ -60,19 +65,24 @@ Al crear una nueva funcionalidad, generalmente iniciamos con la estructura de da
    ```
 
 3. **Ejecutar Migraciones:**
+
    ```bash
    php artisan migrate
    ```
 
 ### 3.2. Controladores y Rutas API
+
 1. **Crear Controlador API:**
+
    ```bash
    php artisan make:controller Api/OrdenTrabajoController --api
    ```
+
    *El flag `--api` omite los métodos de renderizado de vistas (`create`, `edit`).*
 
 2. **Definir Métodos del Controlador:**
    Escribe la lógica del negocio retornando respuestas JSON estandarizadas.
+
    ```php
    use App\Models\OrdenTrabajo;
    use Illuminate\Http\Request;
@@ -90,6 +100,7 @@ Al crear una nueva funcionalidad, generalmente iniciamos con la estructura de da
 
 3. **Registrar Rutas:**
    Registra los endpoints en [routes/api.php](file:///c:/Users/Admin/Documents/DEV/DOBLEX/backend/routes/api.php).
+
    ```php
    use App\Http\Controllers\Api\OrdenTrabajoController;
 
@@ -103,9 +114,11 @@ Al crear una nueva funcionalidad, generalmente iniciamos con la estructura de da
 ## 4. Guía de Desarrollo Frontend (Vue.js)
 
 ### 4.1. Consumir Endpoints de la API
+
 Utiliza el cliente Axios configurado en [client.js](file:///c:/Users/Admin/Documents/DEV/DOBLEX/frontend/src/api/client.js), el cual ya tiene configurados los headers necesarios y el parámetro `withCredentials: true`.
 
 **Ejemplo de Servicio en Vue:**
+
 ```javascript
 import client, { getCsrfCookie } from '@/api/client';
 
@@ -127,8 +140,10 @@ export const OtsService = {
 ```
 
 ### 4.2. Crear una Vista (View) o Componente
+
 1. Crea tu archivo `.vue` en `src/views/` (páginas principales de ruta) o `src/components/` (widgets y piezas reutilizables).
 2. Usa la sintaxis de **Composition API** (recomendada para Vue 3):
+
    ```html
    <template>
      <div class="glass-panel main-panel">
@@ -157,7 +172,9 @@ export const OtsService = {
    ```
 
 ### 4.3. Agregar una Ruta en el Frontend
+
 Si creas una nueva página, debes registrarla en [index.js](file:///c:/Users/Admin/Documents/DEV/DOBLEX/frontend/src/router/index.js):
+
 ```javascript
 {
     path: '/materiales',

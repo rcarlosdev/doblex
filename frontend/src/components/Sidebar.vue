@@ -54,7 +54,7 @@ const isRouteActive = (item) => {
       <div class="flex items-center gap-2">
         <span class="text-primary text-xl font-bold filter drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">▲</span>
         <span class="font-bold tracking-wider text-sm bg-gradient-to-r from-neutral-800 to-neutral-500 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent">
-          SMU DOBLEX
+          DOBLEX SAS
         </span>
       </div>
       <Button 
@@ -126,7 +126,7 @@ const isRouteActive = (item) => {
     <!-- Versión / Info Base -->
     <div class="min-w-[200px] border-t border-neutral-200 dark:border-neutral-900 pt-4 mt-auto">
       <div class="text-[10px] text-neutral-400 dark:text-neutral-600 text-center">
-        SMU Baseline v1.0.0
+        Doblex v0.0.1
       </div>
     </div>
   </aside>
