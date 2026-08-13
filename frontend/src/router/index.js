@@ -32,6 +32,16 @@ const routes = [
                 path: 'empleados',
                 name: 'empleados',
                 component: EmpleadosView
+            },
+            {
+                path: 'mobile/dashboard',
+                name: 'mobile-dashboard',
+                component: () => import('../views/mobile/TechDashboardView.vue')
+            },
+            {
+                path: 'mobile/ot/:id',
+                name: 'mobile-ot-detail',
+                component: () => import('../views/mobile/TechOtDetailView.vue')
             }
         ]
     },

@@ -1,6 +1,17 @@
 <script setup>
 import { useRoute } from 'vue-router';
 import { Button } from '@/components/ui/button';
+import { 
+  IconLayoutDashboard, 
+  IconClipboardList, 
+  IconUsers, 
+  IconPackages, 
+  IconTruck, 
+  IconCash, 
+  IconShieldCheck, 
+  IconScale,
+  IconX
+} from '@tabler/icons-vue';
 
 const props = defineProps({
   open: { type: Boolean, default: false }
@@ -11,20 +22,20 @@ defineEmits(['close']);
 const route = useRoute();
 
 const menuItems = [
-  { name: 'Dashboard', path: '/', icon: '📊', routeName: 'dashboard' },
-  { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: '📋', routeName: 'ots' },
-  { name: 'Gestión de Empleados', path: '/empleados', icon: '👥', routeName: 'empleados' },
+  { name: 'Dashboard', path: '/', icon: IconLayoutDashboard, routeName: 'dashboard' },
+  { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: IconClipboardList, routeName: 'ots' },
+  { name: 'Gestión de Empleados', path: '/empleados', icon: IconUsers, routeName: 'empleados' },
 ];
 
 const logicItems = [
-  { name: 'Inventarios', icon: '📦', phase: 'F2' },
-  { name: 'Vehículos', icon: '🚚', phase: 'F2' },
+  { name: 'Inventarios', icon: IconPackages, phase: 'F2' },
+  { name: 'Vehículos', icon: IconTruck, phase: 'F2' },
 ];
 
 const financeItems = [
-  { name: 'Viáticos', icon: '💵', phase: 'F3' },
-  { name: 'SST & Dotación', icon: '🦺', phase: 'F4' },
-  { name: 'Jurídica & Pólizas', icon: '⚖️', phase: 'F4' },
+  { name: 'Viáticos', icon: IconCash, phase: 'F3' },
+  { name: 'SST & Dotación', icon: IconShieldCheck, phase: 'F4' },
+  { name: 'Jurídica & Pólizas', icon: IconScale, phase: 'F4' },
 ];
 
 const isRouteActive = (item) => {
@@ -37,7 +48,7 @@ const isRouteActive = (item) => {
 
 <template>
   <aside 
-    class="h-screen sticky top-0 bg-white dark:bg-neutral-950 flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-neutral-900"
+    class="h-screen sticky top-0 bg-white dark:bg-[#181d2c] flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-neutral-800"
     :class="[
       // Comportamiento responsivo móvil (flotante)
       'fixed z-50',
@@ -66,7 +77,7 @@ const isRouteActive = (item) => {
         class="h-8 w-8 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5 md:hidden"
         title="Cerrar Menú"
       >
-        ✕
+        <IconX class="w-4 h-4" />
       </Button>
     </div>
 
@@ -82,7 +93,7 @@ const isRouteActive = (item) => {
           ? 'bg-primary/10 border border-primary/20 text-primary dark:text-white font-semibold shadow-sm' 
           : 'text-neutral-600 dark:text-neutral-400 border border-transparent hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5'"
       >
-        <span class="text-lg">{{ item.icon }}</span>
+        <component :is="item.icon" class="w-5 h-5 stroke-[1.75]" />
         <span>{{ item.name }}</span>
       </router-link>
 
@@ -97,7 +108,7 @@ const isRouteActive = (item) => {
         title="Disponible en Fase 2"
       >
         <div class="flex items-center gap-3">
-          <span class="text-lg">{{ item.icon }}</span>
+          <component :is="item.icon" class="w-5 h-5 stroke-[1.5]" />
           <span>{{ item.name }}</span>
         </div>
         <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
@@ -116,7 +127,7 @@ const isRouteActive = (item) => {
         :title="`Disponible en Fase ${item.phase}`"
       >
         <div class="flex items-center gap-3">
-          <span class="text-lg">{{ item.icon }}</span>
+          <component :is="item.icon" class="w-5 h-5 stroke-[1.5]" />
           <span>{{ item.name }}</span>
         </div>
         <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">

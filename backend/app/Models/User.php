@@ -30,4 +30,12 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Relacion con el Empleado asociado.
+     */
+    public function empleado()
+    {
+        return $this->hasOne(Empleado::class);
+    }
 }

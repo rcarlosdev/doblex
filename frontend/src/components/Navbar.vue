@@ -2,6 +2,7 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { Button } from '@/components/ui/button';
+import { IconMenu2, IconSun, IconMoon, IconDeviceMobile, IconLogout } from '@tabler/icons-vue';
 
 defineEmits(['toggle-sidebar']);
 
@@ -70,7 +71,7 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
-  <header class="h-16 border-b border-neutral-200 dark:border-neutral-900 bg-white/95 dark:bg-neutral-950/95 backdrop-blur-md px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 select-none transition-colors duration-350 shadow-sm">
+  <header class="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-[#181d2c]/95 backdrop-blur-md px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 select-none transition-colors duration-350 shadow-sm">
     <!-- Lado Izquierdo: Botón Menú + Migas de pan -->
     <div class="flex items-center gap-3">
       <!-- Botón hamburguesa -->
@@ -81,9 +82,7 @@ const breadcrumbs = computed(() => {
         class="h-9 w-9 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg"
         title="Alternar Menú"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-        </svg>
+        <IconMenu2 class="w-5 h-5 stroke-[1.75]" />
       </Button>
 
       <!-- Migas de Pan -->
@@ -111,15 +110,19 @@ const breadcrumbs = computed(() => {
         class="h-9 w-9 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-all"
         :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
       >
-        <!-- Icono Sol (si está en oscuro) -->
-        <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-amber-400">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21M5.25 5.25l1.5 1.5m10.5 10.5l1.5 1.5M3 12h2.25m13.5 0H21M5.25 18.75l1.5-1.5m10.5-10.5l1.5-1.5M12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z" />
-        </svg>
-        <!-- Icono Luna (si está en claro) -->
-        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-700">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-        </svg>
+        <IconSun v-if="isDark" class="w-5 h-5 text-amber-400 stroke-[1.75]" />
+        <IconMoon v-else class="w-5 h-5 text-slate-700 stroke-[1.75]" />
       </Button>
+
+      <!-- Acceso a Vista Móvil Técnico -->
+      <router-link
+        to="/mobile/dashboard"
+        class="flex items-center gap-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold px-3 py-1.5 rounded-full transition-all"
+        title="Vista Mobile para Técnicos en Campo"
+      >
+        <IconDeviceMobile class="w-4 h-4 stroke-[2]" />
+        <span class="hidden md:inline">Modo Técnico</span>
+      </router-link>
 
       <!-- Indicador API -->
       <div class="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
@@ -149,7 +152,7 @@ const breadcrumbs = computed(() => {
           class="h-8 w-8 text-neutral-500 dark:text-neutral-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-lg transition-colors"
           title="Cerrar Sesión"
         >
-          🚪
+          <IconLogout class="w-4 h-4 stroke-[1.75]" />
         </Button>
       </div>
     </div>

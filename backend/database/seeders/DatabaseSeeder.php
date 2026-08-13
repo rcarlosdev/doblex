@@ -137,9 +137,13 @@ class DatabaseSeeder extends Seeder
             'created_by' => $admin->id,
             'user_id' => $luis->id, // Asignado a Luis Martínez
             'cuadrilla_id' => $cuadrillaVias->id,
+            'prioridad' => 'P1',
+            'tipo_ubicacion' => 'urbana',
+            'tipo_mantenimiento' => 'correctivo',
             'progreso' => 100,
-            'estado' => 'finalizado',
-            'fecha_inicio' => '2026-08-01',
+            'estado' => 'solucionada',
+            'fecha_inicio' => '2026-08-01 08:00:00',
+            'fecha_limite_sla' => '2026-08-01 12:30:00',
         ]);
 
         Ot::create([
@@ -149,9 +153,13 @@ class DatabaseSeeder extends Seeder
             'created_by' => $adminis->id,
             'user_id' => $carlos->id,
             'cuadrilla_id' => $cuadrillaEstructuras->id,
+            'prioridad' => 'P2',
+            'tipo_ubicacion' => 'rural',
+            'tipo_mantenimiento' => 'preventivo',
             'progreso' => 45,
             'estado' => 'en_progreso',
-            'fecha_inicio' => '2026-08-05',
+            'fecha_inicio' => '2026-08-05 09:00:00',
+            'fecha_limite_sla' => '2026-08-13 22:00:00',
         ]);
 
         Ot::create([
@@ -161,9 +169,13 @@ class DatabaseSeeder extends Seeder
             'created_by' => $adminis->id,
             'user_id' => $carlos->id,
             'cuadrilla_id' => $cuadrillaEstructuras->id,
+            'prioridad' => 'P1',
+            'tipo_ubicacion' => 'rural',
+            'tipo_mantenimiento' => 'emergencia',
             'progreso' => 0,
-            'estado' => 'pendiente',
-            'fecha_inicio' => '2026-08-15',
+            'estado' => 'asignada',
+            'fecha_inicio' => '2026-08-13 10:00:00',
+            'fecha_limite_sla' => '2026-08-13 21:42:00',
         ]);
     }
 }

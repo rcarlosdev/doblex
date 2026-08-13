@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-neutral-950 text-neutral-100 font-sans overflow-x-hidden">
+  <div class="flex min-h-screen bg-slate-100 dark:bg-[#141824] text-neutral-900 dark:text-neutral-100 font-sans overflow-x-hidden transition-colors duration-300">
     <!-- Overlay oscuro de fondo en móviles cuando el Sidebar está abierto -->
     <div 
       v-if="isSidebarOpen" 
@@ -32,7 +32,7 @@ onMounted(() => {
       <Navbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" />
 
       <!-- Cuerpo principal de contenido -->
-      <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-neutral-50 dark:bg-[#08080c] bg-radial-at-c-layout transition-colors duration-350">
+      <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-neutral-50 dark:bg-[#141824] bg-radial-at-c-layout transition-colors duration-350">
         <router-view v-slot="{ Component }">
           <transition name="layout-fade" mode="out-in">
             <component :is="Component" />

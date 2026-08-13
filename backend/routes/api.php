@@ -25,7 +25,13 @@ Route::middleware('auth:sanctum')->group(function () {
     // Órdenes de Trabajo (OT)
     Route::get('/ots', [OtController::class, 'index']);
     Route::post('/ots', [OtController::class, 'store']);
+    Route::get('/ots/{id}', [OtController::class, 'show']);
+    Route::put('/ots/{id}', [OtController::class, 'update']);
+    Route::put('/ots/{id}/estado', [OtController::class, 'updateEstado']);
+    Route::post('/ots/{id}/evidencia', [OtController::class, 'uploadEvidencia']);
+    Route::post('/ots/{id}/cerrar', [OtController::class, 'cerrarOt']);
     Route::get('/operadores', [OtController::class, 'getOperativos']); // Listado de operadores para asignar
+
 
     // Módulo 7: Gestión Base de Empleados y Cuadrillas
     Route::get('/empleados', [EmpleadoController::class, 'index']);
