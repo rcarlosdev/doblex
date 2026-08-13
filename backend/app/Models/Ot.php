@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['codigo', 'descripcion', 'ubicacion', 'created_by', 'user_id', 'progreso', 'estado', 'fecha_inicio'])]
+#[Fillable(['codigo', 'descripcion', 'ubicacion', 'created_by', 'user_id', 'cuadrilla_id', 'progreso', 'estado', 'fecha_inicio'])]
 class Ot extends Model
 {
     /**
@@ -24,6 +24,22 @@ class Ot extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    /**
+     * Relación con la cuadrilla asignada.
+     */
+    public function cuadrilla(): BelongsTo
+    {
+        return $this->belongsTo(Cuadrilla::class);
+    }
+
+    /**
+     * Relación con las sub-actividades de la OT.
+     */
+    public function actividades(): HasMany
+    {
+        return $this->hasMany(ActividadOt::class);
     }
 
     /**

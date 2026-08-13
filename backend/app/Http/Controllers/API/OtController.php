@@ -18,16 +18,16 @@ class OtController extends Controller
 
         if ($user->role === 'admin') {
             // Admin ve todo
-            $ots = Ot::with(['assignedUser', 'creator'])->orderBy('codigo', 'asc')->get();
+            $ots = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades'])->orderBy('codigo', 'asc')->get();
         } elseif ($user->role === 'administrativo') {
             // Administrativo ve las creadas por él
-            $ots = Ot::with(['assignedUser', 'creator'])
+            $ots = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades'])
                 ->where('created_by', $user->id)
                 ->orderBy('codigo', 'asc')
                 ->get();
         } elseif ($user->role === 'operativo') {
             // Operativo ve las asignadas a él
-            $ots = Ot::with(['assignedUser', 'creator'])
+            $ots = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades'])
                 ->where('user_id', $user->id)
                 ->orderBy('codigo', 'asc')
                 ->get();
@@ -63,6 +63,7 @@ class OtController extends Controller
             'descripcion' => 'required|string',
             'ubicacion' => 'required|string',
             'user_id' => 'required|exists:users,id', // Operativo asignado
+            'cuadrilla_id' => 'nullable|exists:cuadrillas,id',
             'fecha_inicio' => 'required|date',
         ]);
 
@@ -81,6 +82,7 @@ class OtController extends Controller
             'ubicacion' => $request->ubicacion,
             'created_by' => $user->id,
             'user_id' => $request->user_id,
+            'cuadrilla_id' => $request->cuadrilla_id,
             'fecha_inicio' => $request->fecha_inicio,
             'progreso' => 0,
             'estado' => 'pendiente',
@@ -89,8 +91,8 @@ class OtController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Orden de Trabajo creada con éxito.',
-            'data' => $ot->load(['assignedUser', 'creator'])
-        ], 211); // Usamos 211 o 201. 201 es el estandar HTTP.
+            'data' => $ot->load(['assignedUser', 'creator', 'cuadrilla', 'actividades'])
+        ], 201);
     }
 
     /**

@@ -13,6 +13,7 @@ const route = useRoute();
 const menuItems = [
   { name: 'Dashboard', path: '/', icon: '📊', routeName: 'dashboard' },
   { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: '📋', routeName: 'ots' },
+  { name: 'Gestión de Empleados', path: '/empleados', icon: '👥', routeName: 'empleados' },
 ];
 
 const logicItems = [
@@ -22,7 +23,8 @@ const logicItems = [
 
 const financeItems = [
   { name: 'Viáticos', icon: '💵', phase: 'F3' },
-  { name: 'Personal', icon: '👥', phase: 'F4' },
+  { name: 'SST & Dotación', icon: '🦺', phase: 'F4' },
+  { name: 'Jurídica & Pólizas', icon: '⚖️', phase: 'F4' },
 ];
 
 const isRouteActive = (item) => {

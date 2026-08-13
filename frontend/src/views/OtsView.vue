@@ -24,6 +24,7 @@ const statusFilter = ref('todos');
 
 const ots = ref([]);
 const operadores = ref([]);
+const cuadrillas = ref([]);
 const userRole = ref('operativo');
 const currentUsername = ref('');
 const loading = ref(false);
@@ -35,6 +36,7 @@ const newOt = ref({
   descripcion: '',
   ubicacion: '',
   user_id: '', // Operador asignado
+  cuadrilla_id: '',
   fecha_inicio: new Date().toISOString().split('T')[0]
 });
 
@@ -73,11 +75,23 @@ const loadOperadores = async () => {
   }
 };
 
+const loadCuadrillas = async () => {
+  try {
+    const response = await client.get('/cuadrillas');
+    if (response.data.status === 'success') {
+      cuadrillas.value = response.data.data;
+    }
+  } catch (err) {
+    console.error('Error al cargar cuadrillas:', err);
+  }
+};
+
 onMounted(() => {
   userRole.value = localStorage.getItem('smu_role') || 'operativo';
   currentUsername.value = localStorage.getItem('smu_username') || '';
   
   loadOts();
+  loadCuadrillas();
   
   if (userRole.value === 'admin' || userRole.value === 'administrativo') {
     loadOperadores();
@@ -92,7 +106,8 @@ const filteredOts = computed(() => {
     const matchesSearch = ot.codigo.toLowerCase().includes(searchLower) || 
                          ot.descripcion.toLowerCase().includes(searchLower) ||
                          ot.ubicacion.toLowerCase().includes(searchLower) ||
-                         (ot.assigned_user && ot.assigned_user.name.toLowerCase().includes(searchLower));
+                         (ot.assigned_user && ot.assigned_user.name.toLowerCase().includes(searchLower)) ||
+                         (ot.cuadrilla && ot.cuadrilla.nombre.toLowerCase().includes(searchLower));
     
     const matchesStatus = statusFilter.value === 'todos' || ot.estado === statusFilter.value;
 
@@ -103,7 +118,10 @@ const filteredOts = computed(() => {
 const createOt = async () => {
   errorMsg.value = '';
   try {
-    const response = await client.post('/ots', newOt.value);
+    const payload = { ...newOt.value };
+    if (!payload.cuadrilla_id) payload.cuadrilla_id = null;
+
+    const response = await client.post('/ots', payload);
     if (response.data.status === 'success') {
       // Recargar OTs y cerrar modal
       await loadOts();
@@ -115,6 +133,7 @@ const createOt = async () => {
         descripcion: '',
         ubicacion: '',
         user_id: '',
+        cuadrilla_id: '',
         fecha_inicio: new Date().toISOString().split('T')[0]
       };
     }
@@ -259,7 +278,8 @@ const getStatusLabel = (status) => {
                 </TableCell>
                 <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap">{{ ot.ubicacion }}</TableCell>
                 <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap font-medium">
-                  {{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}
+                  <div>{{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}</div>
+                  <span v-if="ot.cuadrilla" class="block text-[10px] text-neutral-400 font-normal">🏗️ {{ ot.cuadrilla.nombre }}</span>
                 </TableCell>
                 <TableCell class="py-4">
                   <div class="flex items-center gap-3">
@@ -360,9 +380,22 @@ const getStatusLabel = (status) => {
             </select>
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha de Inicio</label>
-            <Input type="date" v-model="newOt.fecha_inicio" required class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Cuadrilla Asignada (Opcional)</label>
+            <select 
+              v-model="newOt.cuadrilla_id" 
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+            >
+              <option value="">Sin cuadrilla específica</option>
+              <option v-for="c in cuadrillas" :key="c.id" :value="c.id">
+                🏗️ {{ c.nombre }}
+              </option>
+            </select>
           </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha de Inicio</label>
+          <Input type="date" v-model="newOt.fecha_inicio" required class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
 
         <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-900 pt-5 mt-6">

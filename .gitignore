@@ -36,4 +36,9 @@ yarn-error.log*
 # Documentación / Archivos generados
 
 docs/*.xlsx
+docs/*.xlsb
+docs/*.xls*
 docs/*.pdf
+docs/*.docx
+docs/*.doc*
+

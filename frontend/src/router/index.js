@@ -4,6 +4,7 @@ import LoginView from '../views/LoginView.vue';
 import AppLayout from '../layouts/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
 import OtsView from '../views/OtsView.vue';
+import EmpleadosView from '../views/EmpleadosView.vue';
 
 const routes = [
     {
@@ -26,6 +27,11 @@ const routes = [
                 path: 'ordenes-trabajo',
                 name: 'ots',
                 component: OtsView
+            },
+            {
+                path: 'empleados',
+                name: 'empleados',
+                component: EmpleadosView
             }
         ]
     },
