@@ -292,6 +292,36 @@ class OtController extends Controller
     }
 
     /**
+     * Eliminar evidencia fotográfica.
+     */
+    public function deleteEvidencia(Request $request, $id)
+    {
+        $evidencia = EvidenciaFotografica::find($id);
+
+        if (!$evidencia) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Evidencia fotográfica no encontrada.'
+            ], 404);
+        }
+
+        // Si la OT ya fue solucionada/finalizada no permite borrado
+        if (in_array($evidencia->ot->estado, ['solucionada', 'finalizada'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pueden eliminar evidencias de una Orden de Trabajo solucionada o finalizada.'
+            ], 422);
+        }
+
+        $evidencia->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Evidencia fotográfica eliminada con éxito.'
+        ]);
+    }
+
+    /**
      * Cerrar la OT registrando insumos/repuestos y causa raíz de la falla.
      */
     public function cerrarOt(Request $request, $id)

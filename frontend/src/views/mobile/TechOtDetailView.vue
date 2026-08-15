@@ -199,22 +199,28 @@
         <PhotoUploader
           tipo="antes"
           :codigo-ot="ot.codigo"
-          :evidencias-count="countEvidencias('antes')"
+          :evidencias-list="getEvidenciasPorTipo('antes')"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
           @photo-uploaded="pedirConfirmacionFoto"
+          @delete-photo="pedirConfirmacionBorrarFoto"
         />
 
         <PhotoUploader
           tipo="durante"
           :codigo-ot="ot.codigo"
-          :evidencias-count="countEvidencias('durante')"
+          :evidencias-list="getEvidenciasPorTipo('durante')"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
           @photo-uploaded="pedirConfirmacionFoto"
+          @delete-photo="pedirConfirmacionBorrarFoto"
         />
 
         <PhotoUploader
           tipo="despues"
           :codigo-ot="ot.codigo"
-          :evidencias-count="countEvidencias('despues')"
+          :evidencias-list="getEvidenciasPorTipo('despues')"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
           @photo-uploaded="pedirConfirmacionFoto"
+          @delete-photo="pedirConfirmacionBorrarFoto"
         />
       </div>
 
@@ -388,8 +394,8 @@ const tabs = [
   { id: 'flujo', label: 'Flujo & Acción', shortLabel: 'Flujo', icon: IconSteeringWheel },
   { id: 'avances', label: 'Minutograma PDT', shortLabel: 'Bitácora', icon: IconActivity },
   { id: 'evidencias', label: 'Evidencias', shortLabel: 'Fotos', icon: IconCamera },
-  { id: 'repuestos', label: 'Repuestos LPU', shortLabel: 'Insumos', icon: IconBox },
   { id: 'checklist', label: 'Checklist', shortLabel: 'Checklist', icon: IconListCheck },
+  { id: 'repuestos', label: 'Repuestos LPU', shortLabel: 'Insumos', icon: IconBox },
 ];
 
 const nuevoAvance = ref({
@@ -417,6 +423,38 @@ onMounted(fetchOtDetail);
 const countEvidencias = (tipo) => {
   if (!ot.value?.evidencias) return 0;
   return ot.value.evidencias.filter(e => e.tipo === tipo).length;
+};
+
+const getEvidenciasPorTipo = (tipo) => {
+  if (!ot.value?.evidencias) return [];
+  return ot.value.evidencias.filter(e => e.tipo === tipo);
+};
+
+const pedirConfirmacionBorrarFoto = (evidenciaId) => {
+  openConfirm({
+    title: 'Eliminar Evidencia Fotográfica',
+    subtitle: 'Acción de Borrado',
+    message: '¿Está seguro de eliminar esta fotografía de evidencia? Deberá subir una nueva foto si es requerida para el cierre de la OT.',
+    confirmText: 'Sí, Eliminar Foto',
+    type: 'danger',
+    action: () => executeDeletePhoto(evidenciaId)
+  });
+};
+
+const executeDeletePhoto = async (evidenciaId) => {
+  updating.value = true;
+  try {
+    const res = await client.delete(`/evidencias/${evidenciaId}`);
+    if (res.data.status === 'success') {
+      showNotification('success', 'Foto Eliminada', 'Se eliminó la evidencia fotográfica con éxito.');
+      fetchOtDetail();
+    }
+  } catch (err) {
+    const msg = err.response?.data?.message || 'No se pudo eliminar la evidencia fotográfica.';
+    showNotification('error', 'Error al Eliminar Foto', msg);
+  } finally {
+    updating.value = false;
+  }
 };
 
 const handleChecklistUpdated = (data) => {
