@@ -39,28 +39,28 @@
   }
 
   .dark {
-    --background: 222 22% 11%;    /* #141824 - Tono elegante de gris pizarra oscuro no tan negro */
+    --background: 240 10% 4%;     /* #0a0b10 - Negro Onyx elegante del Login */
     --foreground: 210 20% 98%;
 
-    --muted: 220 18% 18%;
-    --muted-foreground: 217.9 10.6% 64.9%;
+    --muted: 240 5% 12%;
+    --muted-foreground: 240 4% 64%;
 
-    --popover: 222 22% 14%;       /* #1b2030 - Tarjetas y Popovers */
+    --popover: 240 6% 9%;          /* #121215 - Tarjetas del Login */
     --popover-foreground: 210 20% 98%;
 
-    --card: 222 22% 14%;          /* #1b2030 */
+    --card: 240 6% 9%;             /* #121215 - Tarjetas del Login */
     --card-foreground: 210 20% 98%;
 
-    --border: 220 16% 22%;        /* #2b3245 */
-    --input: 220 16% 22%;
+    --border: 240 4% 16%;          /* #27272a / border-white/10 */
+    --input: 240 4% 16%;
 
     --primary: 346.8 77.2% 49.8%;
     --primary-foreground: 355.7 100% 97.3%;
 
-    --secondary: 220 18% 18%;
+    --secondary: 240 5% 12%;
     --secondary-foreground: 210 20% 98%;
 
-    --accent: 220 18% 18%;
+    --accent: 240 5% 12%;
     --accent-foreground: 210 20% 98%;
 
     --destructive: 0 62.8% 30.6%;

@@ -27,9 +27,22 @@ Para proteger las rutas y autenticar a los usuarios, utilizamos la autenticació
 ### Proceso de Autenticación
 
 1. **Petición CSRF:** Antes de que el frontend intente iniciar sesión, realiza una petición GET a `/sanctum/csrf-cookie` para obtener un token CSRF y guardarlo en las cookies del navegador.
-2. **Login:** El frontend envía las credenciales (`email` y `password`) mediante POST a `/api/login`.
+2. **Login:** El frontend envía las credenciales (`email` o `username` y `password`) mediante POST a `/api/login`.
 3. **Validación:** Laravel valida las credenciales y establece una cookie de sesión encriptada en el navegador del usuario.
 4. **Peticiones Autenticadas:** Cada petición posterior enviará la cookie automáticamente gracias al parámetro `withCredentials: true` configurado en Axios.
+
+### Credenciales de Perfiles de Desarrollo
+
+Para probar los flujos y niveles de acceso de cada rol en el entorno local (generados en el `DatabaseSeeder`), utiliza las siguientes credenciales:
+
+| Perfil / Rol | Nombre / Empleado | Username | Email | Contraseña | Cargo / Descripción |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Administrador** (`admin`) | Admin General | `admin.doblex` | `admin@doblex.com` | `admin123` | Director General de Obra (Gestión total del sistema) |
+| **Administrativo** (`administrativo`) | Auxiliar Técnico | `adminis.doblex` | `adminis@doblex.com` | `adminis123` | Asistente Administrativo de Campo (Gestión de OTs) |
+| **Operativo** (`operativo`) | Ing. Carlos Pérez | `carlos.doblex` | `carlos@doblex.com` | `operador123` | Ingeniero Residente de Estructuras (Líder Cuadrilla Estructuras) |
+| **Operativo** (`operativo`) | Ing. Luis Martínez | `luis.doblex` | `luis@doblex.com` | `operador123` | Ingeniero de Vías y Excavaciones (Líder Cuadrilla Vías) |
+
+> **Nota:** Puedes iniciar sesión ingresando el **Email** o el **Username** en el campo correspondiente del formulario de inicio de sesión.
 
 ---
 

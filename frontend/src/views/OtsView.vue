@@ -288,7 +288,7 @@ const getStatusLabel = (status) => {
 <template>
   <div class="flex flex-col gap-6 select-none">
     <!-- Encabezado de la Sección -->
-    <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center bg-white dark:bg-[#1b2030] border border-neutral-200 dark:border-neutral-800 p-4 md:p-6 rounded-xl relative overflow-hidden shadow-sm transition-colors duration-300">
+    <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 p-4 md:p-6 rounded-xl relative overflow-hidden shadow-sm transition-colors duration-300">
       <div>
         <h1 class="text-xl font-bold tracking-tight text-neutral-900 dark:text-white mb-0.5">Listado de Órdenes (OT)</h1>
         <p class="text-xs text-neutral-500">
@@ -307,7 +307,7 @@ const getStatusLabel = (status) => {
     </div>
 
     <!-- Panel de Registro de Órdenes -->
-    <Card class="bg-white dark:bg-[#1b2030] border-neutral-200 dark:border-neutral-800 p-4 md:p-6 flex flex-col gap-4 shadow-sm transition-colors duration-300">
+    <Card class="bg-white dark:bg-[#121215] border-neutral-200 dark:border-white/10 p-4 md:p-6 flex flex-col gap-4 shadow-sm transition-colors duration-300">
       <div class="flex flex-col lg:flex-row justify-between lg:items-center gap-4 border-b border-neutral-100 dark:border-neutral-800 pb-5">
         <div>
           <h2 class="text-base font-bold text-neutral-900 dark:text-white mb-0.5">Registro de Órdenes</h2>
@@ -320,11 +320,11 @@ const getStatusLabel = (status) => {
             type="text" 
             placeholder="Buscar por código, descripción u operador..." 
             v-model="searchQuery" 
-            class="w-full lg:w-72 bg-white dark:bg-[#141824] border-neutral-200 dark:border-neutral-800 text-neutral-800 dark:text-white text-xs placeholder:text-neutral-450 focus-visible:ring-primary focus-visible:border-primary"
+            class="w-full lg:w-72 bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-800 dark:text-white text-xs placeholder:text-neutral-450 focus-visible:ring-primary focus-visible:border-primary"
           />
           <select 
             v-model="statusFilter" 
-            class="flex h-9 w-full sm:w-40 rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus:border-primary focus:ring-primary cursor-pointer"
+            class="flex h-9 w-full sm:w-40 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus:border-primary focus:ring-primary cursor-pointer"
           >
             <option value="todos">Todos los Estados</option>
             <option value="pendiente">Pendientes</option>
@@ -423,14 +423,13 @@ const getStatusLabel = (status) => {
                       ✏️
                     </Button>
                     <Button 
-                      v-if="userRole === 'operativo' && !['finalizado', 'solucionada'].includes(ot.estado)"
-                      @click="openReportAvance(ot)"
-                      variant="outline" 
+                      @click="$router.push(`/mobile/ot/${ot.id}`)"
+                      variant="default" 
                       size="sm" 
-                      class="h-8 border-primary/25 hover:bg-primary/10 hover:border-primary/50 text-primary font-semibold text-xs px-2.5 flex items-center gap-1.5" 
-                      title="Reportar Avance Diario"
+                      class="h-8 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3 flex items-center gap-1.5 shadow-md active:scale-95 transition-all" 
+                      title="Realizar Gestión Completa en Campo"
                     >
-                      <span>🛠️</span> Avance
+                      <span>🛠️</span> Gestión de Campo
                     </Button>
                   </div>
                 </TableCell>
@@ -613,18 +612,18 @@ const getStatusLabel = (status) => {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
-            <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#141824] border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+            <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
-            <Input type="text" v-model="editingOt.sitio" placeholder="Ej. ANT.TITIRIBI LA ALBANIA" class="bg-white dark:bg-[#141824] border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+            <Input type="text" v-model="editingOt.sitio" placeholder="Ej. ANT.TITIRIBI LA ALBANIA" class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
         </div>
 
         <!-- Fila 2: Descripción de la Obra -->
         <div class="space-y-1.5">
           <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
-          <Input type="text" v-model="editingOt.descripcion" required class="bg-white dark:bg-[#141824] border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <Input type="text" v-model="editingOt.descripcion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
 
         <!-- Fila 3: Tipo de Mantenimiento, Prioridad & Ubicación -->
@@ -634,7 +633,7 @@ const getStatusLabel = (status) => {
             <select 
               v-model="editingOt.tipo_mantenimiento" 
               required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="preventivo">Preventivo (Rutinario)</option>
               <option value="correctivo">Correctivo (Planificado)</option>
@@ -647,7 +646,7 @@ const getStatusLabel = (status) => {
             <select 
               v-model="editingOt.prioridad" 
               required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="P1">P1 - Alta (Falla Crítica)</option>
               <option value="P2">P2 - Media (Convencional)</option>
@@ -660,7 +659,7 @@ const getStatusLabel = (status) => {
             <select 
               v-model="editingOt.tipo_ubicacion" 
               required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="urbana">Urbana</option>
               <option value="rural">Rural / Difícil Acceso</option>
@@ -674,7 +673,7 @@ const getStatusLabel = (status) => {
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Subsistema Intervenido</label>
             <select 
               v-model="editingOt.subsistema" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="Movil Aires Acondicionados">Móvil Aires Acondicionados</option>
               <option value="Movil Plantas Eléctricas">Móvil Plantas Eléctricas</option>
@@ -690,7 +689,7 @@ const getStatusLabel = (status) => {
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo de Gasto</label>
             <select 
               v-model="editingOt.tipo_gasto" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="OPEX">OPEX (Operativo)</option>
               <option value="CAPEX">CAPEX (Inversión)</option>
@@ -702,7 +701,7 @@ const getStatusLabel = (status) => {
             <select 
               v-model="editingOt.estado" 
               required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="asignada">Asignada / Pendiente</option>
               <option value="en_camino">En Camino</option>
@@ -718,7 +717,7 @@ const getStatusLabel = (status) => {
         <!-- Fila 5: Ubicación Geográfica, Operador & Cuadrilla -->
         <div class="space-y-1.5">
           <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Ubicación / Municipio *</label>
-          <Input type="text" v-model="editingOt.ubicacion" required class="bg-white dark:bg-[#141824] border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <Input type="text" v-model="editingOt.ubicacion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -728,7 +727,7 @@ const getStatusLabel = (status) => {
               v-model="editingOt.user_id" 
               @change="onOperatorChange(editingOt.user_id, 'edit')"
               required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
               <option value="" disabled>Selecciona el encargado</option>
               <option v-for="op in operadores" :key="op.id" :value="op.id">

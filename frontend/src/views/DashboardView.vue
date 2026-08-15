@@ -108,20 +108,50 @@ const kpis = computed(() => {
       </Card>
     </section>
 
+    <!-- Banner de Acción Rápida para Perfil Operativo -->
+    <div v-if="userRole === 'operativo'" class="bg-gradient-to-r from-blue-900/40 via-indigo-900/30 to-slate-900 border border-blue-500/30 rounded-2xl p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-xl">
+      <div class="space-y-1">
+        <div class="flex items-center gap-2">
+          <span class="bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-wider">Perfil Operativo</span>
+          <h2 class="text-sm font-extrabold text-white">Centro de Gestión e Intervención en Campo</h2>
+        </div>
+        <p class="text-xs text-slate-300">
+          Registra la llegada a sitio, minutar avances PDT, insumos LPU consumidos y evidencias fotográficas obligatorias.
+        </p>
+      </div>
+      <router-link
+        to="/mobile/dashboard"
+        class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg active:scale-95 transition-all whitespace-nowrap flex items-center gap-2"
+      >
+        <span>📱 Abrir Gestión de Campo</span>
+        <span>→</span>
+      </router-link>
+    </div>
+
     <!-- Cuerpo del Dashboard: Layout de Dos Columnas -->
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       <!-- Panel de Avance de Obras Principales (Datos de Negocio reales de la API) -->
       <Card class="lg:col-span-2 bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900 p-6 flex flex-col gap-6">
-        <div>
-          <h2 class="text-lg font-bold text-neutral-900 dark:text-white mb-1">Frentes de Obra en Ejecución</h2>
-          <p class="text-xs text-neutral-500">Avance de las Órdenes de Trabajo registradas en tiempo real</p>
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg font-bold text-neutral-900 dark:text-white mb-1">Frentes de Obra en Ejecución</h2>
+            <p class="text-xs text-neutral-500">Avance de las Órdenes de Trabajo registradas en tiempo real</p>
+          </div>
+          <router-link to="/mobile/dashboard" class="text-xs font-bold text-blue-500 hover:underline">
+            Ver todas en Campo →
+          </router-link>
         </div>
         
         <div class="space-y-5">
-          <div v-for="ot in ots" :key="ot.id" class="space-y-2">
+          <div
+            v-for="ot in ots"
+            :key="ot.id"
+            @click="$router.push(`/mobile/ot/${ot.id}`)"
+            class="space-y-2 p-3 rounded-xl hover:bg-slate-100 dark:hover:bg-white/5 cursor-pointer transition-all border border-transparent hover:border-blue-500/20"
+          >
             <div class="flex justify-between text-xs text-neutral-700 dark:text-neutral-300">
-              <span><b>{{ ot.codigo }}</b>: {{ ot.descripcion }} ({{ ot.ubicacion }})</span>
-              <span class="font-semibold text-primary">{{ ot.progreso }}%</span>
+              <span><b class="text-blue-500 font-mono font-bold">{{ ot.codigo }}</b>: {{ ot.descripcion }} ({{ ot.ubicacion }})</span>
+              <span class="font-bold text-primary">{{ ot.progreso }}%</span>
             </div>
             <Progress :model-value="ot.progreso" />
           </div>

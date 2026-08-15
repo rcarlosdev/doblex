@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router';
 import client from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { IconSun, IconMoon } from '@tabler/icons-vue';
 
 const username = ref('admin.doblex');
 const password = ref('admin123');
@@ -44,7 +45,11 @@ const handleLogin = async () => {
       localStorage.setItem('smu_role', response.data.user.role);
       localStorage.setItem('smu_name', response.data.user.name);
       
-      router.push({ name: 'dashboard' });
+      if (response.data.user.role === 'operativo') {
+        router.push({ name: 'mobile-dashboard' });
+      } else {
+        router.push({ name: 'dashboard' });
+      }
     }
   } catch (err) {
     if (err.response && err.response.data && err.response.data.message) {
@@ -74,13 +79,9 @@ const handleLogin = async () => {
         :title="isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
       >
         <!-- Icono Sol (se muestra si isDark es true) -->
-        <svg v-if="isDark" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-amber-400">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m0 13.5V21M5.25 5.25l1.5 1.5m10.5 10.5l1.5 1.5M3 12h2.25m13.5 0H21M5.25 18.75l1.5-1.5m10.5-10.5l1.5-1.5M12 7.5a4.5 4.5 0 1 1 0 9 4.5 4.5 0 0 1 0-9Z" />
-        </svg>
+        <IconSun v-if="isDark" class="w-5 h-5 text-amber-400 stroke-[2]" />
         <!-- Icono Luna (se muestra si isDark es false) -->
-        <svg v-else xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-slate-700">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
-        </svg>
+        <IconMoon v-else class="w-5 h-5 text-slate-700 stroke-[2]" />
       </Button>
     </div>
 

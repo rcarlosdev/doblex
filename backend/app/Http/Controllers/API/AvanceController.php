@@ -26,8 +26,12 @@ class AvanceController extends Controller
 
         $ot = Ot::find($request->ot_id);
 
-        // Validar permisos: solo el Operativo asignado a esta OT puede reportar avances
-        if ($user->role !== 'admin' && $ot->user_id !== $user->id) {
+        // Validar permisos: el Operativo asignado, miembros de la cuadrilla asignada, o administradores
+        $esAsignadoDirecto = ($ot->user_id === $user->id);
+        $esDeCuadrilla = ($user->empleado && $user->empleado->cuadrilla_id && $ot->cuadrilla_id && $user->empleado->cuadrilla_id === $ot->cuadrilla_id);
+        $esAdmin = in_array($user->role, ['admin', 'administrativo']);
+
+        if (!$esAsignadoDirecto && !$esDeCuadrilla && !$esAdmin) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'No estás autorizado para reportar avances en esta Orden de Trabajo.'

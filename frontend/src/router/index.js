@@ -57,20 +57,27 @@ const router = createRouter({
     routes
 });
 
-// Guard de navegación simple para verificar autenticación simulada
+// Guard de navegación para verificar autenticación y redirigir rol operativo a entorno móvil
 router.beforeEach((to, from, next) => {
-    // Simulamos autenticación leyendo de localStorage temporalmente hasta integrar Pinia y la API
     const isAuthenticated = localStorage.getItem('smu_authenticated') === 'true';
+    const userRole = localStorage.getItem('smu_role');
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
         if (!isAuthenticated) {
             next({ name: 'login' });
+        } else if (userRole === 'operativo' && ['dashboard', 'ots', 'empleados'].includes(to.name)) {
+            // El módulo operativo es primariamente móvil
+            next({ name: 'mobile-dashboard' });
         } else {
             next();
         }
     } else if (to.matched.some(record => record.meta.guestOnly)) {
         if (isAuthenticated) {
-            next({ name: 'dashboard' });
+            if (userRole === 'operativo') {
+                next({ name: 'mobile-dashboard' });
+            } else {
+                next({ name: 'dashboard' });
+            }
         } else {
             next();
         }

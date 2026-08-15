@@ -62,9 +62,14 @@ Esto iniciará una instancia de PostgreSQL en `localhost:5432` con las credencia
 
 ## Credenciales de Acceso (Entorno Local)
 
-Para acceder a la plataforma web a través del Login maquetado, utiliza los siguientes datos de prueba:
-* **Usuario:** `admin@doblex.com`
-* **Contraseña:** `admin123`
+Para acceder a la plataforma web a través del Login maquetado en el entorno local (cargadas mediante `DatabaseSeeder`), puedes utilizar cualquiera de los siguientes perfiles de prueba:
+
+| Perfil / Rol | Nombre / Empleado | Email / Username | Contraseña | Cargo / Descripción |
+| :--- | :--- | :--- | :--- | :--- |
+| **Administrador** (`admin`) | Admin General | `admin@doblex.com` / `admin.doblex` | `admin123` | Director General de Obra |
+| **Administrativo** (`administrativo`) | Auxiliar Técnico | `adminis@doblex.com` / `adminis.doblex` | `adminis123` | Asistente Administrativo de Campo |
+| **Operativo** (`operativo`) | Ing. Carlos Pérez | `carlos@doblex.com` / `carlos.doblex` | `operador123` | Ingeniero Residente de Estructuras |
+| **Operativo** (`operativo`) | Ing. Luis Martínez | `luis@doblex.com` / `luis.doblex` | `operador123` | Ingeniero de Vías y Excavaciones |
 
 ---
 

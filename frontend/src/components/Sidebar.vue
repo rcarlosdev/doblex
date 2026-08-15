@@ -1,10 +1,12 @@
 <script setup>
+import { ref, computed, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { Button } from '@/components/ui/button';
 import { 
   IconLayoutDashboard, 
   IconClipboardList, 
   IconUsers, 
+  IconDeviceMobile,
   IconPackages, 
   IconTruck, 
   IconCash, 
@@ -20,12 +22,22 @@ const props = defineProps({
 defineEmits(['close']);
 
 const route = useRoute();
+const userRole = ref('admin');
 
-const menuItems = [
-  { name: 'Dashboard', path: '/', icon: IconLayoutDashboard, routeName: 'dashboard' },
-  { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: IconClipboardList, routeName: 'ots' },
-  { name: 'Gestión de Empleados', path: '/empleados', icon: IconUsers, routeName: 'empleados' },
+onMounted(() => {
+  userRole.value = localStorage.getItem('smu_role') || 'admin';
+});
+
+const allMenuItems = [
+  { name: 'Dashboard', path: '/', icon: IconLayoutDashboard, routeName: 'dashboard', roles: ['admin', 'administrativo'] },
+  { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: IconClipboardList, routeName: 'ots', roles: ['admin', 'administrativo'] },
+  { name: 'Gestión de Campo', path: '/mobile/dashboard', icon: IconDeviceMobile, routeName: 'mobile-dashboard', roles: ['admin', 'administrativo', 'operativo'] },
+  { name: 'Gestión de Empleados', path: '/empleados', icon: IconUsers, routeName: 'empleados', roles: ['admin', 'administrativo'] },
 ];
+
+const menuItems = computed(() => {
+  return allMenuItems.filter(item => item.roles.includes(userRole.value));
+});
 
 const logicItems = [
   { name: 'Inventarios', icon: IconPackages, phase: 'F2' },
@@ -48,7 +60,7 @@ const isRouteActive = (item) => {
 
 <template>
   <aside 
-    class="h-screen sticky top-0 bg-white dark:bg-[#181d2c] flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-neutral-800"
+    class="h-screen sticky top-0 bg-white dark:bg-[#121215] flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-white/10"
     :class="[
       // Comportamiento responsivo móvil (flotante)
       'fixed z-50',
@@ -81,7 +93,7 @@ const isRouteActive = (item) => {
       </Button>
     </div>
 
-    <!-- Menú Principal (Fase 1) -->
+    <!-- Menú Principal (Filtrado por Permisos de Rol) -->
     <nav class="min-w-[200px] flex-1 flex flex-col gap-1">
       <router-link 
         v-for="item in menuItems" 
@@ -97,43 +109,45 @@ const isRouteActive = (item) => {
         <span>{{ item.name }}</span>
       </router-link>
 
-      <!-- Módulos de Logística y Recursos (Fase 2) -->
-      <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 mt-6 mb-2 tracking-wider uppercase pl-2">
-        Logística y Recursos
-      </div>
-      <div 
-        v-for="item in logicItems" 
-        :key="item.name" 
-        class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium opacity-60 cursor-not-allowed text-neutral-500 dark:text-neutral-400"
-        title="Disponible en Fase 2"
-      >
-        <div class="flex items-center gap-3">
-          <component :is="item.icon" class="w-5 h-5 stroke-[1.5]" />
-          <span>{{ item.name }}</span>
+      <!-- Módulos de Logística y Recursos (Solo visible para Admin / Administrativo) -->
+      <template v-if="userRole !== 'operativo'">
+        <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 mt-6 mb-2 tracking-wider uppercase pl-2">
+          Logística y Recursos
         </div>
-        <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
-          {{ item.phase }}
-        </span>
-      </div>
+        <div 
+          v-for="item in logicItems" 
+          :key="item.name" 
+          class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium opacity-60 cursor-not-allowed text-neutral-500 dark:text-neutral-400"
+          title="Disponible en Fase 2"
+        >
+          <div class="flex items-center gap-3">
+            <component :is="item.icon" class="w-5 h-5 stroke-[1.5]" />
+            <span>{{ item.name }}</span>
+          </div>
+          <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
+            {{ item.phase }}
+          </span>
+        </div>
 
-      <!-- Módulos de Finanzas y RRHH (Fases 3 y 4) -->
-      <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 mt-6 mb-2 tracking-wider uppercase pl-2">
-        Finanzas y RRHH
-      </div>
-      <div 
-        v-for="item in financeItems" 
-        :key="item.name" 
-        class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium opacity-60 cursor-not-allowed text-neutral-500 dark:text-neutral-400"
-        :title="`Disponible en Fase ${item.phase}`"
-      >
-        <div class="flex items-center gap-3">
-          <component :is="item.icon" class="w-5 h-5 stroke-[1.5]" />
-          <span>{{ item.name }}</span>
+        <!-- Módulos de Finanzas y RRHH -->
+        <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-600 mt-6 mb-2 tracking-wider uppercase pl-2">
+          Finanzas y RRHH
         </div>
-        <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
-          {{ item.phase }}
-        </span>
-      </div>
+        <div 
+          v-for="item in financeItems" 
+          :key="item.name" 
+          class="flex items-center justify-between gap-3 px-3 py-2.5 rounded-lg text-sm font-medium opacity-60 cursor-not-allowed text-neutral-500 dark:text-neutral-400"
+          :title="`Disponible en Fase ${item.phase}`"
+        >
+          <div class="flex items-center gap-3">
+            <component :is="item.icon" class="w-5 h-5 stroke-[1.5]" />
+            <span>{{ item.name }}</span>
+          </div>
+          <span class="text-[9px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-white/5 px-1.5 py-0.5 rounded text-neutral-550 dark:text-neutral-400">
+            {{ item.phase }}
+          </span>
+        </div>
+      </template>
     </nav>
 
     <!-- Versión / Info Base -->

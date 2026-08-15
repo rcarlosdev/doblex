@@ -71,7 +71,7 @@ const breadcrumbs = computed(() => {
 </script>
 
 <template>
-  <header class="h-16 border-b border-neutral-200 dark:border-neutral-800 bg-white/95 dark:bg-[#181d2c]/95 backdrop-blur-md px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 select-none transition-colors duration-350 shadow-sm">
+  <header class="h-16 border-b border-neutral-200 dark:border-white/10 bg-white/95 dark:bg-[#121215]/90 backdrop-blur-md px-4 md:px-6 flex items-center justify-between sticky top-0 z-30 select-none transition-colors duration-350 shadow-sm">
     <!-- Lado Izquierdo: Botón Menú + Migas de pan -->
     <div class="flex items-center gap-3">
       <!-- Botón hamburguesa -->
@@ -114,24 +114,7 @@ const breadcrumbs = computed(() => {
         <IconMoon v-else class="w-5 h-5 text-slate-700 stroke-[1.75]" />
       </Button>
 
-      <!-- Acceso a Vista Móvil Técnico -->
-      <router-link
-        to="/mobile/dashboard"
-        class="flex items-center gap-1.5 bg-blue-600/10 hover:bg-blue-600/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 text-xs font-bold px-3 py-1.5 rounded-full transition-all"
-        title="Vista Mobile para Técnicos en Campo"
-      >
-        <IconDeviceMobile class="w-4 h-4 stroke-[2]" />
-        <span class="hidden md:inline">Modo Técnico</span>
-      </router-link>
 
-      <!-- Indicador API -->
-      <div class="hidden sm:flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full">
-        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-        API Online
-      </div>
-
-      <!-- Divisor -->
-      <div class="hidden sm:block w-px h-4 bg-neutral-200 dark:bg-neutral-800"></div>
 
       <!-- Badge de Usuario y Logout -->
       <div class="flex items-center gap-2 sm:gap-4">

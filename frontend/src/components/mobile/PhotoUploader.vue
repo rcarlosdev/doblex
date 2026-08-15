@@ -1,23 +1,20 @@
 <template>
-  <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4 space-y-4">
+  <div class="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-xl p-4 space-y-4 shadow-sm transition-colors duration-300">
     <div class="flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span :class="tipoBadgeClass" class="px-2.5 py-0.5 rounded text-xs font-bold uppercase">
           Evidencia: {{ tipo }}
         </span>
-        <span v-if="evidenciasCount > 0" class="text-xs text-slate-400">
+        <span v-if="evidenciasCount > 0" class="text-xs text-slate-500 dark:text-slate-400 font-medium">
           ({{ evidenciasCount }} registradas)
         </span>
       </div>
       <button
         @click="triggerCamera"
         :disabled="uploading"
-        class="bg-blue-600 hover:bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
+        class="bg-red-600 hover:bg-red-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-lg shadow-red-600/20 active:scale-95 transition-all"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
+        <IconCamera class="w-4 h-4 stroke-[2]" />
         <span>{{ uploading ? 'Procesando...' : 'Tomar Foto' }}</span>
       </button>
     </div>
@@ -36,7 +33,7 @@
     <canvas ref="canvas" class="hidden"></canvas>
 
     <!-- Vista previa de foto procesada con watermark -->
-    <div v-if="previewUrl" class="relative rounded-lg overflow-hidden border border-blue-500/40 group">
+    <div v-if="previewUrl" class="relative rounded-lg overflow-hidden border border-red-500/40 group">
       <img :src="previewUrl" alt="Vista Previa Evidencia" class="w-full h-48 object-cover" />
       <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-2 text-[10px] text-slate-200 space-y-0.5">
         <div class="font-mono text-emerald-400 font-bold">✓ Marca de agua incrustada</div>
@@ -46,9 +43,10 @@
       <button
         @click="confirmUpload"
         :disabled="uploading"
-        class="absolute top-2 right-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold shadow-md"
+        class="absolute top-2 right-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded text-xs font-bold shadow-md flex items-center gap-1"
       >
-        Guardar Evidencia
+        <IconCheck class="w-3.5 h-3.5 stroke-[2.5]" />
+        <span>Guardar Evidencia</span>
       </button>
     </div>
   </div>
@@ -56,6 +54,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
+import { IconCamera, IconCheck } from '@tabler/icons-vue';
 
 const props = defineProps({
   tipo: {
@@ -84,9 +83,9 @@ const currentLat = ref(null);
 const currentLng = ref(null);
 
 const tipoBadgeClass = computed(() => {
-  if (props.tipo === 'antes') return 'bg-amber-950/60 text-amber-400 border border-amber-500/30';
-  if (props.tipo === 'durante') return 'bg-blue-950/60 text-blue-400 border border-blue-500/30';
-  return 'bg-emerald-950/60 text-emerald-400 border border-emerald-500/30';
+  if (props.tipo === 'antes') return 'bg-amber-50 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-500/30';
+  if (props.tipo === 'durante') return 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/60 dark:text-red-300 dark:border-red-500/30';
+  return 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-500/30';
 });
 
 const triggerCamera = () => {

@@ -27,7 +27,7 @@ class OtController extends Controller
     {
         $user = $request->user();
 
-        $query = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades', 'evidencias', 'repuestos'])
+        $query = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades', 'evidencias', 'repuestos', 'avances'])
             ->orderBy('created_at', 'desc');
 
         if ($user->role === 'admin') {
@@ -59,7 +59,7 @@ class OtController extends Controller
      */
     public function show($id)
     {
-        $ot = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades', 'evidencias', 'repuestos'])->find($id);
+        $ot = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades', 'evidencias', 'repuestos', 'avances'])->find($id);
 
         if (!$ot) {
             return response()->json([
@@ -313,6 +313,20 @@ class OtController extends Controller
             'repuestos.*.cantidad' => 'required|numeric|min:0.01',
             'repuestos.*.unidad_medida' => 'nullable|string',
         ]);
+
+        // Verificar que la OT tenga diligenciadas las 3 evidencias obligatorias
+        $evidenciasTipos = $ot->evidencias()->pluck('tipo')->toArray();
+        $faltantes = [];
+        if (!in_array('antes', $evidenciasTipos)) $faltantes[] = 'Evidencia de ANTES';
+        if (!in_array('durante', $evidenciasTipos)) $faltantes[] = 'Evidencia de DURANTE';
+        if (!in_array('despues', $evidenciasTipos)) $faltantes[] = 'Evidencia de DESPUÉS';
+
+        if (count($faltantes) > 0) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se puede cerrar la OT sin diligenciar totalmente las evidencias obligatorias: ' . implode(', ', $faltantes)
+            ], 422);
+        }
 
         $ot->update([
             'estado' => 'solucionada',
