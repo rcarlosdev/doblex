@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4 p-5 max-h-[90vh] overflow-y-auto transition-colors duration-300">
+    <div v-if="isOpen" class="fixed inset-0 z-50 bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl space-y-4 p-4 sm:p-5 max-h-[90vh] overflow-y-auto my-auto transition-colors duration-300">
         <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
           <h3 class="text-lg font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
             <IconCircleCheck class="w-5 h-5 text-emerald-600 dark:text-emerald-400 stroke-[2]" />

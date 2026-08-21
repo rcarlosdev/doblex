@@ -4,6 +4,17 @@ import client from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import {
+  IconUsers,
+  IconUserPlus,
+  IconUsersGroup,
+  IconCheck,
+  IconAlertTriangle,
+  IconX,
+  IconUserCheck,
+  IconFolder,
+  IconPencil
+} from '@tabler/icons-vue';
 
 const activeTab = ref('empleados'); // 'empleados' | 'cuadrillas'
 const empleados = ref([]);
@@ -185,7 +196,8 @@ const toggleEstadoEmpleado = async (emp) => {
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 select-none">
       <div>
         <h1 class="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white flex items-center gap-2">
-          <span>👥</span> Gestión de Personal y Cuadrillas
+          <IconUsers class="w-6 h-6 text-primary stroke-[1.75]" />
+          <span>Gestión de Personal y Cuadrillas</span>
         </h1>
         <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
           Módulo 7 (Base) — Registro Maestro de Empleados, Roles, Cargos y Asignación a Obras
@@ -196,35 +208,39 @@ const toggleEstadoEmpleado = async (emp) => {
         <Button 
           v-if="activeTab === 'empleados' && (userRole === 'admin' || userRole === 'administrativo')" 
           @click="openModalEmpleado()" 
-          class="bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-xs gap-2"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-xs flex items-center gap-2"
         >
-          <span>➕</span> Nuevo Empleado
+          <IconUserPlus class="w-4 h-4 stroke-[1.75]" />
+          <span>Nuevo Empleado</span>
         </Button>
         <Button 
           v-if="activeTab === 'cuadrillas' && (userRole === 'admin' || userRole === 'administrativo')" 
           @click="showModalCuadrilla = true" 
-          class="bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-xs gap-2"
+          class="bg-primary text-primary-foreground hover:bg-primary/90 font-medium text-xs flex items-center gap-2"
         >
-          <span>🏗️</span> Nueva Cuadrilla
+          <IconUsersGroup class="w-4 h-4 stroke-[1.75]" />
+          <span>Nueva Cuadrilla</span>
         </Button>
       </div>
     </div>
 
     <!-- Alertas de estado -->
     <div v-if="successMsg" class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs p-3 rounded-lg flex items-center justify-between">
-      <span>✅ {{ successMsg }}</span>
-      <button @click="successMsg = ''" class="font-bold">✕</button>
+      <span class="flex items-center gap-1.5"><IconCheck class="w-4 h-4 stroke-[2]" /> {{ successMsg }}</span>
+      <button @click="successMsg = ''" class="font-bold p-1 hover:bg-emerald-500/20 rounded transition-colors"><IconX class="w-4 h-4" /></button>
     </div>
     <div v-if="errorMsg" class="bg-red-500/10 border border-red-500/20 text-red-600 dark:text-red-400 text-xs p-3 rounded-lg flex items-center justify-between">
-      <span>⚠️ {{ errorMsg }}</span>
-      <button @click="errorMsg = ''" class="font-bold">✕</button>
+      <span class="flex items-center gap-1.5"><IconAlertTriangle class="w-4 h-4 stroke-[2]" /> {{ errorMsg }}</span>
+      <button @click="errorMsg = ''" class="font-bold p-1 hover:bg-red-500/20 rounded transition-colors"><IconX class="w-4 h-4" /></button>
     </div>
 
     <!-- Tarjetas resumen KPI -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900">
         <CardContent class="p-4 flex items-center gap-4">
-          <div class="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl text-xl">👥</div>
+          <div class="p-3 bg-blue-500/10 text-blue-600 dark:text-blue-400 rounded-xl">
+            <IconUsers class="w-6 h-6 stroke-[1.75]" />
+          </div>
           <div>
             <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Total Personal</p>
             <h3 class="text-2xl font-bold text-neutral-900 dark:text-white">{{ totalPersonal }}</h3>
@@ -234,7 +250,9 @@ const toggleEstadoEmpleado = async (emp) => {
 
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900">
         <CardContent class="p-4 flex items-center gap-4">
-          <div class="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl text-xl">👷</div>
+          <div class="p-3 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-xl">
+            <IconUserCheck class="w-6 h-6 stroke-[1.75]" />
+          </div>
           <div>
             <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Personal Operativo</p>
             <h3 class="text-2xl font-bold text-neutral-900 dark:text-white">{{ totalOperativos }}</h3>
@@ -244,7 +262,9 @@ const toggleEstadoEmpleado = async (emp) => {
 
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900">
         <CardContent class="p-4 flex items-center gap-4">
-          <div class="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl text-xl">🏗️</div>
+          <div class="p-3 bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-xl">
+            <IconUsersGroup class="w-6 h-6 stroke-[1.75]" />
+          </div>
           <div>
             <p class="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wider">Cuadrillas Activas</p>
             <h3 class="text-2xl font-bold text-neutral-900 dark:text-white">{{ totalCuadrillas }}</h3>
@@ -257,21 +277,23 @@ const toggleEstadoEmpleado = async (emp) => {
     <div class="flex items-center gap-2 border-b border-neutral-200 dark:border-neutral-800 pb-2">
       <button 
         @click="activeTab = 'empleados'" 
-        class="px-4 py-2 text-xs font-semibold rounded-lg transition-colors"
+        class="px-4 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center gap-2"
         :class="activeTab === 'empleados' 
           ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-sm' 
           : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
       >
-        📁 Registro Maestro de Empleados
+        <IconFolder class="w-4 h-4 stroke-[1.75]" />
+        <span>Registro Maestro de Empleados</span>
       </button>
       <button 
         @click="activeTab = 'cuadrillas'" 
-        class="px-4 py-2 text-xs font-semibold rounded-lg transition-colors"
+        class="px-4 py-2 text-xs font-semibold rounded-lg transition-colors flex items-center gap-2"
         :class="activeTab === 'cuadrillas' 
           ? 'bg-neutral-900 text-white dark:bg-white dark:text-neutral-900 shadow-sm' 
           : 'text-neutral-500 hover:text-neutral-900 dark:hover:text-white'"
       >
-        🏗️ Cuadrillas de Obra ({{ totalCuadrillas }})
+        <IconUsersGroup class="w-4 h-4 stroke-[1.75]" />
+        <span>Cuadrillas de Obra ({{ totalCuadrillas }})</span>
       </button>
     </div>
 
@@ -282,7 +304,7 @@ const toggleEstadoEmpleado = async (emp) => {
         <div class="w-full sm:flex-1">
           <Input 
             v-model="searchQuery" 
-            placeholder="🔍 Buscar por nombre, cédula o cargo..." 
+            placeholder="Buscar por nombre, cédula o cargo..." 
             class="bg-slate-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 text-xs"
           />
         </div>
@@ -351,8 +373,9 @@ const toggleEstadoEmpleado = async (emp) => {
                     </span>
                   </td>
                   <td class="py-3.5 px-4">
-                    <span v-if="emp.cuadrilla" class="text-xs font-medium text-neutral-700 dark:text-neutral-300">
-                      🏗️ {{ emp.cuadrilla.nombre }}
+                    <span v-if="emp.cuadrilla" class="text-xs font-medium text-neutral-700 dark:text-neutral-300 flex items-center gap-1">
+                      <IconUsersGroup class="w-3.5 h-3.5 text-neutral-400 shrink-0 stroke-[1.75]" />
+                      <span>{{ emp.cuadrilla.nombre }}</span>
                     </span>
                     <span v-else class="text-neutral-400 italic">Sin asignar</span>
                   </td>
@@ -368,10 +391,11 @@ const toggleEstadoEmpleado = async (emp) => {
                   <td class="py-3.5 px-4 text-right space-x-2">
                     <button 
                       @click="openModalEmpleado(emp)" 
-                      class="px-2.5 py-1 text-xs bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded transition-colors"
+                      class="px-2.5 py-1 text-xs bg-slate-100 dark:bg-neutral-800 hover:bg-slate-200 dark:hover:bg-neutral-700 text-neutral-700 dark:text-neutral-300 rounded transition-colors inline-flex items-center gap-1"
                       title="Editar Empleado"
                     >
-                      ✏️ Editar
+                      <IconPencil class="w-3.5 h-3.5 stroke-[1.75]" />
+                      <span>Editar</span>
                     </button>
                     <button 
                       @click="toggleEstadoEmpleado(emp)" 
@@ -402,7 +426,7 @@ const toggleEstadoEmpleado = async (emp) => {
               <span class="text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded">Cuadrilla</span>
               <CardTitle class="text-base font-bold text-neutral-900 dark:text-white mt-1">{{ cuad.nombre }}</CardTitle>
             </div>
-            <span class="text-xl">🏗️</span>
+            <IconUsersGroup class="w-6 h-6 text-amber-500 stroke-[1.75]" />
           </div>
           <p class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ cuad.especialidad || 'Sin especialidad definida' }}</p>
         </CardHeader>
@@ -421,7 +445,7 @@ const toggleEstadoEmpleado = async (emp) => {
                 :key="miembro.id" 
                 class="flex items-center justify-between bg-slate-100 dark:bg-neutral-900/40 px-2.5 py-1.5 rounded text-neutral-700 dark:text-neutral-300"
               >
-                <span>👷 {{ miembro.nombre }}</span>
+                <span class="flex items-center gap-1.5"><IconUserCheck class="w-3.5 h-3.5 text-neutral-400 shrink-0 stroke-[1.75]" /> {{ miembro.nombre }}</span>
                 <span class="text-[10px] text-neutral-400">{{ miembro.cargo }}</span>
               </div>
               <div v-if="!cuad.empleados || cuad.empleados.length === 0" class="text-neutral-400 italic">
@@ -435,12 +459,12 @@ const toggleEstadoEmpleado = async (emp) => {
 
     <!-- MODAL REGISTRO / EDICIÓN EMPLEADO -->
     <Teleport to="body">
-      <div v-if="showModalEmpleado" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div v-if="showModalEmpleado" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <!-- Overlay oscuro que cubre 100% de la pantalla incluyendo Navbar -->
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showModalEmpleado = false"></div>
 
         <!-- Contenido Modal -->
-        <div class="relative z-10 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 my-auto">
+        <div class="relative z-10 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto my-auto">
           <h2 class="text-lg font-bold text-slate-900 dark:text-white">
             {{ editingEmpleadoId ? 'Editar Empleado' : 'Registrar Nuevo Empleado' }}
           </h2>
@@ -506,12 +530,12 @@ const toggleEstadoEmpleado = async (emp) => {
 
     <!-- MODAL NUEVA CUADRILLA -->
     <Teleport to="body">
-      <div v-if="showModalCuadrilla" class="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+      <div v-if="showModalCuadrilla" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <!-- Overlay oscuro que cubre 100% de la pantalla incluyendo Navbar -->
         <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showModalCuadrilla = false"></div>
 
         <!-- Contenido Modal -->
-        <div class="relative z-10 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-md w-full p-6 shadow-2xl space-y-4 my-auto">
+        <div class="relative z-10 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto my-auto">
           <h2 class="text-lg font-bold text-slate-900 dark:text-white">Crear Nueva Cuadrilla de Obra</h2>
 
           <form @submit.prevent="saveCuadrilla" class="space-y-3 text-xs">

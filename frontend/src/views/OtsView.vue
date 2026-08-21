@@ -16,6 +16,16 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  IconPlus,
+  IconBuildingBroadcastTower,
+  IconMapPin,
+  IconUsersGroup,
+  IconPencil,
+  IconTools,
+  IconX,
+  IconSearch
+} from '@tabler/icons-vue';
 
 const openCreateModal = ref(false);
 const openEditModal = ref(false);
@@ -302,7 +312,7 @@ const getStatusLabel = (status) => {
         @click="openCreateModal = true" 
         class="bg-primary text-primary-foreground hover:bg-primary/95 flex items-center gap-2 font-semibold w-full sm:w-auto justify-center"
       >
-        <span class="text-sm">➕</span> Nueva OT
+        <IconPlus class="w-4 h-4 stroke-[2]" /> Nueva OT
       </Button>
     </div>
 
@@ -365,7 +375,10 @@ const getStatusLabel = (status) => {
                 </TableCell>
                 <TableCell class="py-4">
                   <div class="flex flex-col max-w-xs">
-                    <span v-if="ot.sitio" class="font-bold text-neutral-900 dark:text-white text-xs line-clamp-1">📡 {{ ot.sitio }}</span>
+                    <span v-if="ot.sitio" class="font-bold text-neutral-900 dark:text-white text-xs line-clamp-1 flex items-center gap-1">
+                      <IconBuildingBroadcastTower class="w-3.5 h-3.5 text-primary shrink-0 stroke-[1.75]" />
+                      <span>{{ ot.sitio }}</span>
+                    </span>
                     <span class="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-1">{{ ot.descripcion }}</span>
                     <span class="text-[10px] text-neutral-400 mt-0.5">Inicio: {{ ot.fecha_inicio }}</span>
                   </div>
@@ -386,10 +399,18 @@ const getStatusLabel = (status) => {
                     <span class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 uppercase font-bold">{{ ot.tipo_gasto || 'OPEX' }}</span>
                   </div>
                 </TableCell>
-                <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap text-xs">📍 {{ ot.ubicacion }}</TableCell>
+                <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap text-xs">
+                  <span class="inline-flex items-center gap-1">
+                    <IconMapPin class="w-3.5 h-3.5 text-rose-500 shrink-0 stroke-[1.75]" />
+                    <span>{{ ot.ubicacion }}</span>
+                  </span>
+                </TableCell>
                 <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap text-xs font-medium">
                   <div>{{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}</div>
-                  <span v-if="ot.cuadrilla" class="block text-[10px] text-neutral-400 font-normal">🏗️ {{ ot.cuadrilla.nombre }}</span>
+                  <span v-if="ot.cuadrilla" class="flex items-center gap-1 text-[10px] text-neutral-400 font-normal">
+                    <IconUsersGroup class="w-3 h-3 text-neutral-400 shrink-0 stroke-[1.75]" />
+                    <span>{{ ot.cuadrilla.nombre }}</span>
+                  </span>
                 </TableCell>
                 <TableCell class="py-4">
                   <div class="flex items-center gap-2">
@@ -420,7 +441,7 @@ const getStatusLabel = (status) => {
                       class="h-8 w-8 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5" 
                       title="Detalles / Editar"
                     >
-                      ✏️
+                      <IconPencil class="w-4 h-4 stroke-[1.75]" />
                     </Button>
                     <Button 
                       @click="$router.push(`/mobile/ot/${ot.id}`)"
@@ -429,7 +450,8 @@ const getStatusLabel = (status) => {
                       class="h-8 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3 flex items-center gap-1.5 shadow-md active:scale-95 transition-all" 
                       title="Realizar Gestión Completa en Campo"
                     >
-                      <span>🛠️</span> Gestión de Campo
+                      <IconTools class="w-4 h-4 stroke-[1.75]" />
+                      <span>Gestión de Campo</span>
                     </Button>
                   </div>
                 </TableCell>
@@ -453,7 +475,9 @@ const getStatusLabel = (status) => {
           <h3 class="text-base font-bold text-neutral-900 dark:text-white">Crear Nueva Orden de Trabajo</h3>
           <p class="text-[11px] text-neutral-500">Completa los campos para registrar una nueva orden de trabajo</p>
         </div>
-        <button @click="openCreateModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-lg font-bold">&times;</button>
+        <button @click="openCreateModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
+          <IconX class="w-5 h-5 stroke-[2]" />
+        </button>
       </div>
 
       <form @submit.prevent="createOt" class="space-y-4">
@@ -575,7 +599,7 @@ const getStatusLabel = (status) => {
             >
               <option value="">Sin cuadrilla específica</option>
               <option v-for="c in cuadrillas" :key="c.id" :value="c.id">
-                🏗️ {{ c.nombre }}
+                {{ c.nombre }}
               </option>
             </select>
           </div>
@@ -604,7 +628,9 @@ const getStatusLabel = (status) => {
           <h3 class="text-base font-bold text-neutral-900 dark:text-white">Editar Orden de Trabajo</h3>
           <p class="text-[11px] text-neutral-500">Actualiza los datos y asignación de la OT {{ editingOt.codigo }}</p>
         </div>
-        <button @click="openEditModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-lg font-bold">&times;</button>
+        <button @click="openEditModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
+          <IconX class="w-5 h-5 stroke-[2]" />
+        </button>
       </div>
 
       <form @submit.prevent="updateOt" class="space-y-4">
@@ -743,7 +769,7 @@ const getStatusLabel = (status) => {
             >
               <option value="">Sin cuadrilla específica</option>
               <option v-for="c in cuadrillas" :key="c.id" :value="c.id">
-                🏗️ {{ c.nombre }}
+                {{ c.nombre }}
               </option>
             </select>
           </div>
@@ -772,7 +798,9 @@ const getStatusLabel = (status) => {
           <h3 class="text-base font-bold text-neutral-900 dark:text-white">Reportar Avance en Campo</h3>
           <p class="text-[11px] text-neutral-500">Registra el progreso diario de las actividades de hoy</p>
         </div>
-        <button @click="openAvanceModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white text-lg font-bold">&times;</button>
+        <button @click="openAvanceModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
+          <IconX class="w-5 h-5 stroke-[2]" />
+        </button>
       </div>
 
       <div v-if="selectedOt" class="mb-4 bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-850 p-4 rounded-lg">

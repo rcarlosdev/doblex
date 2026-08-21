@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
-    <div v-if="isOpen" class="fixed inset-0 z-[120] bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-5 space-y-4 shadow-2xl transition-colors duration-300">
+    <div v-if="isOpen" class="fixed inset-0 z-[120] bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto my-auto transition-colors duration-300">
         <div class="flex items-center gap-3">
           <div :class="iconBgClass" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0">
             <IconAlertTriangle v-if="type === 'warning'" class="w-5 h-5 text-amber-600 dark:text-amber-400 stroke-[2]" />

@@ -3,6 +3,14 @@ import { ref, onMounted, computed } from 'vue';
 import client from '@/api/client';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import {
+  IconClipboardList,
+  IconChartBar,
+  IconCircleCheck,
+  IconTruck,
+  IconDeviceMobile,
+  IconArrowRight
+} from '@tabler/icons-vue';
 
 const ots = ref([]);
 const loading = ref(false);
@@ -58,7 +66,9 @@ const kpis = computed(() => {
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800 transition-all duration-200 hover:-translate-y-1">
         <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Órdenes Activas</CardTitle>
-          <div class="text-xl bg-primary/10 border border-primary/20 text-primary w-8 h-8 rounded-lg flex items-center justify-center">📋</div>
+          <div class="bg-primary/10 border border-primary/20 text-primary w-8 h-8 rounded-lg flex items-center justify-center">
+            <IconClipboardList class="w-5 h-5 stroke-[1.75]" />
+          </div>
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
@@ -71,7 +81,9 @@ const kpis = computed(() => {
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800 transition-all duration-200 hover:-translate-y-1">
         <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Progreso Promedio</CardTitle>
-          <div class="text-xl bg-primary/10 border border-primary/20 text-primary w-8 h-8 rounded-lg flex items-center justify-center">📊</div>
+          <div class="bg-primary/10 border border-primary/20 text-primary w-8 h-8 rounded-lg flex items-center justify-center">
+            <IconChartBar class="w-5 h-5 stroke-[1.75]" />
+          </div>
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
@@ -84,7 +96,9 @@ const kpis = computed(() => {
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800 transition-all duration-200 hover:-translate-y-1">
         <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Obras Entregadas</CardTitle>
-          <div class="text-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 w-8 h-8 rounded-lg flex items-center justify-center">✅</div>
+          <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 w-8 h-8 rounded-lg flex items-center justify-center">
+            <IconCircleCheck class="w-5 h-5 stroke-[1.75]" />
+          </div>
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
@@ -97,7 +111,9 @@ const kpis = computed(() => {
       <Card class="bg-white dark:bg-neutral-950/40 border-neutral-200 dark:border-neutral-900 hover:border-neutral-300 dark:hover:border-neutral-800 transition-all duration-200 hover:-translate-y-1">
         <CardHeader class="flex flex-row items-center justify-between pb-2 space-y-0">
           <CardTitle class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">Maquinaria y Frentes</CardTitle>
-          <div class="text-xl bg-primary/10 border border-primary/20 text-primary w-8 h-8 rounded-lg flex items-center justify-center">🚚</div>
+          <div class="bg-primary/10 border border-primary/20 text-primary w-8 h-8 rounded-lg flex items-center justify-center">
+            <IconTruck class="w-5 h-5 stroke-[1.75]" />
+          </div>
         </CardHeader>
         <CardContent>
           <div class="text-2xl font-bold text-neutral-900 dark:text-white mb-1">
@@ -123,8 +139,9 @@ const kpis = computed(() => {
         to="/mobile/dashboard"
         class="bg-blue-600 hover:bg-blue-500 text-white font-extrabold text-xs px-5 py-3 rounded-xl shadow-lg active:scale-95 transition-all whitespace-nowrap flex items-center gap-2"
       >
-        <span>📱 Abrir Gestión de Campo</span>
-        <span>→</span>
+        <IconDeviceMobile class="w-4 h-4 stroke-[1.75]" />
+        <span>Abrir Gestión de Campo</span>
+        <IconArrowRight class="w-4 h-4 stroke-[2]" />
       </router-link>
     </div>
 
@@ -137,8 +154,9 @@ const kpis = computed(() => {
             <h2 class="text-lg font-bold text-neutral-900 dark:text-white mb-1">Frentes de Obra en Ejecución</h2>
             <p class="text-xs text-neutral-500">Avance de las Órdenes de Trabajo registradas en tiempo real</p>
           </div>
-          <router-link to="/mobile/dashboard" class="text-xs font-bold text-blue-500 hover:underline">
-            Ver todas en Campo →
+          <router-link to="/mobile/dashboard" class="text-xs font-bold text-blue-500 hover:underline flex items-center gap-1">
+            <span>Ver todas en Campo</span>
+            <IconArrowRight class="w-3.5 h-3.5 stroke-[2]" />
           </router-link>
         </div>
         
