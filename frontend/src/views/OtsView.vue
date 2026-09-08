@@ -3,7 +3,6 @@ import { ref, computed, onMounted } from 'vue';
 import client from '@/api/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Dialog } from '@/components/ui/dialog';
 import { Card } from '@/components/ui/card';
@@ -22,14 +21,20 @@ import {
   IconMapPin,
   IconUsersGroup,
   IconPencil,
-  IconTools,
   IconX,
-  IconSearch
+  IconFileCheck
 } from '@tabler/icons-vue';
+import OtAuditModal from '@/components/admin/OtAuditModal.vue';
 
 const openCreateModal = ref(false);
 const openEditModal = ref(false);
-const openAvanceModal = ref(false);
+const openAuditModal = ref(false);
+const auditingOt = ref(null);
+
+const openAuditOt = (ot) => {
+  auditingOt.value = ot;
+  openAuditModal.value = true;
+};
 
 const searchQuery = ref('');
 const statusFilter = ref('todos');
@@ -129,14 +134,6 @@ const onOperatorChange = (userId, mode = 'create') => {
     }
   }
 };
-
-// Datos para registrar avance (Operario)
-const selectedOt = ref(null);
-const newAvance = ref({
-  descripcion: '',
-  porcentaje: 10,
-  fecha_reporte: new Date().toISOString().split('T')[0]
-});
 
 const loadOts = async () => {
   loading.value = true;
@@ -242,54 +239,39 @@ const createOt = async () => {
   }
 };
 
-const openReportAvance = (ot) => {
-  selectedOt.value = ot;
-  newAvance.value = {
-    descripcion: '',
-    porcentaje: Math.min(10, 100 - ot.progreso), // Valor por defecto sensato
-    fecha_reporte: new Date().toISOString().split('T')[0]
-  };
-  openAvanceModal.value = true;
-};
-
-const submitAvance = async () => {
-  errorMsg.value = '';
-  try {
-    const response = await client.post('/avances', {
-      ot_id: selectedOt.value.id,
-      descripcion: newAvance.value.descripcion,
-      porcentaje: newAvance.value.porcentaje,
-      fecha_reporte: newAvance.value.fecha_reporte
-    });
-    
-    if (response.data.status === 'success') {
-      await loadOts();
-      openAvanceModal.value = false;
-      selectedOt.value = null;
-    }
-  } catch (err) {
-    if (err.response && err.response.data && err.response.data.message) {
-      errorMsg.value = err.response.data.message;
-    } else {
-      errorMsg.value = 'Error al registrar el avance en el servidor.';
-    }
-  }
-};
-
-const getStatusBadgeVariant = (status) => {
-  switch (status) {
-    case 'finalizado': return 'secondary';
-    case 'en_progreso': return 'default';
-    case 'pendiente': return 'outline';
-    default: return 'outline';
+const estadoBadgeClass = (st) => {
+  switch (st) {
+    case 'finalizada':
+    case 'finalizado':
+      return 'bg-emerald-50 text-emerald-700 border border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800/80';
+    case 'solucionada':
+      return 'bg-blue-50 text-blue-700 border border-blue-300 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800/80';
+    case 'en_progreso':
+      return 'bg-indigo-50 text-indigo-700 border border-indigo-300 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border-indigo-800/80';
+    case 'en_sitio':
+      return 'bg-cyan-50 text-cyan-700 border border-cyan-300 dark:bg-cyan-950/60 dark:text-cyan-300 dark:border-cyan-800/80';
+    case 'en_camino':
+      return 'bg-amber-50 text-amber-700 border border-amber-300 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800/80';
+    case 'detenida_materiales':
+      return 'bg-rose-50 text-rose-700 border border-rose-300 dark:bg-rose-950/60 dark:text-rose-300 dark:border-rose-800/80';
+    case 'asignada':
+    case 'pendiente':
+    default:
+      return 'bg-slate-100 text-slate-700 border border-slate-300 dark:bg-slate-900/60 dark:text-slate-300 dark:border-slate-700/80';
   }
 };
 
 const getStatusLabel = (status) => {
   switch (status) {
-    case 'pendiente': return 'Pendiente';
+    case 'asignada':
+    case 'pendiente': return 'Asignada';
+    case 'en_camino': return 'En Camino';
+    case 'en_sitio': return 'En Sitio';
     case 'en_progreso': return 'En Progreso';
-    case 'finalizado': return 'Finalizado';
+    case 'detenida_materiales': return 'Detenida Materiales';
+    case 'solucionada': return 'Solucionada';
+    case 'finalizada':
+    case 'finalizado': return 'Finalizada';
     default: return status;
   }
 };
@@ -334,12 +316,16 @@ const getStatusLabel = (status) => {
           />
           <select 
             v-model="statusFilter" 
-            class="flex h-9 w-full sm:w-40 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus:border-primary focus:ring-primary cursor-pointer"
+            class="flex h-9 w-full sm:w-48 rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus:border-primary focus:ring-primary cursor-pointer"
           >
             <option value="todos">Todos los Estados</option>
-            <option value="pendiente">Pendientes</option>
+            <option value="asignada">Asignadas</option>
+            <option value="en_camino">En Camino</option>
+            <option value="en_sitio">En Sitio</option>
             <option value="en_progreso">En Progreso</option>
-            <option value="finalizado">Finalizados</option>
+            <option value="detenida_materiales">Detenidas por Materiales</option>
+            <option value="solucionada">Solucionadas (Por Aprobar)</option>
+            <option value="finalizada">Finalizadas / Liquidadas</option>
           </select>
         </div>
       </div>
@@ -419,39 +405,38 @@ const getStatusLabel = (status) => {
                   </div>
                 </TableCell>
                 <TableCell class="text-center py-4">
-                  <Badge 
-                    :variant="getStatusBadgeVariant(ot.estado)" 
-                    class="text-[10px] font-bold px-2 py-0.5 uppercase tracking-wider"
-                    :class="{
-                      'bg-emerald-500/10 border-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/10': ['finalizado', 'solucionada'].includes(ot.estado),
-                      'bg-primary/10 border-primary/20 text-primary hover:bg-primary/10': ['en_progreso', 'en_sitio', 'en_camino'].includes(ot.estado),
-                      'bg-amber-500/10 border-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500/10': ['pendiente', 'asignada'].includes(ot.estado),
-                    }"
+                  <span 
+                    class="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider select-none shadow-2xs"
+                    :class="estadoBadgeClass(ot.estado)"
                   >
                     {{ getStatusLabel(ot.estado) }}
-                  </Badge>
+                  </span>
                 </TableCell>
                 <TableCell class="text-right pr-4 py-4">
-                  <div class="inline-flex gap-1">
+                  <div class="inline-flex gap-1.5 items-center justify-end">
+                    <!-- Botón de Auditoría del Expediente Técnico -->
+                    <Button 
+                      @click="openAuditOt(ot)"
+                      variant="default" 
+                      size="sm" 
+                      class="h-8 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs px-3 flex items-center gap-1.5 shadow-xs active:scale-95 transition-all cursor-pointer" 
+                      title="Auditar Fotografías, Bitácora y Liquidación de Insumos"
+                    >
+                      <IconFileCheck class="w-4 h-4 stroke-[2]" />
+                      <span>Auditar</span>
+                    </Button>
+
+                    <!-- Botón de Edición Administrativa -->
                     <Button 
                       v-if="userRole === 'admin' || userRole === 'administrativo'"
                       @click="openEditOt(ot)"
-                      variant="ghost" 
-                      size="icon" 
-                      class="h-8 w-8 text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white hover:bg-neutral-100 dark:hover:bg-white/5" 
-                      title="Detalles / Editar"
-                    >
-                      <IconPencil class="w-4 h-4 stroke-[1.75]" />
-                    </Button>
-                    <Button 
-                      @click="$router.push(`/mobile/ot/${ot.id}`)"
-                      variant="default" 
+                      variant="outline" 
                       size="sm" 
-                      class="h-8 bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs px-3 flex items-center gap-1.5 shadow-md active:scale-95 transition-all" 
-                      title="Realizar Gestión Completa en Campo"
+                      class="h-8 border-neutral-200 dark:border-white/10 hover:border-neutral-300 dark:hover:border-white/20 text-neutral-700 dark:text-neutral-300 font-bold text-xs px-2.5 flex items-center gap-1 active:scale-95 transition-all cursor-pointer" 
+                      title="Editar datos generales de la OT"
                     >
-                      <IconTools class="w-4 h-4 stroke-[1.75]" />
-                      <span>Gestión de Campo</span>
+                      <IconPencil class="w-3.5 h-3.5 stroke-[1.75]" />
+                      <span>Editar</span>
                     </Button>
                   </div>
                 </TableCell>
@@ -791,68 +776,12 @@ const getStatusLabel = (status) => {
       </form>
     </Dialog>
 
-    <!-- Modal 2: Reportar Avance Diario (Solo Operativo) -->
-    <Dialog :open="openAvanceModal" @close="openAvanceModal = false">
-      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-900 pb-4 mb-5">
-        <div>
-          <h3 class="text-base font-bold text-neutral-900 dark:text-white">Reportar Avance en Campo</h3>
-          <p class="text-[11px] text-neutral-500">Registra el progreso diario de las actividades de hoy</p>
-        </div>
-        <button @click="openAvanceModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
-          <IconX class="w-5 h-5 stroke-[2]" />
-        </button>
-      </div>
-
-      <div v-if="selectedOt" class="mb-4 bg-neutral-100 dark:bg-neutral-900/60 border border-neutral-200 dark:border-neutral-850 p-4 rounded-lg">
-        <div class="text-[10px] font-bold text-neutral-400 dark:text-neutral-550 uppercase tracking-wider">Orden de Trabajo Seleccionada</div>
-        <div class="text-sm font-bold text-primary mt-1">{{ selectedOt.codigo }}</div>
-        <div class="text-xs text-neutral-700 dark:text-neutral-300 mt-1">{{ selectedOt.descripcion }}</div>
-        <div class="flex justify-between items-center mt-3 text-xs text-neutral-500">
-          <span>Progreso Actual: <b>{{ selectedOt.progreso }}%</b></span>
-          <span>Máximo a Reportar: <b>{{ 100 - selectedOt.progreso }}%</b></span>
-        </div>
-      </div>
-
-      <form @submit.prevent="submitAvance" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Porcentaje de Avance Hoy (%)</label>
-            <Input 
-              type="number" 
-              v-model="newAvance.porcentaje" 
-              required 
-              min="1" 
-              :max="100 - (selectedOt ? selectedOt.progreso : 0)" 
-              placeholder="10" 
-              class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" 
-            />
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha del Reporte</label>
-            <Input type="date" v-model="newAvance.fecha_reporte" required class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
-          </div>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción detallada de la Actividad Realizada</label>
-          <textarea 
-            v-model="newAvance.descripcion" 
-            required 
-            rows="3" 
-            placeholder="Ej: Armado y replanteo de zapatas en sector Norte. Vaciado de 3 metros cubicos de concreto."
-            class="flex min-h-[80px] w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-2 text-xs ring-offset-background placeholder:text-neutral-400 dark:placeholder:text-neutral-600 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring focus-visible:ring-primary focus:border-primary text-neutral-900 dark:text-white"
-          ></textarea>
-        </div>
-
-        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-900 pt-5 mt-6">
-          <Button type="button" variant="outline" @click="openAvanceModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto">
-            Cancelar
-          </Button>
-          <Button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/95 font-semibold w-full sm:w-auto">
-            Enviar Reporte
-          </Button>
-        </div>
-      </form>
-    </Dialog>
+    <!-- Modal 2: Auditoría y Expediente Técnico de la OT (Fotos GPS, Bitácora, LPU) -->
+    <OtAuditModal
+      :is-open="openAuditModal"
+      :ot="auditingOt"
+      @close="openAuditModal = false"
+      @updated="loadOts"
+    />
   </div>
 </template>

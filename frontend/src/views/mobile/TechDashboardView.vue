@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-100 dark:bg-[#0a0b10] text-slate-900 dark:text-slate-100 p-4 space-y-5 pb-20 transition-colors duration-300">
+  <div class="space-y-5 max-w-4xl mx-auto pb-20 select-none transition-colors duration-300">
     <!-- Header Mobile Limpio para Campo -->
     <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-3">
       <div>
@@ -19,21 +19,21 @@
 
     <!-- Indicadores Rápidos -->
     <div class="grid grid-cols-2 gap-3">
-      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-3 shadow-sm flex items-center justify-between">
+      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm flex items-center justify-between">
         <div>
           <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Asignadas / En Sitio</div>
           <div class="text-2xl font-black text-amber-600 dark:text-amber-400 mt-0.5">{{ pendientesCount }}</div>
         </div>
-        <div class="w-9 h-9 rounded-lg bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
+        <div class="w-10 h-10 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800/40 text-amber-600 dark:text-amber-400 flex items-center justify-center">
           <IconClock class="w-5 h-5 stroke-[2]" />
         </div>
       </div>
-      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-3 shadow-sm flex items-center justify-between">
+      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 shadow-sm flex items-center justify-between">
         <div>
           <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">Solucionadas / Atendidas</div>
           <div class="text-2xl font-black text-emerald-600 dark:text-emerald-400 mt-0.5">{{ solucionadasCount }}</div>
         </div>
-        <div class="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
+        <div class="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800/40 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
           <IconCircleCheck class="w-5 h-5 stroke-[2]" />
         </div>
       </div>
@@ -50,7 +50,7 @@
             class="flex flex-col sm:flex-row items-center justify-center gap-1 px-1 py-2 rounded-xl text-xs font-bold transition-all duration-200"
             :class="filtroActivo === f.id 
               ? 'bg-red-600 text-white shadow-md shadow-red-600/20' 
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-slate-800/50'"
+              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/40 dark:hover:bg-white/5'"
           >
             <component :is="f.icon" class="w-4 h-4 stroke-[2.2] shrink-0" />
             <span class="truncate text-[10px] sm:text-xs font-extrabold">

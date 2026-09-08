@@ -1,21 +1,21 @@
 <template>
   <Teleport to="body">
     <div v-if="isOpen" class="fixed inset-0 z-[120] bg-black/60 dark:bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl w-full max-w-md p-4 sm:p-5 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto my-auto transition-colors duration-300">
+      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto my-auto transition-colors duration-300">
         <div class="flex items-center gap-3">
-          <div :class="iconBgClass" class="w-10 h-10 rounded-full flex items-center justify-center shrink-0">
+          <div :class="iconBgClass" class="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 shadow-xs">
             <IconAlertTriangle v-if="type === 'warning'" class="w-5 h-5 text-amber-600 dark:text-amber-400 stroke-[2]" />
             <IconCircleCheck v-else-if="type === 'success'" class="w-5 h-5 text-emerald-600 dark:text-emerald-400 stroke-[2]" />
             <IconAlertCircle v-else-if="type === 'danger'" class="w-5 h-5 text-rose-600 dark:text-rose-400 stroke-[2]" />
             <IconInfoCircle v-else class="w-5 h-5 text-red-600 dark:text-red-400 stroke-[2]" />
           </div>
           <div>
-            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white">{{ title }}</h3>
+            <h3 class="text-sm font-extrabold text-slate-900 dark:text-white leading-tight">{{ title }}</h3>
             <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">{{ subtitle }}</p>
           </div>
         </div>
 
-        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium bg-slate-50 dark:bg-slate-950 p-3 rounded-xl border border-slate-200/80 dark:border-slate-800/80">
+        <p class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed font-medium bg-slate-50 dark:bg-[#0a0b10] p-3.5 rounded-xl border border-slate-200/80 dark:border-white/10">
           {{ message }}
         </p>
 
@@ -23,7 +23,7 @@
           <button
             @click="$emit('cancel')"
             :disabled="loading"
-            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors"
           >
             {{ cancelText }}
           </button>

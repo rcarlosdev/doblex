@@ -59,7 +59,7 @@ class OtController extends Controller
      */
     public function show($id)
     {
-        $ot = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades', 'evidencias', 'repuestos', 'avances'])->find($id);
+        $ot = Ot::with(['assignedUser', 'creator', 'cuadrilla', 'actividades', 'evidencias', 'repuestos', 'avances.user'])->find($id);
 
         if (!$ot) {
             return response()->json([
@@ -318,6 +318,53 @@ class OtController extends Controller
         return response()->json([
             'status' => 'success',
             'message' => 'Evidencia fotográfica eliminada con éxito.'
+        ]);
+    }
+
+    /**
+     * Sincronizar / guardar repuestos e insumos vinculados a la OT sin cerrarla.
+     */
+    public function syncRepuestos(Request $request, $id)
+    {
+        $ot = Ot::find($id);
+
+        if (!$ot) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'OT no encontrada.'
+            ], 404);
+        }
+
+        if (in_array($ot->estado, ['solucionada', 'finalizada'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'No se pueden modificar insumos de una Orden de Trabajo solucionada o finalizada.'
+            ], 422);
+        }
+
+        $request->validate([
+            'repuestos' => 'present|array',
+            'repuestos.*.nombre_item' => 'required|string',
+            'repuestos.*.cantidad' => 'required|numeric|min:0.01',
+            'repuestos.*.unidad_medida' => 'nullable|string',
+        ]);
+
+        // Reemplazar repuestos previos
+        $ot->repuestos()->delete();
+
+        foreach ($request->repuestos as $item) {
+            RepuestoUtilizado::create([
+                'ot_id' => $ot->id,
+                'nombre_item' => $item['nombre_item'],
+                'cantidad' => $item['cantidad'],
+                'unidad_medida' => $item['unidad_medida'] ?? 'unidad',
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Insumos y repuestos actualizados con éxito.',
+            'data' => $ot->load('repuestos')
         ]);
     }
 

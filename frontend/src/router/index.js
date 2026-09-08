@@ -25,6 +25,7 @@ const routes = [
             },
             {
                 path: 'ordenes-trabajo',
+                alias: ['ots', '/ots'],
                 name: 'ots',
                 component: OtsView
             },

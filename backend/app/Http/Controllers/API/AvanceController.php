@@ -60,7 +60,7 @@ class AvanceController extends Controller
         $ot->progreso = $nuevoProgreso;
         
         if ($ot->progreso >= 100) {
-            $ot->estado = 'finalizado';
+            $ot->estado = 'finalizada';
         } else {
             $ot->estado = 'en_progreso';
         }
@@ -71,9 +71,9 @@ class AvanceController extends Controller
             'status' => 'success',
             'message' => 'Avance reportado con éxito y progreso de la OT actualizado.',
             'data' => [
-                'avance' => $avance,
-                'ot' => $ot->load(['assignedUser', 'creator'])
+                'avance' => $avance->load('user'),
+                'ot' => $ot->load(['assignedUser', 'creator', 'avances.user'])
             ]
-        ], 211);
+        ], 201);
     }
 }

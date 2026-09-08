@@ -22,7 +22,7 @@ const props = defineProps({
 defineEmits(['close']);
 
 const route = useRoute();
-const userRole = ref('admin');
+const userRole = ref(localStorage.getItem('smu_role') || 'admin');
 
 onMounted(() => {
   userRole.value = localStorage.getItem('smu_role') || 'admin';
@@ -54,28 +54,31 @@ const isRouteActive = (item) => {
   if (item.routeName === 'dashboard') {
     return route.path === '/';
   }
+  if (item.routeName === 'mobile-dashboard') {
+    return route.path.startsWith('/mobile');
+  }
   return route.path.startsWith(item.path);
 };
 </script>
 
 <template>
   <aside 
-    class="h-screen sticky top-0 bg-white dark:bg-[#121215] flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-white/10"
+    class="h-full bg-white dark:bg-[#121215] flex flex-col overflow-hidden transition-all duration-350 ease-in-out select-none border-neutral-200 dark:border-white/10 shrink-0"
     :class="[
       // Comportamiento responsivo móvil (flotante)
-      'fixed z-50',
+      'fixed inset-y-0 left-0 z-50',
       open 
         ? 'translate-x-0 w-64 p-6 border-r opacity-100' 
         : '-translate-x-full w-0 p-0 border-r-0 opacity-0 pointer-events-none',
-      // Comportamiento responsivo escritorio (empuja el contenido)
-      'md:sticky md:z-20 md:translate-x-0',
+      // Comportamiento responsivo escritorio (empuja el contenido de forma estable)
+      'md:static md:z-20 md:translate-x-0',
       open
         ? 'md:w-64 md:p-6 md:border-r md:opacity-100'
         : 'md:w-0 md:p-0 md:border-r-0 md:opacity-0 md:pointer-events-none'
     ]"
   >
     <!-- Logotipo principal & Botón Cerrar (en móvil) -->
-    <div class="min-w-[200px] flex items-center justify-between mb-10 pl-2">
+    <div class="min-w-[200px] flex items-center justify-between mb-8 pl-2 shrink-0">
       <div class="flex items-center gap-2">
         <span class="text-primary text-xl font-bold filter drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]">▲</span>
         <span class="font-bold tracking-wider text-sm bg-gradient-to-r from-neutral-800 to-neutral-500 dark:from-white dark:to-neutral-400 bg-clip-text text-transparent">
@@ -94,7 +97,7 @@ const isRouteActive = (item) => {
     </div>
 
     <!-- Menú Principal (Filtrado por Permisos de Rol) -->
-    <nav class="min-w-[200px] flex-1 flex flex-col gap-1">
+    <nav class="min-w-[200px] flex-1 flex flex-col gap-1 overflow-y-auto overflow-x-hidden pr-1">
       <router-link 
         v-for="item in menuItems" 
         :key="item.path" 

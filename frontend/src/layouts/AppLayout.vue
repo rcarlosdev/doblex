@@ -12,7 +12,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex min-h-screen bg-slate-100 dark:bg-[#0a0b10] text-neutral-900 dark:text-neutral-100 font-sans overflow-x-hidden transition-colors duration-300">
+  <div class="flex h-screen bg-slate-100 dark:bg-[#0a0b10] text-neutral-900 dark:text-neutral-100 font-sans overflow-hidden transition-colors duration-300">
     <!-- Overlay oscuro de fondo en móviles cuando el Sidebar está abierto -->
     <div 
       v-if="isSidebarOpen" 
@@ -27,9 +27,9 @@ onMounted(() => {
     />
 
     <!-- Contenedor del contenido principal -->
-    <div class="flex-1 flex flex-col min-w-0 transition-all duration-300">
+    <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden transition-all duration-300">
       <!-- Navbar superior (envía evento para alternar el estado del Sidebar) -->
-      <Navbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" />
+      <Navbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" class="shrink-0" />
 
       <!-- Cuerpo principal de contenido -->
       <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-neutral-50 dark:bg-[#0a0b10] bg-radial-at-c-layout transition-colors duration-350">

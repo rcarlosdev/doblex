@@ -35,12 +35,14 @@ Para proteger las rutas y autenticar a los usuarios, utilizamos la autenticació
 
 Para probar los flujos y niveles de acceso de cada rol en el entorno local (generados en el `DatabaseSeeder`), utiliza las siguientes credenciales:
 
-| Perfil / Rol | Nombre / Empleado | Username | Email | Contraseña | Cargo / Descripción |
+| Perfil / Rol | Nombre / Empleado | Username | Email | Contraseña | Cargo / Región |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Administrador** (`admin`) | Admin General | `admin.doblex` | `admin@doblex.com` | `admin123` | Director General de Obra (Gestión total del sistema) |
 | **Administrativo** (`administrativo`) | Auxiliar Técnico | `adminis.doblex` | `adminis@doblex.com` | `adminis123` | Asistente Administrativo de Campo (Gestión de OTs) |
-| **Operativo** (`operativo`) | Ing. Carlos Pérez | `carlos.doblex` | `carlos@doblex.com` | `operador123` | Ingeniero Residente de Estructuras (Líder Cuadrilla Estructuras) |
-| **Operativo** (`operativo`) | Ing. Luis Martínez | `luis.doblex` | `luis@doblex.com` | `operador123` | Ingeniero de Vías y Excavaciones (Líder Cuadrilla Vías) |
+| **Operativo** (`operativo`) | Ing. Carlos Pérez | `carlos.doblex` | `carlos@doblex.com` | `operador123` | Ingeniero Residente Electromecánico (Antioquia / Córdoba) |
+| **Operativo** (`operativo`) | Ing. Luis Martínez | `luis.doblex` | `luis@doblex.com` | `operador123` | Ingeniero de Energía y Climatización (Atlántico) |
+| **Operativo** (`operativo`) | Jasmin Ariel Mosquera | `jasmin.doblex` | `jasmin@doblex.com` | `operador123` | Técnico Electromecánico (Chocó / ZNI) |
+| **Operativo** (`operativo`) | Eliseo Smith Granados | `eliseo.doblex` | `eliseo@doblex.com` | `operador123` | Técnico Electricista (Atlántico / Barranquilla) |
 
 > **Nota:** Puedes iniciar sesión ingresando el **Email** o el **Username** en el campo correspondiente del formulario de inicio de sesión.
 

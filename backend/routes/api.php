@@ -31,6 +31,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/ots/{id}/evidencia', [OtController::class, 'uploadEvidencia']);
     Route::delete('/evidencias/{id}', [OtController::class, 'deleteEvidencia']);
     Route::post('/ots/{id}/cerrar', [OtController::class, 'cerrarOt']);
+    Route::post('/ots/{id}/repuestos', [OtController::class, 'syncRepuestos']);
     Route::get('/operadores', [OtController::class, 'getOperativos']); // Listado de operadores para asignar
 
 
