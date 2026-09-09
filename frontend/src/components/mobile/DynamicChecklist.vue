@@ -62,6 +62,10 @@
       <AaInspectionProtocol :ot-id="otId" @updated="onAaInspectionUpdated" />
     </div>
 
+    <div v-else-if="activeProtocolKey === 'POWER'">
+      <PowerInspectionProtocol :ot-id="otId" @updated="onPowerInspectionUpdated" />
+    </div>
+
     <div v-else class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-sm">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3 flex-wrap gap-2">
         <div>
@@ -158,6 +162,7 @@ import { IconListCheck, IconCheck } from '@tabler/icons-vue';
 import GeInspectionProtocol from './GeInspectionProtocol.vue';
 import SptInspectionProtocol from './SptInspectionProtocol.vue';
 import AaInspectionProtocol from './AaInspectionProtocol.vue';
+import PowerInspectionProtocol from './PowerInspectionProtocol.vue';
 
 const props = defineProps({
   otId: {
@@ -175,6 +180,7 @@ const emit = defineEmits(['checklist-updated']);
 const geProgress = ref(0);
 const sptProgress = ref(0);
 const aaProgress = ref(0);
+const powerProgress = ref(0);
 
 const onGeInspectionUpdated = (data) => {
   if (data && data.porcentajeCompletado !== undefined) {
@@ -193,6 +199,13 @@ const onSptInspectionUpdated = (data) => {
 const onAaInspectionUpdated = (data) => {
   if (data && data.porcentajeCompletado !== undefined) {
     aaProgress.value = data.porcentajeCompletado;
+  }
+  notifyUpdate();
+};
+
+const onPowerInspectionUpdated = (data) => {
+  if (data && data.porcentajeCompletado !== undefined) {
+    powerProgress.value = data.porcentajeCompletado;
   }
   notifyUpdate();
 };
@@ -462,6 +475,9 @@ const getProtocolProgress = (key) => {
   if (key === 'AA') {
     return aaProgress.value;
   }
+  if (key === 'POWER') {
+    return powerProgress.value;
+  }
   const tasksArr = protocolStates.value[key] || [];
   if (tasksArr.length === 0) return 0;
   const done = tasksArr.filter(t => t.completado).length;
@@ -478,15 +494,10 @@ const consolidatedPercent = computed(() => {
   if (activeProtocolKey.value === 'AA') {
     return aaProgress.value;
   }
-  const keys = ['POWER'];
-  let totalTasks = 0;
-  let totalDone = 0;
-  keys.forEach(k => {
-    const arr = protocolStates.value[k] || [];
-    totalTasks += arr.length;
-    totalDone += arr.filter(t => t.completado).length;
-  });
-  return totalTasks > 0 ? Math.round((totalDone / totalTasks) * 100) : 0;
+  if (activeProtocolKey.value === 'POWER') {
+    return powerProgress.value;
+  }
+  return 0;
 });
 
 const notifyUpdate = () => {
@@ -531,6 +542,19 @@ const loadAllSavedStates = () => {
     }
   } catch (e) {
     console.error('Error al cargar progreso AA:', e);
+  }
+
+  // Cargar estado de protocolo POWER desde su clave propia
+  try {
+    const powerRaw = localStorage.getItem(`smu_power_inspection_ot_${props.otId || 'draft'}`);
+    if (powerRaw) {
+      const powerData = JSON.parse(powerRaw);
+      if (powerData && powerData.bus) {
+        powerProgress.value = 100;
+      }
+    }
+  } catch (e) {
+    console.error('Error al cargar progreso POWER:', e);
   }
 
   Object.keys(ALL_PROTOCOLS).forEach(key => {

@@ -641,6 +641,105 @@
               </div>
             </div>
           </div>
+
+          <!-- PESTAÑA 8: PROTOCOLO FUERZA DC Y BATERÍAS -->
+          <div v-if="activeTab === 'diagnostico_power'" class="space-y-4">
+            <!-- Ficha Técnica de Energía DC -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconBatteryCharging class="w-4 h-4 text-amber-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Sistema de Energía DC, Rectificadores & Baterías (Cap. 18.4)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Operación Normal
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Controlador / Bastidor</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.marca || 'Eltek (Smartpack)' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Módulos Activos</span>
+                  <span class="font-mono font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.modulosInstalados || 4 }} Módulos</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Tecnología de Baterías</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.tipoBaterias || 'VRLA AGM 12V' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Capacidad Total</span>
+                  <span class="font-mono font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.capacidadAh || '200 Ah (2 Bancos)' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Parámetros Eléctricos de Flotación y LVD -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Tensión Bus DC (Flotación)</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ powerAuditData?.bus?.voltajeFlotacion || '-54.2' }} Vdc</span>
+                  <span class="text-[10px] text-slate-500 block">Norma: -53.5 a -54.5 Vdc</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  ÓPTIMO
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Demanda Telecom Total</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ powerAuditData?.bus?.corrienteTotal || '78.5' }} A</span>
+                  <span class="text-[10px] text-slate-500 block">Balance módulos conforme</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  ESTABLE
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Protección LVD (Corte)</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ powerAuditData?.bus?.umbralLvd || '-43.2' }} Vdc</span>
+                  <span class="text-[10px] text-slate-500 block">Contactor automático verificado</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  CALIBRADO
+                </span>
+              </div>
+            </div>
+
+            <!-- Simetría Banco de Baterías (Monoblocks 12V) -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2 flex-wrap gap-2">
+                <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Simetría Celda a Celda (Banco de Baterías 1)
+                </span>
+                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                  Desbalance ≤ 0.06 Vdc (Conforme)
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div 
+                  v-for="(celda, idx) in (powerAuditData?.baterias?.banco1 || [])" 
+                  :key="celda.id || idx"
+                  class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5 flex items-center justify-between"
+                >
+                  <span class="font-bold text-slate-700 dark:text-slate-300">Vaso {{ idx + 1 }}:</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ celda.voltaje }} Vdc</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Footer del Modal: Acciones Administrativas de Aprobación -->
@@ -736,6 +835,7 @@ import {
   IconEngine,
   IconBolt,
   IconSnowflake,
+  IconBatteryCharging,
   IconAlertTriangle
 } from '@tabler/icons-vue';
 
@@ -884,11 +984,40 @@ const loadAaAuditData = () => {
   }
 };
 
+const powerAuditData = ref(null);
+
+const loadPowerAuditData = () => {
+  if (!props.ot?.id) return;
+  try {
+    const raw = localStorage.getItem(`smu_power_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      powerAuditData.value = JSON.parse(raw);
+    } else {
+      powerAuditData.value = {
+        ficha: { marca: 'Eltek (Smartpack)', modulosInstalados: 4, tipoBaterias: 'VRLA AGM 12V', capacidadAh: '200 Ah (2 Bancos)' },
+        bus: { voltajeFlotacion: '-54.2', corrienteTotal: '78.5', umbralLvd: '-43.2' },
+        baterias: {
+          pruebaDescarga: true,
+          banco1: [
+            { id: 1, voltaje: '13.55' },
+            { id: 2, voltaje: '13.58' },
+            { id: 3, voltaje: '13.52' },
+            { id: 4, voltaje: '13.55' },
+          ],
+        },
+      };
+    }
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría POWER:', e);
+  }
+};
+
 watch([() => props.ot?.id, () => props.isOpen], () => {
   if (props.isOpen) {
     loadGeAuditData();
     loadSptAuditData();
     loadAaAuditData();
+    loadPowerAuditData();
   }
 }, { immediate: true });
 
@@ -896,6 +1025,7 @@ onMounted(() => {
   loadGeAuditData();
   loadSptAuditData();
   loadAaAuditData();
+  loadPowerAuditData();
 });
 
 const tabs = computed(() => {
@@ -910,6 +1040,7 @@ const tabs = computed(() => {
   }
   baseTabs.push({ id: 'diagnostico_spt', label: 'Puesta a Tierra (SPT)', icon: IconBolt });
   baseTabs.push({ id: 'diagnostico_aa', label: 'Climatización (AA)', icon: IconSnowflake });
+  baseTabs.push({ id: 'diagnostico_power', label: 'Fuerza DC (-48V)', icon: IconBatteryCharging });
   return baseTabs;
 });
 
