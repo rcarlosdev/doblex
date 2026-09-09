@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="isOpen" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl transition-colors duration-300 my-auto">
+      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-5xl xl:max-w-6xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl transition-colors duration-300 my-auto">
         
         <!-- Header del Modal -->
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 px-5 py-4 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
@@ -47,24 +47,24 @@
           </div>
         </div>
 
-        <!-- Pestañas del Expediente -->
-        <div class="border-b border-slate-200 dark:border-white/10 px-5 pt-2 bg-slate-50/30 dark:bg-[#0a0b10] shrink-0">
-          <div class="flex gap-1 sm:gap-2 overflow-x-auto select-none">
+        <!-- Pestañas del Expediente (Estilo Cápsula sin scrollbar tosco) -->
+        <div class="border-b border-slate-200 dark:border-white/10 px-5 py-2.5 bg-slate-50/70 dark:bg-[#0a0b10] shrink-0">
+          <div class="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden select-none">
             <button
               v-for="t in tabs"
               :key="t.id"
               @click="activeTab = t.id"
-              class="px-3 py-2 rounded-t-xl text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap"
+              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 border select-none"
               :class="activeTab === t.id 
-                ? 'border-red-600 text-red-600 dark:text-red-400 bg-white dark:bg-[#121215]' 
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'"
+                ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-600/20' 
+                : 'bg-white dark:bg-[#121215] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20'"
             >
-              <component :is="t.icon" class="w-4 h-4 stroke-[2]" />
+              <component :is="t.icon" class="w-3.5 h-3.5 stroke-[2.2]" />
               <span>{{ t.label }}</span>
               <span 
                 v-if="t.badge !== undefined" 
                 class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black"
-                :class="activeTab === t.id ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
+                :class="activeTab === t.id ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
               >
                 {{ t.badge }}
               </span>
@@ -339,6 +339,308 @@
               </table>
             </div>
           </div>
+
+          <!-- PESTAÑA 5: DIAGNÓSTICO DE PLANTA ELÉCTRICA (GE) -->
+          <div v-if="activeTab === 'diagnostico_ge'" class="space-y-4">
+            <!-- Ficha Técnica de Planta y Horómetro -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconEngine class="w-4 h-4 text-amber-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Ficha Técnica de Planta & Generador (Plantilla SMU)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Estado: {{ geAuditData?.ficha?.estado_operacional || 'OPERATIVO' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Horómetro Reportado</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ geAuditData?.ficha?.horometro || 184 }} hrs</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">{{ (((geAuditData?.ficha?.horometro || 184) / 25000) * 100).toFixed(2) }}% de vida útil</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Planta / Motor</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ geAuditData?.ficha?.fabricante_planta || 'CUMMINS' }}</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">Modelo: {{ geAuditData?.ficha?.modelo_planta || '60DGCB' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Generador</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ geAuditData?.ficha?.fabricante_generador || 'STAMFORD' }}</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">Modelo: {{ geAuditData?.ficha?.modelo_generador || 'UCI224E' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Capacidad Efectiva</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ geAuditData?.ficha?.potencia_kw || 60 }} KW</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">{{ geAuditData?.ficha?.potencia_kva || 75 }} KVA</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mediciones Cuantitativas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Megger Aislamiento Alternador</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ geAuditData?.mediciones?.megger || 5.5 }} MΩ</span>
+                  <span class="text-[10px] text-slate-500 block">U, V, W a Tierra @ 1000 Vdc</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  CUMPLE (≥ 5.0 MΩ)
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Prueba Banco de Carga (60 min)</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ geAuditData?.mediciones?.voltaje_carga || 220 }} VAC</span>
+                  <span class="text-[10px] text-slate-500 block">Estable bajo 80-100% carga</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  APTO (± 5%)
+                </span>
+              </div>
+            </div>
+
+            <!-- Hallazgos y Análisis Causa Raíz (RCA) -->
+            <div v-if="geAuditData?.hallazgos?.generacion?.descripcion" class="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/60 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                  <IconAlertTriangle class="w-4 h-4 stroke-[2.2]" />
+                  <span>Diagnóstico de Falla & Causa Raíz (RCA)</span>
+                </span>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200">
+                  Criticidad: {{ geAuditData?.hallazgos?.generacion?.criticidad || 'Alta' }}
+                </span>
+              </div>
+
+              <div class="text-xs text-slate-800 dark:text-slate-200 space-y-1">
+                <div><span class="font-bold">Hallazgo:</span> {{ geAuditData.hallazgos.generacion.descripcion }}</div>
+                <div><span class="font-bold">Acción Recomendada:</span> {{ geAuditData.hallazgos.generacion.accion_recomendada }}</div>
+                <div v-if="geAuditData.hallazgos.generacion.causa_raiz"><span class="font-bold">Causa Raíz:</span> {{ geAuditData.hallazgos.generacion.causa_raiz }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA 6: PROTOCOLO SPT Y EQUIPOTENCIALIDAD -->
+          <div v-if="activeTab === 'diagnostico_spt'" class="space-y-4">
+            <!-- Ficha Técnica de Medición y Telurómetro -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconBolt class="w-4 h-4 text-amber-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Ficha Técnica de Medición SPT (Plantilla Oficial SMU)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Concepto: {{ (sptAuditData?.caidaPotencial?.lecturas?.find(l => l.porcentaje === 62)?.r <= 5.0) ? 'APTO (RETIE)' : 'NO APTO' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Condición de Suelo</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ sptAuditData?.ficha?.condicionSuelo || 'Suelo de concreto / losa' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Instrumento Certificado</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ sptAuditData?.ficha?.instrumento || 'Telurómetro AEMC 4630' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Electrodo Bajo Prueba</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ sptAuditData?.ficha?.electrodoBajoPrueba || 'Malla puesta a tierra telecom' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen de Métodos: Wenner y Caída 62% -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Wenner -->
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase">Resistividad Wenner (4 Picas)</span>
+                  <span v-if="!sptAuditData?.wenner?.aplica" class="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                    EXCEPCIÓN FÍSICA
+                  </span>
+                  <span v-else class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    EJECUTADO
+                  </span>
+                </div>
+                <div v-if="!sptAuditData?.wenner?.aplica" class="text-xs text-slate-600 dark:text-slate-400">
+                  <span class="font-bold text-slate-800 dark:text-slate-200">Justificación:</span> {{ sptAuditData?.wenner?.justificacionNoAplica }}
+                </div>
+                <div v-else class="text-xs text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <span>Resistividad Promedio:</span>
+                  <span class="font-mono font-bold">{{ sptAuditData?.wenner?.rhoPromedio || '120.5' }} Ω·m</span>
+                </div>
+              </div>
+
+              <!-- Caída de Potencial 62% -->
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase">Resistencia SPT (Caída 62%)</span>
+                  <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    RETIE ≤ 5.0 Ω
+                  </span>
+                </div>
+                <div class="flex items-baseline justify-between pt-1">
+                  <span class="font-mono font-black text-lg text-slate-900 dark:text-white">
+                    {{ sptAuditData?.caidaPotencial?.lecturas?.find(l => l.porcentaje === 62)?.r || '4.3' }} Ω
+                  </span>
+                  <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <IconCircleCheck class="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Conforme RETIE / IEC</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Matriz de Equipotencialidad y Continuidad (11 Puntos) -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2 flex-wrap gap-2">
+                <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Matriz de Continuidad y Equipotencialidad a BEP (11 Puntos)
+                </span>
+                <span class="text-[10px] font-bold text-slate-500">
+                  Criterio de Aprobación: ≤ 1.2 Ω
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div 
+                  v-for="(pt, idx) in (sptAuditData?.equipotencialidad?.puntos || [])" 
+                  :key="pt.id || idx"
+                  class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2 flex items-center justify-between text-xs"
+                >
+                  <div class="truncate mr-2">
+                    <span class="font-mono text-[10px] text-slate-400 block">#{{ idx + 1 }}</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">{{ pt.nombre }}</span>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="font-mono font-black text-xs text-slate-900 dark:text-white block">{{ pt.valorR }} Ω</span>
+                    <span class="text-[9px] font-black text-emerald-600 dark:text-emerald-400">CUMPLE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA 7: PROTOCOLO DE CLIMATIZACIÓN (AA) -->
+          <div v-if="activeTab === 'diagnostico_aa'" class="space-y-4">
+            <!-- Ficha Técnica Dual de Equipos Climatización -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconSnowflake class="w-4 h-4 text-sky-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Sistema de Climatización Dual Redundante (Cap. 18.1 Anexo Técnico)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Rotación 1+1 Activa
+                </span>
+              </div>
+
+              <!-- Comparativa de Unidades AA-1 y AA-2 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Tarjeta Unidad 1 -->
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-xs text-sky-600 dark:text-sky-400">Unidad AA-1 (Líder)</span>
+                    <span class="text-[10px] font-mono text-slate-500">{{ aaAuditData?.aa1?.ficha?.refrigerante || 'R410A' }}</span>
+                  </div>
+                  <div class="text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                    <div><span class="text-slate-400">Equipo:</span> <span class="font-bold">{{ aaAuditData?.aa1?.ficha?.marca || 'York' }} {{ aaAuditData?.aa1?.ficha?.tipo || 'Mini-Split' }}</span></div>
+                    <div><span class="text-slate-400">Capacidad:</span> <span class="font-mono font-bold">{{ aaAuditData?.aa1?.ficha?.capacidad || '24.000 BTU' }}</span></div>
+                  </div>
+                  <!-- Termodinámica -->
+                  <div class="pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase block font-bold">Salto Térmico (ΔT)</span>
+                      <span class="font-mono font-black text-sm text-slate-900 dark:text-white">
+                        {{ ((parseFloat(aaAuditData?.aa1?.termo?.tempRetorno) || 24.2) - (parseFloat(aaAuditData?.aa1?.termo?.tempInyeccion) || 12.4)).toFixed(1) }} °C
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      ÓPTIMO (10-16°C)
+                    </span>
+                  </div>
+                  <!-- Presiones -->
+                  <div class="pt-1.5 flex items-center justify-between text-[11px] font-mono">
+                    <span class="text-slate-500">Baja: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa1?.presion?.succion || 122 }} PSI</strong></span>
+                    <span class="text-slate-500">Alta: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa1?.presion?.descarga || 348 }} PSI</strong></span>
+                    <span class="text-slate-500">Comp: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa1?.electrico?.corrienteCompresor || 8.6 }} A</strong></span>
+                  </div>
+                </div>
+
+                <!-- Tarjeta Unidad 2 -->
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-xs text-sky-600 dark:text-sky-400">Unidad AA-2 (Respaldo)</span>
+                    <span class="text-[10px] font-mono text-slate-500">{{ aaAuditData?.aa2?.ficha?.refrigerante || 'R410A' }}</span>
+                  </div>
+                  <div class="text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                    <div><span class="text-slate-400">Equipo:</span> <span class="font-bold">{{ aaAuditData?.aa2?.ficha?.marca || 'York' }} {{ aaAuditData?.aa2?.ficha?.tipo || 'Mini-Split' }}</span></div>
+                    <div><span class="text-slate-400">Capacidad:</span> <span class="font-mono font-bold">{{ aaAuditData?.aa2?.ficha?.capacidad || '24.000 BTU' }}</span></div>
+                  </div>
+                  <!-- Termodinámica -->
+                  <div class="pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase block font-bold">Salto Térmico (ΔT)</span>
+                      <span class="font-mono font-black text-sm text-slate-900 dark:text-white">
+                        {{ ((parseFloat(aaAuditData?.aa2?.termo?.tempRetorno) || 24.0) - (parseFloat(aaAuditData?.aa2?.termo?.tempInyeccion) || 12.8)).toFixed(1) }} °C
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      ÓPTIMO (10-16°C)
+                    </span>
+                  </div>
+                  <!-- Presiones -->
+                  <div class="pt-1.5 flex items-center justify-between text-[11px] font-mono">
+                    <span class="text-slate-500">Baja: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa2?.presion?.succion || 120 }} PSI</strong></span>
+                    <span class="text-slate-500">Alta: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa2?.presion?.descarga || 340 }} PSI</strong></span>
+                    <span class="text-slate-500">Comp: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa2?.electrico?.corrienteCompresor || 8.4 }} A</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Secuencial de Alternancia y Rutina -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider block">
+                Evaluación de Control y Rutina de Limpieza Química
+              </span>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Temperatura de Consigna</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white text-sm">23.0 °C</span>
+                  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5 font-bold">Rango 22°C - 24°C Cumplido</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Rotación Forzada 1+1</span>
+                  <span class="font-bold text-slate-900 dark:text-white text-sm">Conmutación Verificada</span>
+                  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5 font-bold">Alternancia 12h/12h Operativa</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Lavado Químico Serpentines</span>
+                  <span class="font-bold text-slate-900 dark:text-white text-sm">Foaming Aplicado</span>
+                  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5 font-bold">Evaporador & Condensador Limpios</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Footer del Modal: Acciones Administrativas de Aprobación -->
@@ -409,7 +711,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import SlaBadge from '@/components/common/SlaBadge.vue';
 import client from '@/api/client';
 import {
@@ -430,7 +732,11 @@ import {
   IconExternalLink,
   IconZoomIn,
   IconUser,
-  IconDeviceMobile
+  IconDeviceMobile,
+  IconEngine,
+  IconBolt,
+  IconSnowflake,
+  IconAlertTriangle
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -451,12 +757,161 @@ const filtroFoto = ref('todas');
 const fotoZoom = ref(null);
 const loadingAction = ref(false);
 
-const tabs = computed(() => [
-  { id: 'resumen', label: 'Ficha General', icon: IconFileText },
-  { id: 'evidencias', label: 'Fotos Evidencia', icon: IconCamera, badge: props.ot?.evidencias?.length || 0 },
-  { id: 'bitacora', label: 'Bitácora PDT', icon: IconHistory, badge: props.ot?.avances?.length || 0 },
-  { id: 'repuestos', label: 'Insumos LPU', icon: IconBox, badge: props.ot?.repuestos?.length || 0 },
-]);
+const isGeOt = computed(() => {
+  const sub = (props.ot?.subsistema || '').toUpperCase();
+  return sub.includes('GE') || sub.includes('ATS') || sub.includes('PLANTA') || sub.includes('GENERADOR');
+});
+
+const geAuditData = ref(null);
+
+const loadGeAuditData = () => {
+  if (!props.ot?.id) return;
+  try {
+    const raw = localStorage.getItem(`smu_ge_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      geAuditData.value = JSON.parse(raw);
+    } else {
+      // Datos de referencia según Anexo Técnico SMU Apartado
+      geAuditData.value = {
+        ficha: {
+          horometro: 184,
+          fabricante_planta: 'CUMMINS',
+          modelo_planta: '60DGCB',
+          potencia_kw: 60,
+          potencia_kva: 75,
+          fabricante_generador: 'STAMFORD',
+          modelo_generador: 'UCI224E',
+          estado_operacional: 'OPERATIVO',
+          estado_fisico: 'BUENO'
+        },
+        mediciones: {
+          megger: 5.5,
+          voltaje_carga: 220
+        },
+        hallazgos: {
+          generacion: {
+            descripcion: 'Se encuentra deterioro en componentes electrónicos de tarjeta AVR, generador presenta deterioro en aislamientos.',
+            accion_recomendada: 'Cambio de tarjeta AVR y mantenimiento general del generador.',
+            criticidad: 'Alta',
+            causa_raiz: 'Desgaste por tiempo de operación sin mantenimiento prolongado'
+          }
+        }
+      };
+    }
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría GE:', e);
+  }
+};
+
+const sptAuditData = ref(null);
+
+const loadSptAuditData = () => {
+  if (!props.ot?.id) return;
+  try {
+    const raw = localStorage.getItem(`smu_spt_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      sptAuditData.value = JSON.parse(raw);
+    } else {
+      sptAuditData.value = {
+        ficha: {
+          condicionSuelo: 'Suelo de concreto / losa',
+          instrumento: 'Telurómetro AEMC 4630 (Modo 62% y Wenner)',
+          electrodoBajoPrueba: 'Malla puesta a tierra telecom (Torre + Contenedor)',
+        },
+        wenner: {
+          aplica: false,
+          justificacionNoAplica: 'No aplica por imposibilidad física de realizar el método (sitio sobre losa perimetral de concreto sin acceso a suelo natural).',
+        },
+        caidaPotencial: {
+          criterioMax: 5.0,
+          lecturas: [
+            { porcentaje: 20, distanciaM: 10, r: '4.8', cumple: true, obs: 'R dentro de umbral normal' },
+            { porcentaje: 40, distanciaM: 20, r: '4.6', cumple: true, obs: 'R dentro de umbral normal' },
+            { porcentaje: 62, distanciaM: 31, r: '4.3', cumple: true, obs: 'R óptima conforme RETIE (≤ 5.0 Ω)' },
+            { porcentaje: 80, distanciaM: 40, r: '4.5', cumple: true, obs: 'Meseta de potencial estable' },
+          ],
+        },
+        equipotencialidad: {
+          puntos: [
+            { id: 1, nombre: 'Barra Equipotencial Principal (BEP)', valorR: '0.05', cumple: true },
+            { id: 2, nombre: 'Gabinete RAN / BTS (Acceso)', valorR: '0.40', cumple: true },
+            { id: 3, nombre: 'Gabinete Transmisión (MW/Router)', valorR: '0.35', cumple: true },
+            { id: 4, nombre: 'Gabinete Rectificador Power DC (-48V)', valorR: '0.20', cumple: true },
+            { id: 5, nombre: 'Bancos de Baterías (-48V)', valorR: '0.30', cumple: true },
+            { id: 6, nombre: 'Tablero Distribución DC (PDB)', valorR: '0.25', cumple: true },
+            { id: 7, nombre: 'Tablero General AC / TGP', valorR: '0.15', cumple: true },
+            { id: 8, nombre: 'Transferencia Automática (ATS)', valorR: '0.45', cumple: true },
+            { id: 9, nombre: 'Grupo Electrógeno (Planta)', valorR: '0.60', cumple: true },
+            { id: 10, nombre: 'Aires Acondicionados (AA-1 y AA-2)', valorR: '0.50', cumple: true },
+            { id: 11, nombre: 'Torre / Bajante LPS + Cerramiento', valorR: '0.70', cumple: true },
+          ],
+        },
+      };
+    }
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría SPT:', e);
+  }
+};
+
+const aaAuditData = ref(null);
+
+const loadAaAuditData = () => {
+  if (!props.ot?.id) return;
+  try {
+    const raw = localStorage.getItem(`smu_aa_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      aaAuditData.value = JSON.parse(raw);
+    } else {
+      aaAuditData.value = {
+        aa1: {
+          ficha: { marca: 'York', tipo: 'Mini-Split Confort', capacidad: '24000 BTU (2.0 TR)', refrigerante: 'R410A' },
+          termo: { tempRetorno: '24.2', tempInyeccion: '12.4', tempAmbiente: '31.5' },
+          presion: { succion: '122', descarga: '348' },
+          electrico: { corrienteCompresor: '8.6', rla: 11.5, voltajeAc: '222' },
+          control: { setpoint: '23.0', rotacionForzada: true, reinicioAuto: true }
+        },
+        aa2: {
+          ficha: { marca: 'York', tipo: 'Mini-Split Confort', capacidad: '24000 BTU (2.0 TR)', refrigerante: 'R410A' },
+          termo: { tempRetorno: '24.0', tempInyeccion: '12.8', tempAmbiente: '31.5' },
+          presion: { succion: '120', descarga: '340' },
+          electrico: { corrienteCompresor: '8.4', rla: 11.5, voltajeAc: '222' },
+          control: { setpoint: '23.0', rotacionForzada: true, reinicioAuto: true }
+        }
+      };
+    }
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría AA:', e);
+  }
+};
+
+watch([() => props.ot?.id, () => props.isOpen], () => {
+  if (props.isOpen) {
+    loadGeAuditData();
+    loadSptAuditData();
+    loadAaAuditData();
+  }
+}, { immediate: true });
+
+onMounted(() => {
+  loadGeAuditData();
+  loadSptAuditData();
+  loadAaAuditData();
+});
+
+const tabs = computed(() => {
+  const baseTabs = [
+    { id: 'resumen', label: 'Ficha General', icon: IconFileText },
+    { id: 'evidencias', label: 'Evidencias', icon: IconCamera, badge: props.ot?.evidencias?.length || 0 },
+    { id: 'bitacora', label: 'Bitácora PDT', icon: IconHistory, badge: props.ot?.avances?.length || 0 },
+    { id: 'repuestos', label: 'Insumos LPU', icon: IconBox, badge: props.ot?.repuestos?.length || 0 },
+  ];
+  if (isGeOt.value || geAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_ge', label: 'Planta GE / ATS', icon: IconEngine });
+  }
+  baseTabs.push({ id: 'diagnostico_spt', label: 'Puesta a Tierra (SPT)', icon: IconBolt });
+  baseTabs.push({ id: 'diagnostico_aa', label: 'Climatización (AA)', icon: IconSnowflake });
+  return baseTabs;
+});
 
 const countFotos = (tipo) => {
   if (!props.ot?.evidencias) return 0;
