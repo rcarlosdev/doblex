@@ -959,150 +959,104 @@ const isGeOt = computed(() => {
 const geAuditData = ref(null);
 
 const loadGeAuditData = () => {
-  if (!props.ot?.id) return;
+  if (!props.ot?.id) {
+    geAuditData.value = null;
+    return;
+  }
   try {
     const raw = localStorage.getItem(`smu_ge_inspection_ot_${props.ot.id}`);
     if (raw) {
-      geAuditData.value = JSON.parse(raw);
-    } else {
-      // Datos de referencia según Anexo Técnico SMU Apartado
-      geAuditData.value = {
-        ficha: {
-          horometro: 184,
-          fabricante_planta: 'CUMMINS',
-          modelo_planta: '60DGCB',
-          potencia_kw: 60,
-          potencia_kva: 75,
-          fabricante_generador: 'STAMFORD',
-          modelo_generador: 'UCI224E',
-          estado_operacional: 'OPERATIVO',
-          estado_fisico: 'BUENO'
-        },
-        mediciones: {
-          megger: 5.5,
-          voltaje_carga: 220
-        },
-        hallazgos: {
-          generacion: {
-            descripcion: 'Se encuentra deterioro en componentes electrónicos de tarjeta AVR, generador presenta deterioro en aislamientos.',
-            accion_recomendada: 'Cambio de tarjeta AVR y mantenimiento general del generador.',
-            criticidad: 'Alta',
-            causa_raiz: 'Desgaste por tiempo de operación sin mantenimiento prolongado'
-          }
-        }
-      };
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.porcentajeCompletado > 0 || parsed.ficha?.horometro || parsed.mediciones?.megger || parsed.mediciones?.voltaje_carga)) {
+        geAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.ge_inspection || props.ot?.inspeccion_ge) {
+      geAuditData.value = props.ot.ge_inspection || props.ot.inspeccion_ge;
+      return;
     }
+    geAuditData.value = null;
   } catch (e) {
     console.error('Error al cargar datos de auditoría GE:', e);
+    geAuditData.value = null;
   }
 };
 
 const sptAuditData = ref(null);
 
 const loadSptAuditData = () => {
-  if (!props.ot?.id) return;
+  if (!props.ot?.id) {
+    sptAuditData.value = null;
+    return;
+  }
   try {
     const raw = localStorage.getItem(`smu_spt_inspection_ot_${props.ot.id}`);
     if (raw) {
-      sptAuditData.value = JSON.parse(raw);
-    } else {
-      sptAuditData.value = {
-        ficha: {
-          condicionSuelo: 'Suelo de concreto / losa',
-          instrumento: 'Telurómetro AEMC 4630 (Modo 62% y Wenner)',
-          electrodoBajoPrueba: 'Malla puesta a tierra telecom (Torre + Contenedor)',
-        },
-        wenner: {
-          aplica: false,
-          justificacionNoAplica: 'No aplica por imposibilidad física de realizar el método (sitio sobre losa perimetral de concreto sin acceso a suelo natural).',
-        },
-        caidaPotencial: {
-          criterioMax: 5.0,
-          lecturas: [
-            { porcentaje: 20, distanciaM: 10, r: '4.8', cumple: true, obs: 'R dentro de umbral normal' },
-            { porcentaje: 40, distanciaM: 20, r: '4.6', cumple: true, obs: 'R dentro de umbral normal' },
-            { porcentaje: 62, distanciaM: 31, r: '4.3', cumple: true, obs: 'R óptima conforme RETIE (≤ 5.0 Ω)' },
-            { porcentaje: 80, distanciaM: 40, r: '4.5', cumple: true, obs: 'Meseta de potencial estable' },
-          ],
-        },
-        equipotencialidad: {
-          puntos: [
-            { id: 1, nombre: 'Barra Equipotencial Principal (BEP)', valorR: '0.05', cumple: true },
-            { id: 2, nombre: 'Gabinete RAN / BTS (Acceso)', valorR: '0.40', cumple: true },
-            { id: 3, nombre: 'Gabinete Transmisión (MW/Router)', valorR: '0.35', cumple: true },
-            { id: 4, nombre: 'Gabinete Rectificador Power DC (-48V)', valorR: '0.20', cumple: true },
-            { id: 5, nombre: 'Bancos de Baterías (-48V)', valorR: '0.30', cumple: true },
-            { id: 6, nombre: 'Tablero Distribución DC (PDB)', valorR: '0.25', cumple: true },
-            { id: 7, nombre: 'Tablero General AC / TGP', valorR: '0.15', cumple: true },
-            { id: 8, nombre: 'Transferencia Automática (ATS)', valorR: '0.45', cumple: true },
-            { id: 9, nombre: 'Grupo Electrógeno (Planta)', valorR: '0.60', cumple: true },
-            { id: 10, nombre: 'Aires Acondicionados (AA-1 y AA-2)', valorR: '0.50', cumple: true },
-            { id: 11, nombre: 'Torre / Bajante LPS + Cerramiento', valorR: '0.70', cumple: true },
-          ],
-        },
-      };
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.caidaPotencial || parsed.equipotencialidad || parsed.wenner)) {
+        sptAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.spt_inspection || props.ot?.inspeccion_spt) {
+      sptAuditData.value = props.ot.spt_inspection || props.ot.inspeccion_spt;
+      return;
     }
+    sptAuditData.value = null;
   } catch (e) {
     console.error('Error al cargar datos de auditoría SPT:', e);
+    sptAuditData.value = null;
   }
 };
 
 const aaAuditData = ref(null);
 
 const loadAaAuditData = () => {
-  if (!props.ot?.id) return;
+  if (!props.ot?.id) {
+    aaAuditData.value = null;
+    return;
+  }
   try {
     const raw = localStorage.getItem(`smu_aa_inspection_ot_${props.ot.id}`);
     if (raw) {
-      aaAuditData.value = JSON.parse(raw);
-    } else {
-      aaAuditData.value = {
-        aa1: {
-          ficha: { marca: 'York', tipo: 'Mini-Split Confort', capacidad: '24000 BTU (2.0 TR)', refrigerante: 'R410A' },
-          termo: { tempRetorno: '24.2', tempInyeccion: '12.4', tempAmbiente: '31.5' },
-          presion: { succion: '122', descarga: '348' },
-          electrico: { corrienteCompresor: '8.6', rla: 11.5, voltajeAc: '222' },
-          control: { setpoint: '23.0', rotacionForzada: true, reinicioAuto: true }
-        },
-        aa2: {
-          ficha: { marca: 'York', tipo: 'Mini-Split Confort', capacidad: '24000 BTU (2.0 TR)', refrigerante: 'R410A' },
-          termo: { tempRetorno: '24.0', tempInyeccion: '12.8', tempAmbiente: '31.5' },
-          presion: { succion: '120', descarga: '340' },
-          electrico: { corrienteCompresor: '8.4', rla: 11.5, voltajeAc: '222' },
-          control: { setpoint: '23.0', rotacionForzada: true, reinicioAuto: true }
-        }
-      };
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.aa1 || parsed.aa2)) {
+        aaAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.aa_inspection || props.ot?.inspeccion_aa) {
+      aaAuditData.value = props.ot.aa_inspection || props.ot.inspeccion_aa;
+      return;
     }
+    aaAuditData.value = null;
   } catch (e) {
     console.error('Error al cargar datos de auditoría AA:', e);
+    aaAuditData.value = null;
   }
 };
 
 const powerAuditData = ref(null);
 
 const loadPowerAuditData = () => {
-  if (!props.ot?.id) return;
+  if (!props.ot?.id) {
+    powerAuditData.value = null;
+    return;
+  }
   try {
     const raw = localStorage.getItem(`smu_power_inspection_ot_${props.ot.id}`);
     if (raw) {
-      powerAuditData.value = JSON.parse(raw);
-    } else {
-      powerAuditData.value = {
-        ficha: { marca: 'Eltek (Smartpack)', modulosInstalados: 4, tipoBaterias: 'VRLA AGM 12V', capacidadAh: '200 Ah (2 Bancos)' },
-        bus: { voltajeFlotacion: '-54.2', corrienteTotal: '78.5', umbralLvd: '-43.2' },
-        baterias: {
-          pruebaDescarga: true,
-          banco1: [
-            { id: 1, voltaje: '13.55' },
-            { id: 2, voltaje: '13.58' },
-            { id: 3, voltaje: '13.52' },
-            { id: 4, voltaje: '13.55' },
-          ],
-        },
-      };
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.bus || parsed.baterias || parsed.ficha)) {
+        powerAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.power_inspection || props.ot?.inspeccion_power) {
+      powerAuditData.value = props.ot.power_inspection || props.ot.inspeccion_power;
+      return;
     }
+    powerAuditData.value = null;
   } catch (e) {
     console.error('Error al cargar datos de auditoría POWER:', e);
+    powerAuditData.value = null;
   }
 };
 
@@ -1129,14 +1083,30 @@ const tabs = computed(() => {
     { id: 'bitacora', label: 'Bitácora PDT', icon: IconHistory, badge: props.ot?.avances?.length || 0 },
     { id: 'repuestos', label: 'Insumos LPU', icon: IconBox, badge: props.ot?.repuestos?.length || 0 },
   ];
-  if (isGeOt.value || geAuditData.value) {
+
+  // Solo agregar pestañas técnicas si el proceso fue realmente diligenciado en campo
+  if (geAuditData.value) {
     baseTabs.push({ id: 'diagnostico_ge', label: 'Planta GE / ATS', icon: IconEngine });
   }
-  baseTabs.push({ id: 'diagnostico_spt', label: 'Puesta a Tierra (SPT)', icon: IconBolt });
-  baseTabs.push({ id: 'diagnostico_aa', label: 'Climatización (AA)', icon: IconSnowflake });
-  baseTabs.push({ id: 'diagnostico_power', label: 'Fuerza DC (-48V)', icon: IconBatteryCharging });
+  if (sptAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_spt', label: 'Puesta a Tierra (SPT)', icon: IconBolt });
+  }
+  if (aaAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_aa', label: 'Climatización (AA)', icon: IconSnowflake });
+  }
+  if (powerAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_power', label: 'Fuerza DC (-48V)', icon: IconBatteryCharging });
+  }
+
   return baseTabs;
 });
+
+// Si la pestaña seleccionada ya no existe en la OT actual, regresar automáticamente a 'resumen'
+watch(tabs, (newTabs) => {
+  if (!newTabs.some(t => t.id === activeTab.value)) {
+    activeTab.value = 'resumen';
+  }
+}, { immediate: true });
 
 const countFotos = (tipo) => {
   if (!props.ot?.evidencias) return 0;
