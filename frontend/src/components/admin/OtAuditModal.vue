@@ -47,27 +47,58 @@
           </div>
         </div>
 
-        <!-- Pestañas del Expediente (Estilo Cápsula sin scrollbar tosco) -->
-        <div class="border-b border-slate-200 dark:border-white/10 px-5 py-2.5 bg-slate-50/70 dark:bg-[#0a0b10] shrink-0">
-          <div class="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden select-none">
+        <!-- Pestañas del Expediente (Estilo Cápsula con Controles de Avance) -->
+        <div class="border-b border-slate-200 dark:border-white/10 px-3 sm:px-5 py-2.5 bg-slate-50/70 dark:bg-[#0a0b10] shrink-0">
+          <div class="flex items-center gap-1.5 relative">
+            <!-- Botón Desplazar a la Izquierda -->
             <button
-              v-for="t in tabs"
-              :key="t.id"
-              @click="activeTab = t.id"
-              class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 border select-none"
-              :class="activeTab === t.id 
-                ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-600/20' 
-                : 'bg-white dark:bg-[#121215] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20'"
+              type="button"
+              @click="scrollTabs(-1)"
+              class="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-800 transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
+              title="Ver pestañas anteriores"
             >
-              <component :is="t.icon" class="w-3.5 h-3.5 stroke-[2.2]" />
-              <span>{{ t.label }}</span>
-              <span 
-                v-if="t.badge !== undefined" 
-                class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black"
-                :class="activeTab === t.id ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
+              <IconChevronLeft class="w-4 h-4 stroke-[2.5]" />
+            </button>
+
+            <!-- Contenedor de Pestañas con Desplazamiento por Rueda, Arrastre y Clic -->
+            <div
+              ref="tabsNavRef"
+              @wheel="onTabsWheel"
+              @mousedown="onMouseDown"
+              @mouseleave="onMouseLeave"
+              @mouseup="onMouseUp"
+              @mousemove="onMouseMove"
+              class="flex items-center gap-1.5 overflow-x-auto select-none py-0.5 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 cursor-grab active:cursor-grabbing"
+            >
+              <button
+                v-for="t in tabs"
+                :key="t.id"
+                @click="selectTab(t.id, $event)"
+                class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 border select-none cursor-pointer"
+                :class="activeTab === t.id 
+                  ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-600/20' 
+                  : 'bg-white dark:bg-[#121215] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20'"
               >
-                {{ t.badge }}
-              </span>
+                <component :is="t.icon" class="w-3.5 h-3.5 stroke-[2.2]" />
+                <span>{{ t.label }}</span>
+                <span 
+                  v-if="t.badge !== undefined" 
+                  class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black"
+                  :class="activeTab === t.id ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
+                >
+                  {{ t.badge }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Botón Desplazar a la Derecha (Avanzar) -->
+            <button
+              type="button"
+              @click="scrollTabs(1)"
+              class="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-800 transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
+              title="Avanzar para ver más pestañas (AA, Fuerza DC)"
+            >
+              <IconChevronRight class="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
@@ -810,7 +841,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import SlaBadge from '@/components/common/SlaBadge.vue';
 import client from '@/api/client';
 import {
@@ -836,7 +867,9 @@ import {
   IconBolt,
   IconSnowflake,
   IconBatteryCharging,
-  IconAlertTriangle
+  IconAlertTriangle,
+  IconChevronLeft,
+  IconChevronRight
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -856,6 +889,67 @@ const activeTab = ref('resumen');
 const filtroFoto = ref('todas');
 const fotoZoom = ref(null);
 const loadingAction = ref(false);
+
+// Navegación y Desplazamiento Fluido de Pestañas
+const tabsNavRef = ref(null);
+
+const scrollTabs = (direction) => {
+  if (!tabsNavRef.value) return;
+  tabsNavRef.value.scrollBy({ left: direction * 240, behavior: 'smooth' });
+};
+
+const onTabsWheel = (e) => {
+  if (!tabsNavRef.value) return;
+  if (e.deltaY !== 0) {
+    e.preventDefault();
+    tabsNavRef.value.scrollLeft += e.deltaY;
+  }
+};
+
+let isMouseDown = false;
+let startX = 0;
+let scrollStart = 0;
+
+const onMouseDown = (e) => {
+  if (!tabsNavRef.value) return;
+  isMouseDown = true;
+  startX = e.pageX - tabsNavRef.value.offsetLeft;
+  scrollStart = tabsNavRef.value.scrollLeft;
+};
+
+const onMouseLeave = () => {
+  isMouseDown = false;
+};
+
+const onMouseUp = () => {
+  isMouseDown = false;
+};
+
+const onMouseMove = (e) => {
+  if (!isMouseDown || !tabsNavRef.value) return;
+  e.preventDefault();
+  const x = e.pageX - tabsNavRef.value.offsetLeft;
+  const walk = (x - startX) * 1.5;
+  tabsNavRef.value.scrollLeft = scrollStart - walk;
+};
+
+const selectTab = async (tabId, event) => {
+  activeTab.value = tabId;
+  await nextTick();
+  if (event?.currentTarget) {
+    event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+};
+
+watch(activeTab, async () => {
+  await nextTick();
+  if (tabsNavRef.value) {
+    const activeEl = tabsNavRef.value.querySelector('.border-red-600');
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+});
 
 const isGeOt = computed(() => {
   const sub = (props.ot?.subsistema || '').toUpperCase();
