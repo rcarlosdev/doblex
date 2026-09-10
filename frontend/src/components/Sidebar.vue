@@ -6,6 +6,7 @@ import {
   IconLayoutDashboard, 
   IconClipboardList, 
   IconUsers, 
+  IconTower,
   IconDeviceMobile,
   IconPackages, 
   IconTruck, 
@@ -19,10 +20,18 @@ const props = defineProps({
   open: { type: Boolean, default: false }
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 
 const route = useRoute();
 const userRole = ref(localStorage.getItem('smu_role') || 'admin');
+
+const handleNavClick = () => {
+  // En móviles (< 768px) cerramos el menú emergente al hacer clic en una ruta.
+  // En escritorios (>= 768px) el sidebar debe permanecer visible y estable.
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    emit('close');
+  }
+};
 
 onMounted(() => {
   userRole.value = localStorage.getItem('smu_role') || 'admin';
@@ -31,6 +40,7 @@ onMounted(() => {
 const allMenuItems = [
   { name: 'Dashboard', path: '/', icon: IconLayoutDashboard, routeName: 'dashboard', roles: ['admin', 'administrativo'] },
   { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo', icon: IconClipboardList, routeName: 'ots', roles: ['admin', 'administrativo'] },
+  { name: 'Sitios / Estaciones', path: '/sitios', icon: IconTower, routeName: 'sitios', roles: ['admin', 'administrativo'] },
   { name: 'Gestión de Campo', path: '/mobile/dashboard', icon: IconDeviceMobile, routeName: 'mobile-dashboard', roles: ['admin', 'administrativo', 'operativo'] },
   { name: 'Gestión de Empleados', path: '/empleados', icon: IconUsers, routeName: 'empleados', roles: ['admin', 'administrativo'] },
 ];
@@ -102,7 +112,7 @@ const isRouteActive = (item) => {
         v-for="item in menuItems" 
         :key="item.path" 
         :to="item.path" 
-        @click="$emit('close')"
+        @click="handleNavClick"
         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200"
         :class="isRouteActive(item) 
           ? 'bg-primary/10 border border-primary/20 text-primary dark:text-white font-semibold shadow-sm' 

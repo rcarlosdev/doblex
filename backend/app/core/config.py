@@ -1,3 +1,4 @@
+import os
 from typing import List
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -11,6 +12,14 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./doblex.db"
     CORS_ORIGINS: str = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://localhost:8000"
     UPLOAD_DIR: str = "./uploads"
+
+    @property
+    def sqlalchemy_database_url(self) -> str:
+        if self.DATABASE_URL.startswith("sqlite:///./"):
+            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            db_file = self.DATABASE_URL.replace("sqlite:///./", "")
+            return f"sqlite:///{os.path.join(backend_dir, db_file)}"
+        return self.DATABASE_URL
 
     # Parámetros de seguridad
     SECURITY_RATE_LIMIT_ENABLED: bool = True

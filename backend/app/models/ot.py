@@ -11,6 +11,7 @@ class Ot(Base):
     codigo = Column(String(50), unique=True, index=True, nullable=False)
     descripcion = Column(Text, nullable=False)
     sitio = Column(String(255), nullable=True)
+    sitio_id = Column(Integer, ForeignKey("sitios.id"), nullable=True, index=True)
     ubicacion = Column(String(255), nullable=False)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -32,6 +33,7 @@ class Ot(Base):
     updated_at = Column(DateTime, default=now_utc, onupdate=now_utc)
 
     # Relaciones
+    sitio_rel = relationship("Sitio", back_populates="ots")
     assigned_user = relationship("User", foreign_keys=[user_id], back_populates="ots_asignadas")
     creator = relationship("User", foreign_keys=[created_by], back_populates="ots_creadas")
     cuadrilla = relationship("Cuadrilla", back_populates="ots")
