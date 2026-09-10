@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from typing import Optional, List, Any
 from dateutil import parser as date_parser
@@ -7,7 +8,13 @@ from sqlalchemy import or_
 
 from app.db.session import get_db
 from app.api.deps import get_current_user, require_roles
+from app.core.config import settings
 from app.core.utils import now_utc
+from app.core.file_validator import (
+    validate_and_decode_base64_image,
+    generate_secure_filename,
+    sanitize_text
+)
 from app.models.user import User
 from app.models.ot import Ot
 from app.models.actividad_ot import ActividadOt
@@ -21,6 +28,7 @@ from app.schemas.ot import (
 from app.services.sla_service import sla_service
 
 router = APIRouter()
+
 
 def serialize_ot(ot: Ot) -> dict:
     """
@@ -353,15 +361,43 @@ def upload_evidencia(
     db: Session = Depends(get_db)
 ):
     """
-    Cargar evidencia fotográfica (tipo, base64 o URL, coordenadas GPS).
+    Cargar evidencia fotográfica con validación estricta de seguridad:
+    - Inspección de firmas binarias (magic bytes) en imágenes base64
+    - Límite estricto de tamaño de subida
+    - Generación de nombres de archivo seguros con UUID (prevención de Path Traversal)
     """
     ot = db.query(Ot).filter(Ot.id == ot_id).first()
     if not ot:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="OT no encontrada.")
 
-    url_final = payload.imagen_url or payload.imagen_base64
-    if not url_final:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Se requiere imagen_base64 o imagen_url.")
+    url_final = None
+    if payload.imagen_base64:
+        # Validación de seguridad: decodifica, valida magic bytes y tamaño máximo
+        decoded_bytes, ext = validate_and_decode_base64_image(payload.imagen_base64)
+        filename = generate_secure_filename(ext)
+        filepath = os.path.join(settings.UPLOAD_DIR, filename)
+        try:
+            with open(filepath, "wb") as f:
+                f.write(decoded_bytes)
+            url_final = f"/uploads/{filename}"
+        except Exception as e:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Error al almacenar evidencia en disco: {str(e)}"
+            )
+    elif payload.imagen_url:
+        clean_url = payload.imagen_url.strip()
+        if not (clean_url.startswith("http://") or clean_url.startswith("https://") or clean_url.startswith("/uploads/")):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="La URL de imagen no es válida. Debe iniciar con http://, https:// o /uploads/"
+            )
+        url_final = clean_url
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Se requiere imagen_base64 o imagen_url."
+        )
 
     evidencia = EvidenciaFotografica(
         ot_id=ot.id,
@@ -377,7 +413,7 @@ def upload_evidencia(
 
     return {
         "status": "success",
-        "message": "Evidencia fotográfica guardada.",
+        "message": "Evidencia fotográfica guardada con éxito.",
         "data": {
             "id": evidencia.id,
             "ot_id": evidencia.ot_id,
@@ -388,6 +424,7 @@ def upload_evidencia(
             "fecha_hora_captura": evidencia.fecha_hora_captura.isoformat() if evidencia.fecha_hora_captura else None
         }
     }
+
 
 @router.delete("/evidencias/{evidencia_id}")
 def delete_evidencia(

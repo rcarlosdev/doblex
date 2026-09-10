@@ -44,10 +44,31 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
 
 def decode_access_token(token: str) -> Optional[dict]:
     """
-    Decodifica y valida un token JWT.
+    Decodifica y valida un token JWT con fijación estricta del algoritmo y verificación de expiración.
     """
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            options={"verify_signature": True, "verify_exp": True, "require": ["exp", "sub"]}
+        )
         return payload
     except jwt.PyJWTError:
         return None
+
+def validate_password_strength(password: str) -> tuple[bool, str]:
+    """
+    Valida que una contraseña cumpla con criterios mínimos de seguridad empresarial:
+    - Mínimo 8 caracteres
+    - Al menos una letra
+    - Al menos un número
+    """
+    if not password or len(password) < 8:
+        return False, "La contraseña debe tener al menos 8 caracteres."
+    if not any(c.isalpha() for c in password):
+        return False, "La contraseña debe contener al menos una letra."
+    if not any(c.isdigit() for c in password):
+        return False, "La contraseña debe contener al menos un número."
+    return True, ""
+

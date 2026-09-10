@@ -216,4 +216,24 @@ export const OtsService = {
 2. **Formato de Respuestas JSON:** Todo endpoint exitoso debe retornar `{ "status": "success", ... }` y cualquier excepción debe retornar `{ "status": "error", "message": "..." }` para garantizar consistencia con la UI.
 3. **Manejo de Fechas:** Utilizar siempre zonas horarias consistentes (UTC) mediante el helper `now_utc()` de Python 3.13.
 4. **Validación Obligatoria de Cierre:** Toda OT que cambie a estado `solucionada` debe exigir las 3 evidencias fotográficas (`antes`, `durante`, `despues`), causa de falla e insumos consumidos.
-5. **Pruebas Automatizadas:** Todo nuevo endpoint debe incluir su correspondiente test en `tests_integration.py` antes de ser integrado a producción.
+5. **Pruebas Automatizadas:** Todo nuevo endpoint debe incluir su correspondiente test en `tests_integration.py` y `tests_security.py` antes de ser integrado a producción.
+
+---
+
+## 6. Capa de Seguridad Profesional (Full-Stack)
+
+El sistema incorpora una arquitectura de seguridad en profundidad (Defense-in-Depth):
+
+### 6.1. Backend (FastAPI)
+* **Cabeceras de Seguridad:** Inyección automática vía `SecurityHeadersMiddleware` de `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`, `Content-Security-Policy` y `Strict-Transport-Security` (HSTS).
+* **Protección Anti-Fuerza Bruta (Rate Limiting):** Algoritmo de ventana deslizante en memoria (`rate_limiter.py`) con detección de IP real tras proxies (`X-Forwarded-For`), bloqueando intentos excesivos en `/api/login` (HTTP 429 con `Retry-After`).
+* **Revocación de Sesión (Token Blacklist):** `token_blacklist.py` almacena hashes criptográficos de tokens invalidados en `/logout`, denegando acceso inmediato antes de su fecha de expiración natural.
+* **Validación Binaria de Archivos (*Magic Bytes*):** Inspección de firmas binarias reales (`file_validator.py`) en evidencias fotográficas (JPEG, PNG, WebP) y planillas Excel (XLSX, XLS), evitando cargas maliciosas o ejecutables encubiertos. Límite estricto de tamaño (HTTP 413) y generación de nombres seguros con UUID para mitigar *Path Traversal*.
+* **CORS Endurecido:** Restricción a orígenes explícitos configurados, métodos HTTP específicos y cabeceras autorizadas.
+
+### 6.2. Frontend (Vue 3 / Vite)
+* **Metaetiquetas de Seguridad:** Inserción en `index.html` de directivas nosniff, frame-options y control de periféricos.
+* **Integridad Criptográfica de Sesión:** `security.js` decodifica la carga útil del JWT y valida que el rol local en `localStorage` coincida con el firmado en el token. Ante cualquier manipulación en DevTools, destruye la sesión y redirige a login.
+* **Verificación Previa de Expiración:** Interceptor de Axios que cancela proactivamente peticiones con tokens expirados, ahorrando llamadas innecesarias al backend.
+* **Compilación Segura:** Vite configurado con esbuild para descartar sentencias `console.log` y `debugger` en builds de producción.
+

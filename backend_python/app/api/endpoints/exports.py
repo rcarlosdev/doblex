@@ -5,11 +5,14 @@ from app.db.session import get_db
 from app.api.deps import get_current_user, require_roles
 from app.models.user import User
 from app.models.ot import Ot
+from app.core.config import settings
+from app.core.file_validator import is_valid_excel_bytes
 from app.services.excel_service import generate_ots_excel, parse_import_excel
 from app.services.word_service import generate_ot_word
 from app.services.pdf_service import generate_ot_pdf
 
 router = APIRouter()
+
 
 @router.get("/ots/export/excel")
 def export_ots_to_excel(
@@ -98,14 +101,33 @@ async def import_ots_from_excel(
 ):
     """
     Procesar e importar Órdenes de Trabajo o insumos masivamente desde un archivo Excel.
+    Validado contra cargas maliciosas mediante comprobación de extensión, límite de tamaño y magic bytes.
     """
-    if not file.filename.endswith((".xlsx", ".xls")):
+    clean_filename = (file.filename or "").lower()
+    if not clean_filename.endswith((".xlsx", ".xls")):
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="Formato de archivo no válido. Se requiere un archivo .xlsx o .xls"
+            detail="Formato de archivo no válido. Se requiere un archivo con extensión .xlsx o .xls"
         )
 
     content = await file.read()
+
+    # Validar tamaño máximo
+    max_bytes = settings.MAX_EXCEL_UPLOAD_SIZE_MB * 1024 * 1024
+    if len(content) > max_bytes:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail=f"El archivo Excel excede el tamaño máximo permitido de {settings.MAX_EXCEL_UPLOAD_SIZE_MB}MB."
+        )
+
+    # Validar firma binaria (magic bytes)
+    is_valid, _ = is_valid_excel_bytes(content)
+    if not is_valid:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="El archivo no corresponde a una planilla Excel válida según su firma binaria."
+        )
+
     try:
         records = parse_import_excel(content)
     except Exception as e:
@@ -120,3 +142,4 @@ async def import_ots_from_excel(
         "total_filas": len(records),
         "preview": records[:5]
     }
+

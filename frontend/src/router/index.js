@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { verifyRoleIntegrity } from '../lib/security';
 // Importamos las vistas directamente (lazy load puede hacerse después)
 import LoginView from '../views/LoginView.vue';
+
 import AppLayout from '../layouts/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
 import OtsView from '../views/OtsView.vue';
@@ -54,28 +56,28 @@ const routes = [
 ];
 
 const router = createRouter({
+
     history: createWebHistory(import.meta.env.BASE_URL),
     routes
 });
 
-// Guard de navegación para verificar autenticación y redirigir rol operativo a entorno móvil
+// Guard de navegación seguro: verifica autenticación, integridad del token y control de acceso (RBAC)
 router.beforeEach((to, from) => {
-    const isAuthenticated = localStorage.getItem('smu_authenticated') === 'true';
-    const userRole = localStorage.getItem('smu_role');
+    const { isValid, role: userRole } = verifyRoleIntegrity();
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!isAuthenticated) {
+        if (!isValid) {
             return { name: 'login' };
         }
         if (userRole === 'operativo' && ['dashboard', 'ots', 'empleados'].includes(to.name)) {
-            // El módulo operativo es primariamente móvil
+            // El personal operativo es redirigido automáticamente a la interfaz de campo móvil
             return { name: 'mobile-dashboard' };
         }
         return true;
     }
 
     if (to.matched.some(record => record.meta.guestOnly)) {
-        if (isAuthenticated) {
+        if (isValid) {
             if (userRole === 'operativo') {
                 return { name: 'mobile-dashboard' };
             }
@@ -88,3 +90,4 @@ router.beforeEach((to, from) => {
 });
 
 export default router;
+

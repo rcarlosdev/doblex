@@ -147,10 +147,11 @@ Para mantener la estabilidad de las ramas principales, aplicamos un flujo de tra
    ```
 2. Realiza los desarrollos correspondientes siguiendo las pautas de estilo.
 3. **Validación Obligatoria antes de enviar PR:**
-   * **Backend:** Ejecuta la suite de pruebas automatizadas:
+   * **Backend:** Ejecuta la suite de pruebas automatizadas y de seguridad:
      ```bash
      cd backend_python
      .\.venv\Scripts\python tests_integration.py
+     .\.venv\Scripts\python tests_security.py
      ```
      *(Todas las pruebas deben finalizar con `OK`).*
    * **Frontend:** Ejecuta el build de Vite para descartar errores de sintaxis y tipos:

@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import RequestValidationError
 
 from app.core.config import settings
+from app.core.security_headers import SecurityHeadersMiddleware
 from app.db.base import Base
 from app.db.session import engine
 from app.api.api_router import api_router
@@ -26,15 +27,24 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# Configuración de CORS
-origins = settings.cors_origins_list or ["*"]
+# 1. Middleware de Cabeceras de Seguridad HTTP (HSTS, nosniff, frame-options, CSP, etc.)
+app.add_middleware(SecurityHeadersMiddleware)
+
+# 2. Configuración de CORS Profesional y Endurecido
+allowed_origins = [o for o in settings.cors_origins_list if o != "*"]
+if not allowed_origins:
+    allowed_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins if "*" not in origins else ["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    expose_headers=["Content-Disposition", "Retry-After"],
+    max_age=3600,
 )
+
 
 # Custom Exception Handler para HTTPException (Formato compatible con frontend de Vue)
 @app.exception_handler(HTTPException)
