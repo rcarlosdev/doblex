@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from app.db.session import SessionLocal, engine
 from app.db.base import Base
@@ -21,9 +22,97 @@ def seed_database():
     db = SessionLocal()
 
     try:
-        # Verificar si ya existen usuarios
+        # Verificar si ya existen usuarios y sincronizar OTs existentes con nuevos campos
         if db.query(User).count() > 0:
-            print("[INFO] La base de datos ya contiene registros. Omitiendo seed inicial.")
+            print("[INFO] La base de datos ya contiene registros. Verificando y actualizando campos de OTs...")
+            existing_ots = db.query(Ot).all()
+            updated_count = 0
+            for ot in existing_ots:
+                needs_update = False
+                if not ot.id_actividad:
+                    ot.id_actividad = f"ACT-2026-{abs(hash(ot.codigo)) % 900000 + 100000}"
+                    needs_update = True
+                if not ot.tipo_actividad:
+                    if ot.tipo_mantenimiento == "preventivo":
+                        ot.tipo_actividad = "preventivo_aire" if "aire" in (ot.subsistema or "").lower() else "preventivo_planta"
+                    else:
+                        ot.tipo_actividad = ot.tipo_mantenimiento or "correctivo"
+                    needs_update = True
+                if not ot.coordinador:
+                    ot.coordinador = "Ing. Mauricio Quintero" if "ANT" in (ot.sitio or "") else "Ing. Alexander Gómez"
+                    needs_update = True
+                if not ot.categoria:
+                    ot.categoria = "rural" if ot.tipo_ubicacion == "rural" else "normal"
+                    needs_update = True
+                if not ot.regional:
+                    ot.regional = "R2" if "Chocó" in (ot.ubicacion or "") else "R1"
+                    needs_update = True
+                if not ot.departamento:
+                    if "Chocó" in (ot.ubicacion or ""):
+                        ot.departamento = "Chocó"
+                    elif "Córdoba" in (ot.ubicacion or ""):
+                        ot.departamento = "Córdoba"
+                    elif "Atlántico" in (ot.ubicacion or "") or "Barranquilla" in (ot.ubicacion or ""):
+                        ot.departamento = "Atlántico"
+                    else:
+                        ot.departamento = "Antioquia"
+                    needs_update = True
+                if not ot.tipo_estacion:
+                    ot.tipo_estacion = "REPETIDORA" if "repetidora" in (ot.descripcion or "").lower() else "MOVIL"
+                    needs_update = True
+                if not ot.site_owner:
+                    ot.site_owner = "CLARO"
+                    needs_update = True
+                if not ot.datos_formulario:
+                    if ot.tipo_actividad in ("correctivo", "emergencia"):
+                        ot.datos_formulario = json.dumps({
+                            "afectacion_servicio": "NO",
+                            "equipo_en_falla": "Selmec 40SC" if "ANT" in (ot.sitio or "") else "Inversor y Banco Baterías",
+                            "tipo_trabajo": "Reparación y calibración",
+                            "repuesto_retirado": {
+                                "nombre": "Tarjeta AVR SX460 con diodos quemados",
+                                "serial": "SN-SX460-0988"
+                            },
+                            "repuesto_instalado": {
+                                "nombre": "Tarjeta AVR SX460 original nueva",
+                                "serial": "SN-SX460-7741"
+                            },
+                            "supervisor_claro": "Ing. Roberto Vélez",
+                            "diagnostico_tecnico": "Falla en regulación de voltaje por sobrecalentamiento. Se reemplaza y calibra a 220V/127V a 60Hz."
+                        })
+                    elif ot.tipo_actividad == "preventivo_aire":
+                        ot.datos_formulario = json.dumps({
+                            "marca_equipo": "ComfortStar / York",
+                            "capacidad_btu": 24000,
+                            "refrigerante": "R410A",
+                            "presion_baja_psi": 120,
+                            "presion_alta_psi": 350,
+                            "corriente_compresor_amp": 9.8,
+                            "limpieza_evaporador": "OK - Con desincrustante",
+                            "limpieza_condensador": "OK - Lavado a presión",
+                            "cambio_filtros": "OK - Reemplazados"
+                        })
+                    else:
+                        ot.datos_formulario = json.dumps({
+                            "marca_planta": "AGG Power",
+                            "kva": 24,
+                            "marca_motor": "Cummins 4BTA3.9-G2",
+                            "serial_motor": "46981245",
+                            "marca_generador": "Stamford PI144E",
+                            "serial_generador": "X19K458210",
+                            "horometro": 3913.3,
+                            "voltaje_bateria": 25.2,
+                            "galones_combustible": 48,
+                            "prueba_encendido": "Arranque automático ATS en 4.2s. Voltaje estable 220V a 60Hz."
+                        })
+                    needs_update = True
+
+                if needs_update:
+                    updated_count += 1
+
+            if updated_count > 0:
+                db.commit()
+                print(f"[INFO] Se actualizaron {updated_count} OTs existentes con los nuevos campos y formularios técnicos.")
             return
 
         print("[SEED] Creando usuarios del sistema...")
@@ -117,13 +206,21 @@ def seed_database():
         db.add_all(empleados)
         db.commit()
 
-        print("[SEED] Creando las 5 Órdenes de Trabajo (OTs)...")
-        # OT 1: Antioquia
+        print("[SEED] Creando las 5 Órdenes de Trabajo (OTs) adaptadas a formatos de campo WO y MP...")
+        # OT 1: Antioquia - Formato WO Correctivo Selmec 40SC
         ot1 = Ot(
             codigo="OT-2026-101",
-            descripcion="Mantenimiento Correctivo GE/ATS - Diagnóstico de Tarjeta AVR y Reparación de Aislamientos en Bobinado de Generador Stamford",
+            id_actividad="ACT-2026-5558781",
+            tipo_actividad="correctivo",
+            descripcion="Mantenimiento Correctivo GE/ATS - Diagnóstico de Tarjeta AVR y Reparación de Aislamientos en Bobinado de Generador Selmec / Stamford",
             sitio="ANT.APARTADO - EB Apartadó Centro (ANT-028)",
             ubicacion="Cra. 100 # 98-45, Apartadó, Antioquia",
+            departamento="Antioquia",
+            regional="R1",
+            categoria="normal",
+            tipo_estacion="MOVIL",
+            site_owner="CLARO",
+            coordinador="Ing. Mauricio Quintero",
             created_by=admin.id,
             user_id=carlos.id,
             cuadrilla_id=cuadrilla_ant.id,
@@ -131,19 +228,42 @@ def seed_database():
             tipo_ubicacion="urbana",
             tipo_mantenimiento="correctivo",
             subsistema="Movil Plantas Eléctricas",
-            tipo_gasto="OPEX",
             progreso=15,
             estado="asignada",
             fecha_inicio=datetime(2026, 8, 14, 8, 0, 0),
-            fecha_limite_sla=datetime(2026, 8, 15, 18, 0, 0)
+            fecha_limite_sla=datetime(2026, 8, 15, 18, 0, 0),
+            datos_formulario=json.dumps({
+                "afectacion_servicio": "NO",
+                "equipo_en_falla": "Selmec 40SC",
+                "tipo_trabajo": "Reparación y calibración",
+                "repuesto_retirado": {
+                    "nombre": "Tarjeta AVR SX460 quemada",
+                    "serial": "SN-SX460-0988"
+                },
+                "repuesto_instalado": {
+                    "nombre": "Tarjeta AVR SX460 original nueva",
+                    "serial": "SN-SX460-7741"
+                },
+                "transporte_especial": "Vehículo 4x4",
+                "supervisor_claro": "Ing. Roberto Vélez",
+                "diagnostico_tecnico": "Falla en regulación de voltaje por varistor quemado. Reemplazo y ajuste a 220V/127V 60Hz."
+            })
         )
 
-        # OT 2: Chocó
+        # OT 2: Chocó - Formato WO Atención de Emergencia
         ot2 = Ot(
             codigo="OT-2026-102",
+            id_actividad="ACT-2026-099014",
+            tipo_actividad="emergencia",
             descripcion="Mantenimiento de Emergencia Híbrido SFV & Power DC - Falla en Inversor y Banco de Baterías de Repetidora ZNI",
             sitio="CHO.CANTON DE SAN PABLO - EB Managrú (CHO-014)",
             ubicacion="Sector Río Atrato, Cantón de San Pablo, Chocó",
+            departamento="Chocó",
+            regional="R2",
+            categoria="rural",
+            tipo_estacion="REPETIDORA",
+            site_owner="CLARO",
+            coordinador="Ing. Alexander Gómez",
             created_by=adminis.id,
             user_id=jasmin.id,
             cuadrilla_id=cuadrilla_cho.id,
@@ -151,19 +271,34 @@ def seed_database():
             tipo_ubicacion="rural",
             tipo_mantenimiento="emergencia",
             subsistema="Móvil Híbridos SFV",
-            tipo_gasto="OPEX",
             progreso=35,
             estado="en_camino",
             fecha_inicio=datetime(2026, 8, 14, 10, 0, 0),
-            fecha_limite_sla=datetime(2026, 8, 15, 6, 0, 0)
+            fecha_limite_sla=datetime(2026, 8, 15, 6, 0, 0),
+            datos_formulario=json.dumps({
+                "afectacion_servicio": "SI",
+                "equipo_en_falla": "Banco Baterías 48V / Inversor",
+                "tipo_trabajo": "Reemplazo de emergencia",
+                "transporte_especial": "Lancha fluvial Río Atrato",
+                "supervisor_claro": "Ing. Carlos Hinestroza",
+                "diagnostico_tecnico": "Descarga atmosférica averió módulo de protección y banco de baterías."
+            })
         )
 
-        # OT 3: Córdoba
+        # OT 3: Córdoba - Formato MP Aire Acondicionado
         ot3 = Ot(
             codigo="OT-2026-103",
+            id_actividad="ACT-2026-030401",
+            tipo_actividad="preventivo_aire",
             descripcion="Mantenimiento Preventivo & Climatización AA Móvil - Servicio a Compresores y Condensadoras de Precisión en Shelter de Transmisión",
             sitio="COR.MONTERIA - EB Ronda del Sinú (MON-019)",
             ubicacion="Calle 27 # 4-50, Centro, Montería, Córdoba",
+            departamento="Córdoba",
+            regional="R1",
+            categoria="normal",
+            tipo_estacion="MOVIL",
+            site_owner="CLARO",
+            coordinador="Ing. Sandra Morales",
             created_by=adminis.id,
             user_id=carlos.id,
             cuadrilla_id=cuadrilla_cor.id,
@@ -171,28 +306,45 @@ def seed_database():
             tipo_ubicacion="urbana",
             tipo_mantenimiento="preventivo",
             subsistema="Movil Aires Acondicionados",
-            tipo_gasto="OPEX",
             progreso=65,
             estado="en_sitio",
             fecha_inicio=datetime(2026, 8, 14, 13, 0, 0),
             fecha_limite_sla=datetime(2026, 8, 15, 17, 0, 0),
-            fecha_llegada_sitio=datetime(2026, 8, 14, 14, 15, 0)
+            fecha_llegada_sitio=datetime(2026, 8, 14, 14, 15, 0),
+            datos_formulario=json.dumps({
+                "marca_equipo": "ComfortStar 24K BTU",
+                "capacidad_btu": 24000,
+                "refrigerante": "R410A",
+                "presion_baja_psi": 120,
+                "presion_alta_psi": 350,
+                "corriente_compresor_amp": 9.8,
+                "limpieza_evaporador": "Realizada",
+                "limpieza_condensador": "Realizada con hidrolavadora",
+                "cambio_filtros": "Filtros lavables reemplazados"
+            })
         )
 
-        # OT 4: Atlántico (Solucionada con Evidencias Georreferenciadas)
+        # OT 4: Atlántico - Formato MP Planta Eléctrica AGG Power (Muestra Bahía Solano)
         ot4 = Ot(
             codigo="OT-2026-104",
-            descripcion="Mantenimiento en Altura y Media Tensión - Retorque de Pernería en Torre de 45m, Balizamiento y Medición de Resistencia de Puesta a Tierra (SPT)",
+            id_actividad="ACT-2026-5304019",
+            tipo_actividad="preventivo_planta",
+            descripcion="Mantenimiento Preventivo Planta Eléctrica AGG Power - Medición de Parámetros, Batería, Nivel de Combustible y Pruebas ATS",
             sitio="ATL.BARRANQUILLA - EB Riomar Industrial (BQ-042)",
             ubicacion="Vía 40 # 76-12, Barranquilla, Atlántico",
+            departamento="Atlántico",
+            regional="R1",
+            categoria="normal",
+            tipo_estacion="MOVIL",
+            site_owner="CLARO",
+            coordinador="Ing. Carlos Mendoza",
             created_by=admin.id,
             user_id=eliseo.id,
             cuadrilla_id=cuadrilla_atl.id,
             prioridad="P3",
             tipo_ubicacion="urbana",
             tipo_mantenimiento="preventivo",
-            subsistema="Movil Sistema Eléctrico",
-            tipo_gasto="CAPEX",
+            subsistema="Movil Plantas Eléctricas",
             progreso=100,
             estado="solucionada",
             fecha_inicio=datetime(2026, 8, 10, 8, 0, 0),
@@ -200,23 +352,44 @@ def seed_database():
             fecha_llegada_sitio=datetime(2026, 8, 10, 9, 30, 0),
             fecha_solucion=datetime(2026, 8, 10, 16, 45, 0),
             causa_falla="desgaste",
-            observaciones_cierre="Inspección de SPT con telurómetro arrojando 3.8 Ohms. Se aplicó pintura anticorrosiva epóxica y torque de pernería según protocolo de torre."
+            observaciones_cierre="Inspección de grupo electrógeno con prueba de arranque ATS. Parámetros eléctricos estables en 220V 60Hz.",
+            datos_formulario=json.dumps({
+                "marca_planta": "AGG Power",
+                "kva": 24,
+                "marca_motor": "Cummins 4BTA3.9-G2",
+                "serial_motor": "46981245",
+                "marca_generador": "Stamford PI144E",
+                "serial_generador": "X19K458210",
+                "horometro": 3913.3,
+                "voltaje_bateria": 25.2,
+                "galones_combustible": 48,
+                "prueba_encendido": "Arranque automático ATS en 4.2 segundos. Voltaje estable 220V fase-fase, 60Hz.",
+                "temperatura_operacion": "78 °C",
+                "presion_aceite_psi": 52
+            })
         )
 
-        # OT 5: Titiribí
+        # OT 5: Titiribí - Formato MP Planta Eléctrica Rural
         ot5 = Ot(
             codigo="OT-2026-105",
-            descripcion="Mantenimiento Preventivo Integral de Acceso & Enlace de Transmisión PTP de Microondas",
+            id_actividad="ACT-2026-078192",
+            tipo_actividad="preventivo_planta",
+            descripcion="Mantenimiento Preventivo Integral de Planta Eléctrica y Enlace de Transmisión",
             sitio="ANT.TITIRIBI LA ALBANIA - EB La Albania (ANT-072)",
             ubicacion="Vereda La Albania, Titiribí, Antioquia",
+            departamento="Antioquia",
+            regional="R1",
+            categoria="rural",
+            tipo_estacion="MOVIL",
+            site_owner="CLARO",
+            coordinador="Ing. Mauricio Quintero",
             created_by=admin.id,
             user_id=luis.id,
             cuadrilla_id=cuadrilla_ant.id,
             prioridad="P2",
             tipo_ubicacion="rural",
             tipo_mantenimiento="preventivo",
-            subsistema="Móvil Acceso-Transmisión",
-            tipo_gasto="OPEX",
+            subsistema="Movil Plantas Eléctricas",
             progreso=100,
             estado="finalizada",
             fecha_inicio=datetime(2026, 8, 8, 7, 0, 0),
@@ -224,7 +397,19 @@ def seed_database():
             fecha_llegada_sitio=datetime(2026, 8, 8, 9, 0, 0),
             fecha_solucion=datetime(2026, 8, 8, 17, 0, 0),
             causa_falla="desgaste",
-            observaciones_cierre="Alineación de antenas parabólicas de 0.6m, sellado de conectores Heliax y prueba de tasa de error de transmisión aprobada."
+            observaciones_cierre="Mantenimiento preventivo de grupo electrógeno con cambio de filtros y alineación de microondas.",
+            datos_formulario=json.dumps({
+                "marca_planta": "Caterpillar Olympian",
+                "kva": 30,
+                "marca_motor": "Perkins 1104",
+                "serial_motor": "PK998124",
+                "marca_generador": "Leroy Somer",
+                "serial_generador": "LS-55410",
+                "horometro": 4120.5,
+                "voltaje_bateria": 26.0,
+                "galones_combustible": 55,
+                "prueba_encendido": "Arranque correcto manual y automático en transferencia ATS."
+            })
         )
 
         db.add_all([ot1, ot2, ot3, ot4, ot5])

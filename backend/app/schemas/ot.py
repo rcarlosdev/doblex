@@ -1,4 +1,4 @@
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict
 from datetime import datetime
 from pydantic import BaseModel, Field
 
@@ -22,11 +22,12 @@ class RepuestoResponse(BaseModel):
         from_attributes = True
 
 class EvidenciaCreate(BaseModel):
-    tipo: str  # antes, durante, despues
+    tipo: str  # antes, durante, despues, transporte
     imagen_base64: Optional[str] = None
     imagen_url: Optional[str] = None
     latitud: Optional[float] = None
     longitud: Optional[float] = None
+    fecha_hora_captura: Optional[Any] = None
 
 class EvidenciaResponse(BaseModel):
     id: int
@@ -69,46 +70,66 @@ class CuadrillaBrief(BaseModel):
 
 class OtCreate(BaseModel):
     codigo: str
+    id_actividad: Optional[str] = None
     descripcion: str
     sitio: Optional[str] = None
     sitio_id: Optional[int] = None
     ubicacion: str
     user_id: int
     cuadrilla_id: Optional[int] = None
+    coordinador: Optional[str] = None
     prioridad: str = "P2"  # P1, P2, P3
     tipo_ubicacion: str = "urbana"  # urbana, rural
+    categoria: Optional[str] = "normal"  # normal, rural
+    regional: Optional[str] = "R1"  # R1, R2
+    departamento: Optional[str] = None
+    tipo_estacion: Optional[str] = "MOVIL"
+    site_owner: Optional[str] = None
     tipo_mantenimiento: str = "correctivo"  # preventivo, correctivo, emergencia
+    tipo_actividad: Optional[str] = "correctivo"  # correctivo, emergencia, preventivo_planta, preventivo_aire
     subsistema: Optional[str] = "sistema_electrico"
-    tipo_gasto: Optional[str] = "OPEX"
+    tipo_gasto: Optional[str] = None
+    datos_formulario: Optional[Any] = None
+    operadores_asignados: Optional[List[Any]] = None
+    operadores_ids: Optional[List[int]] = None
     fecha_inicio: Any
+    fecha_limite_sla: Optional[Any] = None
+    actividades: Optional[List[Any]] = None
 
 class OtUpdate(BaseModel):
     codigo: str
+    id_actividad: Optional[str] = None
     descripcion: str
     sitio: Optional[str] = None
     sitio_id: Optional[int] = None
     ubicacion: str
     user_id: int
     cuadrilla_id: Optional[int] = None
+    coordinador: Optional[str] = None
     prioridad: str = "P2"
     tipo_ubicacion: str = "urbana"
+    categoria: Optional[str] = "normal"
+    regional: Optional[str] = "R1"
+    departamento: Optional[str] = None
+    tipo_estacion: Optional[str] = "MOVIL"
+    site_owner: Optional[str] = None
     tipo_mantenimiento: str = "correctivo"
+    tipo_actividad: Optional[str] = "correctivo"
     subsistema: Optional[str] = "sistema_electrico"
-    tipo_gasto: Optional[str] = "OPEX"
+    tipo_gasto: Optional[str] = None
+    datos_formulario: Optional[Any] = None
+    operadores_asignados: Optional[List[Any]] = None
+    operadores_ids: Optional[List[int]] = None
     estado: str
     fecha_inicio: Any
+    fecha_limite_sla: Optional[Any] = None
 
 class OtEstadoUpdate(BaseModel):
-    estado: str  # asignada, en_camino, en_sitio, en_progreso, detenida_materiales, solucionada, finalizada
+    estado: str
     progreso: Optional[int] = None
 
 class OtCerrarRequest(BaseModel):
-    causa_falla: str  # desgaste, vandalismo, factor_climatico, desconocido
-    observaciones_cierre: Optional[str] = None
+    causa_falla: str
+    observaciones_cierre: str
     repuestos: Optional[List[RepuestoItem]] = []
-
-class OperadorResponse(BaseModel):
-    id: int
-    name: str
-    username: str
-    cuadrilla_id: Optional[int] = None
+    datos_formulario: Optional[Any] = None

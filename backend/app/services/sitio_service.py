@@ -26,6 +26,8 @@ class SitioService:
             "altura_estructura": sitio.altura_estructura,
             "altura_estructura_texto": sitio.altura_estructura_texto,
             "supervisor_operativo": sitio.supervisor_operativo,
+            "new_so": sitio.supervisor_operativo,
+            "site_owner": sitio.supervisor_operativo,
             "correo_so": sitio.correo_so,
             "jefe_zona": sitio.jefe_zona,
             "correo_jefe_zona": sitio.correo_jefe_zona,
@@ -113,6 +115,8 @@ class SitioService:
                     "km": s.km,
                     "transporte_especial": s.transporte_especial,
                     "supervisor_operativo": s.supervisor_operativo,
+                    "new_so": s.supervisor_operativo,
+                    "site_owner": s.supervisor_operativo,
                     "jefe_zona": s.jefe_zona,
                     "ingeniero_soporte": s.ingeniero_soporte,
                     "facturadora": s.facturadora

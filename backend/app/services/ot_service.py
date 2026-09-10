@@ -1,4 +1,5 @@
 import os
+import json
 from datetime import datetime
 from typing import Optional, List, Any, Dict
 from dateutil import parser as date_parser
@@ -119,9 +120,18 @@ class OtService:
             for av in (ot.avances or [])
         ]
 
+        # Manejo de datos_formulario
+        datos_formulario_parsed = None
+        if ot.datos_formulario:
+            try:
+                datos_formulario_parsed = json.loads(ot.datos_formulario)
+            except Exception:
+                datos_formulario_parsed = ot.datos_formulario
+
         return {
             "id": ot.id,
             "codigo": ot.codigo,
+            "id_actividad": ot.id_actividad,
             "descripcion": ot.descripcion,
             "sitio": ot.sitio,
             "sitio_id": ot.sitio_id,
@@ -129,13 +139,22 @@ class OtService:
             "created_by": ot.created_by,
             "user_id": ot.user_id,
             "cuadrilla_id": ot.cuadrilla_id,
+            "coordinador": ot.coordinador,
             "progreso": ot.progreso,
             "estado": ot.estado,
             "prioridad": ot.prioridad,
             "tipo_ubicacion": ot.tipo_ubicacion,
+            "categoria": ot.categoria or ("rural" if ot.tipo_ubicacion == "rural" else "normal"),
+            "regional": ot.regional or "R1",
+            "departamento": ot.departamento,
+            "tipo_estacion": ot.tipo_estacion or "MOVIL",
+            "site_owner": ot.site_owner,
             "tipo_mantenimiento": ot.tipo_mantenimiento,
+            "tipo_actividad": ot.tipo_actividad or ot.tipo_mantenimiento,
             "subsistema": ot.subsistema,
             "tipo_gasto": ot.tipo_gasto,
+            "datos_formulario": datos_formulario_parsed,
+            "operadores_asignados": datos_formulario_parsed.get("operadores_asignados", []) if isinstance(datos_formulario_parsed, dict) else [],
             "fecha_inicio": ot.fecha_inicio.isoformat() if ot.fecha_inicio else None,
             "fecha_limite_sla": ot.fecha_limite_sla.isoformat() if ot.fecha_limite_sla else None,
             "fecha_llegada_sitio": ot.fecha_llegada_sitio.isoformat() if ot.fecha_llegada_sitio else None,
@@ -192,26 +211,62 @@ class OtService:
             )
 
         fecha_inicio = self.parse_datetime(payload.fecha_inicio)
-        fecha_limite_sla = sla_service.calcular_fecha_limite(
-            payload.prioridad,
-            payload.tipo_ubicacion,
-            fecha_inicio
-        )
+        fecha_limite_sla = payload.fecha_limite_sla
+        if not fecha_limite_sla:
+            fecha_limite_sla = sla_service.calcular_fecha_limite(
+                payload.prioridad,
+                payload.tipo_ubicacion,
+                fecha_inicio
+            )
+        else:
+            fecha_limite_sla = self.parse_datetime(fecha_limite_sla)
+
+        id_actividad = payload.id_actividad
+        if not id_actividad or not id_actividad.strip():
+            clean_code = payload.codigo.replace("OT-", "").replace("WO", "").strip()
+            id_actividad = f"ACT-{now_utc().strftime('%Y%m%d')}-{clean_code}"
+
+        # Manejo de datos_formulario y asignación múltiple de operadores
+        datos_form_dict: dict = {}
+        if payload.datos_formulario:
+            if isinstance(payload.datos_formulario, dict):
+                datos_form_dict = dict(payload.datos_formulario)
+            elif isinstance(payload.datos_formulario, str):
+                try:
+                    datos_form_dict = json.loads(payload.datos_formulario)
+                except Exception:
+                    datos_form_dict = {}
+
+        if payload.operadores_asignados:
+            datos_form_dict["operadores_asignados"] = payload.operadores_asignados
+
+        datos_form_str = json.dumps(datos_form_dict) if datos_form_dict else None
+
+        categoria = payload.categoria or ("rural" if payload.tipo_ubicacion == "rural" else "normal")
 
         new_ot = Ot(
-            codigo=payload.codigo,
-            descripcion=payload.descripcion,
-            sitio=payload.sitio,
+            codigo=payload.codigo.strip(),
+            id_actividad=id_actividad.strip(),
+            descripcion=payload.descripcion.strip(),
+            sitio=payload.sitio.strip() if payload.sitio else None,
             sitio_id=payload.sitio_id,
-            ubicacion=payload.ubicacion,
+            ubicacion=payload.ubicacion.strip(),
             created_by=current_user.id,
             user_id=payload.user_id,
             cuadrilla_id=payload.cuadrilla_id,
+            coordinador=payload.coordinador.strip() if payload.coordinador else None,
             prioridad=payload.prioridad,
             tipo_ubicacion=payload.tipo_ubicacion,
+            categoria=categoria,
+            regional=payload.regional or "R1",
+            departamento=payload.departamento.strip() if payload.departamento else None,
+            tipo_estacion=payload.tipo_estacion or "MOVIL",
+            site_owner=payload.site_owner.strip() if payload.site_owner else None,
             tipo_mantenimiento=payload.tipo_mantenimiento,
+            tipo_actividad=payload.tipo_actividad or payload.tipo_mantenimiento,
             subsistema=payload.subsistema or "sistema_electrico",
-            tipo_gasto=payload.tipo_gasto or "OPEX",
+            tipo_gasto=payload.tipo_gasto,
+            datos_formulario=datos_form_str,
             fecha_inicio=fecha_inicio,
             fecha_limite_sla=fecha_limite_sla,
             progreso=0,
@@ -239,24 +294,63 @@ class OtService:
             )
 
         fecha_inicio = self.parse_datetime(payload.fecha_inicio)
-        fecha_limite_sla = sla_service.calcular_fecha_limite(
-            payload.prioridad,
-            payload.tipo_ubicacion,
-            fecha_inicio
-        )
+        fecha_limite_sla = payload.fecha_limite_sla
+        if not fecha_limite_sla:
+            fecha_limite_sla = sla_service.calcular_fecha_limite(
+                payload.prioridad,
+                payload.tipo_ubicacion,
+                fecha_inicio
+            )
+        else:
+            fecha_limite_sla = self.parse_datetime(fecha_limite_sla)
 
         ot.codigo = payload.codigo
+        if payload.id_actividad:
+            ot.id_actividad = payload.id_actividad
         ot.descripcion = payload.descripcion
         ot.sitio = payload.sitio
         ot.sitio_id = payload.sitio_id
         ot.ubicacion = payload.ubicacion
         ot.user_id = payload.user_id
         ot.cuadrilla_id = payload.cuadrilla_id
+        if payload.coordinador is not None:
+            ot.coordinador = payload.coordinador
         ot.prioridad = payload.prioridad
         ot.tipo_ubicacion = payload.tipo_ubicacion
+        if payload.categoria:
+            ot.categoria = payload.categoria
+        if payload.regional:
+            ot.regional = payload.regional
+        if payload.departamento is not None:
+            ot.departamento = payload.departamento
+        if payload.tipo_estacion:
+            ot.tipo_estacion = payload.tipo_estacion
+        if payload.site_owner is not None:
+            ot.site_owner = payload.site_owner
         ot.tipo_mantenimiento = payload.tipo_mantenimiento
+        if payload.tipo_actividad:
+            ot.tipo_actividad = payload.tipo_actividad
         ot.subsistema = payload.subsistema
-        ot.tipo_gasto = payload.tipo_gasto
+        if payload.tipo_gasto is not None:
+            ot.tipo_gasto = payload.tipo_gasto
+        if payload.datos_formulario is not None or payload.operadores_asignados is not None:
+            curr_form: dict = {}
+            if ot.datos_formulario:
+                try:
+                    curr_form = json.loads(ot.datos_formulario)
+                except Exception:
+                    curr_form = {}
+            if payload.datos_formulario is not None:
+                if isinstance(payload.datos_formulario, dict):
+                    curr_form.update(payload.datos_formulario)
+                elif isinstance(payload.datos_formulario, str):
+                    try:
+                        curr_form.update(json.loads(payload.datos_formulario))
+                    except Exception:
+                        pass
+            if payload.operadores_asignados is not None:
+                curr_form["operadores_asignados"] = payload.operadores_asignados
+            ot.datos_formulario = json.dumps(curr_form) if curr_form else None
         ot.estado = payload.estado
         ot.fecha_inicio = fecha_inicio
         ot.fecha_limite_sla = fecha_limite_sla
@@ -395,17 +489,36 @@ class OtService:
 
         tipos_existentes = [ev.tipo for ev in ot.evidencias]
         faltantes = []
-        if "antes" not in tipos_existentes:
-            faltantes.append("Evidencia de ANTES")
-        if "durante" not in tipos_existentes:
-            faltantes.append("Evidencia de DURANTE")
-        if "despues" not in tipos_existentes:
-            faltantes.append("Evidencia de DESPUÉS")
+        is_preventivo = (
+            ot.tipo_mantenimiento == "preventivo" or 
+            (ot.tipo_actividad and "preventivo" in ot.tipo_actividad.lower())
+        )
+
+        if is_preventivo:
+            # Requisitos oficiales para formatos MP (Preventivo Planta / Aire)
+            tiene_placas = any(t in tipos_existentes for t in ["placas", "antes", "inicial"])
+            tiene_mantenimiento = any(t in tipos_existentes for t in ["mantenimiento", "filtracion", "durante"])
+            tiene_pruebas = any(t in tipos_existentes for t in ["pruebas", "despues", "final"])
+
+            if not tiene_placas:
+                faltantes.append("Placas Técnicas / Estado Inicial")
+            if not tiene_mantenimiento:
+                faltantes.append("Servicio de Filtración / Mantenimiento")
+            if not tiene_pruebas:
+                faltantes.append("Pruebas Operativas / Mediciones Finales")
+        else:
+            # Requisitos oficiales para formatos WO (Correctivos y Emergencias)
+            if "antes" not in tipos_existentes:
+                faltantes.append("Evidencia de ANTES (Falla inicial)")
+            if "durante" not in tipos_existentes:
+                faltantes.append("Evidencia de DURANTE (Intervención técnica)")
+            if "despues" not in tipos_existentes:
+                faltantes.append("Evidencia de DESPUÉS (Equipo operativo)")
 
         if faltantes:
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="No se puede cerrar la OT sin diligenciar totalmente las evidencias obligatorias: " + ", ".join(faltantes)
+                detail="No se puede cerrar la OT sin diligenciar totalmente las evidencias obligatorias requeridas para este tipo de trabajo: " + ", ".join(faltantes)
             )
 
         now = now_utc()
@@ -414,6 +527,9 @@ class OtService:
         ot.fecha_solucion = now
         ot.causa_falla = payload.causa_falla
         ot.observaciones_cierre = payload.observaciones_cierre
+
+        if payload.datos_formulario is not None:
+            ot.datos_formulario = json.dumps(payload.datos_formulario) if isinstance(payload.datos_formulario, (dict, list)) else str(payload.datos_formulario)
 
         if payload.repuestos:
             for item in payload.repuestos:
@@ -434,8 +550,12 @@ class OtService:
         return [
             {
                 "id": op.id,
+                "user_id": op.id,
                 "name": op.name,
                 "username": op.username,
+                "documento": op.empleado.documento if op.empleado else "Sin documento",
+                "cargo": op.empleado.cargo if op.empleado else "Técnico de Campo",
+                "telefono": op.empleado.telefono if op.empleado else "",
                 "cuadrilla_id": op.empleado.cuadrilla_id if op.empleado else None
             }
             for op in operativos

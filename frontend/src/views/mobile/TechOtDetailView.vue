@@ -10,8 +10,11 @@
           <IconArrowLeft class="w-5 h-5 stroke-[2]" />
         </button>
         <div v-if="ot">
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <span class="font-mono text-sm font-extrabold text-red-600 dark:text-red-400">{{ ot.codigo }}</span>
+            <span v-if="ot.id_actividad" class="font-mono text-[10px] bg-slate-100 dark:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 font-bold px-1.5 py-0.5 rounded">
+              {{ ot.id_actividad }}
+            </span>
             <span :class="estadoBadgeClass(ot.estado)" class="px-2 py-0.5 rounded text-[10px] font-extrabold uppercase">
               {{ formatEstado(ot.estado) }}
             </span>
@@ -160,27 +163,31 @@
           <!-- Grid de Especificaciones Clave -->
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
             <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200/80 dark:border-white/10 rounded-xl p-2.5 space-y-0.5">
-              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Subsistema</span>
-              <div class="font-bold text-slate-800 dark:text-slate-200 truncate">{{ ot.subsistema || 'Telecom General' }}</div>
-            </div>
-
-            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200/80 dark:border-white/10 rounded-xl p-2.5 space-y-0.5">
-              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Prioridad</span>
-              <div class="font-mono font-black text-slate-900 dark:text-white flex items-center gap-1">
-                <span class="w-2 h-2 rounded-full" :class="ot.prioridad === 'P1' ? 'bg-red-600' : ot.prioridad === 'P2' ? 'bg-amber-500' : 'bg-blue-500'"></span>
-                <span>{{ ot.prioridad || 'P2' }} ({{ ot.tipo_ubicacion || 'urbana' }})</span>
+              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Actividad & Tipo</span>
+              <div class="font-bold text-slate-800 dark:text-slate-200 truncate">
+                {{ ot.tipo_actividad ? ot.tipo_actividad.toUpperCase() : (ot.tipo_mantenimiento || 'Preventivo').toUpperCase() }}
               </div>
             </div>
 
             <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200/80 dark:border-white/10 rounded-xl p-2.5 space-y-0.5">
-              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Tipo de Gasto</span>
-              <div class="font-mono font-black text-slate-800 dark:text-slate-200">{{ ot.tipo_gasto || 'OPEX' }}</div>
+              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Prioridad & Zona</span>
+              <div class="font-mono font-black text-slate-900 dark:text-white flex items-center gap-1">
+                <span class="w-2 h-2 rounded-full" :class="ot.prioridad === 'P1' ? 'bg-red-600' : ot.prioridad === 'P2' ? 'bg-amber-500' : 'bg-blue-500'"></span>
+                <span>{{ ot.prioridad || 'P2' }} ({{ (ot.categoria || ot.tipo_ubicacion || 'normal').toUpperCase() }})</span>
+              </div>
             </div>
 
             <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200/80 dark:border-white/10 rounded-xl p-2.5 space-y-0.5">
-              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Cuadrilla Asignada</span>
+              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Estación & Owner</span>
               <div class="font-bold text-slate-800 dark:text-slate-200 truncate">
-                {{ ot.cuadrilla?.nombre || ot.assigned_user?.name || 'Técnico Directo' }}
+                {{ ot.tipo_estacion || 'MOVIL' }} • {{ ot.site_owner || 'CLARO' }}
+              </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200/80 dark:border-white/10 rounded-xl p-2.5 space-y-0.5">
+              <span class="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider">Coordinador / Regional</span>
+              <div class="font-bold text-slate-800 dark:text-slate-200 truncate">
+                {{ ot.coordinador || 'Sin coord.' }} ({{ ot.regional || 'R1' }})
               </div>
             </div>
           </div>
@@ -293,8 +300,9 @@
               </span>
             </div>
 
-            <!-- Grid de 4 tarjetas de requisitos -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <!-- Grid de tarjetas de requisitos según Tipo de Trabajo -->
+            <!-- 1. CASO WO: CORRECTIVO Y EMERGENCIA -->
+            <div v-if="isCorrectivo" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <!-- Requisito Foto Antes -->
               <div 
                 class="border rounded-xl p-3 space-y-1 transition-all"
@@ -360,6 +368,228 @@
                 </div>
                 <button 
                   v-if="countEvidencias('despues') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Bitácora PDT -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(ot.avances && ot.avances.length > 0) 
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Bitácora PDT</span>
+                  <IconCircleCheck v-if="ot.avances && ot.avances.length > 0" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ ot.avances?.length || 0 }} hito(s)
+                </div>
+                <button 
+                  v-if="!ot.avances || ot.avances.length === 0" 
+                  @click="activeTab = 'avances'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Publicar hito
+                </button>
+              </div>
+            </div>
+
+            <!-- 2. CASO MP PLANTA ELÉCTRICA -->
+            <div v-else-if="!isPreventivoAire" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <!-- Requisito Placas Técnicas -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('placas') >= 1 || countEvidencias('antes') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Placas Técnicas</span>
+                  <IconCircleCheck v-if="countEvidencias('placas') >= 1 || countEvidencias('antes') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('placas') + countEvidencias('antes') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('placas') < 1 && countEvidencias('antes') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Horómetro Inicial -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('inicial') >= 1 || countEvidencias('antes') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Horómetro Inicial</span>
+                  <IconCircleCheck v-if="countEvidencias('inicial') >= 1 || countEvidencias('antes') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('inicial') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('inicial') < 1 && countEvidencias('antes') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Filtración & Mantenimiento -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('mantenimiento') >= 1 || countEvidencias('durante') >= 1 || countEvidencias('filtracion') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Filtración & Aceite</span>
+                  <IconCircleCheck v-if="countEvidencias('mantenimiento') >= 1 || countEvidencias('durante') >= 1 || countEvidencias('filtracion') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('mantenimiento') + countEvidencias('durante') + countEvidencias('filtracion') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('mantenimiento') < 1 && countEvidencias('durante') < 1 && countEvidencias('filtracion') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Pruebas ATS con Carga -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('pruebas') >= 1 || countEvidencias('despues') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Pruebas ATS Carga</span>
+                  <IconCircleCheck v-if="countEvidencias('pruebas') >= 1 || countEvidencias('despues') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('pruebas') + countEvidencias('despues') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('pruebas') < 1 && countEvidencias('despues') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Bitácora PDT -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(ot.avances && ot.avances.length > 0) 
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Bitácora PDT</span>
+                  <IconCircleCheck v-if="ot.avances && ot.avances.length > 0" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ ot.avances?.length || 0 }} hito(s)
+                </div>
+                <button 
+                  v-if="!ot.avances || ot.avances.length === 0" 
+                  @click="activeTab = 'avances'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Publicar hito
+                </button>
+              </div>
+            </div>
+
+            <!-- 3. CASO MP AIRE ACONDICIONADO -->
+            <div v-else class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <!-- Requisito Placa Técnica AA -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('placas') >= 1 || countEvidencias('antes') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Placa Técnica AA</span>
+                  <IconCircleCheck v-if="countEvidencias('placas') >= 1 || countEvidencias('antes') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('placas') + countEvidencias('antes') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('placas') < 1 && countEvidencias('antes') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Lavado Serpentines -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('mantenimiento') >= 1 || countEvidencias('durante') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Lavado Serpentines</span>
+                  <IconCircleCheck v-if="countEvidencias('mantenimiento') >= 1 || countEvidencias('durante') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('mantenimiento') + countEvidencias('durante') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('mantenimiento') < 1 && countEvidencias('durante') < 1" 
+                  @click="activeTab = 'evidencias'"
+                  class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
+                >
+                  + Cargar foto
+                </button>
+              </div>
+
+              <!-- Requisito Mediciones Operativas -->
+              <div 
+                class="border rounded-xl p-3 space-y-1 transition-all"
+                :class="(countEvidencias('pruebas') >= 1 || countEvidencias('despues') >= 1)
+                  ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                  : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+              >
+                <div class="flex items-center justify-between text-xs">
+                  <span class="font-bold text-[11px]">Mediciones Operativas</span>
+                  <IconCircleCheck v-if="countEvidencias('pruebas') >= 1 || countEvidencias('despues') >= 1" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                  <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                </div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                  {{ countEvidencias('pruebas') + countEvidencias('despues') }} cargada(s)
+                </div>
+                <button 
+                  v-if="countEvidencias('pruebas') < 1 && countEvidencias('despues') < 1" 
                   @click="activeTab = 'evidencias'"
                   class="text-[10px] text-red-600 dark:text-red-400 font-extrabold hover:underline block pt-0.5"
                 >
@@ -664,39 +894,186 @@
         </div>
       </div>
 
-      <!-- CONTENIDO PESTAÑA 3: EVIDENCIAS FOTOGRÁFICAS -->
-      <div v-if="activeTab === 'evidencias'" class="space-y-4">
-        <h3 class="text-xs font-extrabold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center justify-between">
-          <span>Evidencias Fotográficas Obligatorias</span>
-          <span class="text-red-600 dark:text-red-400 font-mono text-[11px]">{{ ot.evidencias?.length || 0 }} fotos cargadas</span>
-        </h3>
+      <!-- CONTENIDO PESTAÑA 3: EVIDENCIAS FOTOGRÁFICAS SEGÚN TIPO DE TRABAJO -->
+      <div v-if="activeTab === 'evidencias'" class="space-y-5">
+        <div class="p-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+              Protocolo de Evidencias: {{ isCorrectivo ? 'Correctivos & Emergencias (WO)' : (isPreventivoAire ? 'Preventivo Climatización (MP AA)' : 'Preventivo Planta Eléctrica (MP GE)') }}
+            </h3>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Formato de captura fotográfica con geolocalización GPS y fecha incrustada
+            </p>
+          </div>
+          <span class="text-red-600 dark:text-red-400 font-mono text-xs font-black bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 px-2.5 py-1 rounded-xl">
+            {{ ot.evidencias?.length || 0 }} fotos registradas
+          </span>
+        </div>
 
-        <PhotoUploader
-          tipo="antes"
-          :codigo-ot="ot.codigo"
-          :evidencias-list="getEvidenciasPorTipo('antes')"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-          @photo-uploaded="pedirConfirmacionFoto"
-          @delete-photo="pedirConfirmacionBorrarFoto"
-        />
+        <!-- 1. CASO FORMATO WO: CORRECTIVO Y EMERGENCIA -->
+        <template v-if="isCorrectivo">
+          <PhotoUploader
+            tipo="antes"
+            titulo="1. Diagnóstico Inicial & Falla Encontrada"
+            descripcion="Fotografía legible del estado del equipo averiado, daño físico o alarma activa en tablero antes de iniciar labores."
+            badge-label="Antes (Falla)"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('antes')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
 
-        <PhotoUploader
-          tipo="durante"
-          :codigo-ot="ot.codigo"
-          :evidencias-list="getEvidenciasPorTipo('durante')"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-          @photo-uploaded="pedirConfirmacionFoto"
-          @delete-photo="pedirConfirmacionBorrarFoto"
-        />
+          <PhotoUploader
+            tipo="durante"
+            titulo="2. Intervención Técnica & Repuestos"
+            descripcion="Registro del proceso de reparación, piezas retiradas vs repuestos nuevos instalados con serial y marca legibles."
+            badge-label="Durante (Reparación)"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('durante')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
 
-        <PhotoUploader
-          tipo="despues"
-          :codigo-ot="ot.codigo"
-          :evidencias-list="getEvidenciasPorTipo('despues')"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-          @photo-uploaded="pedirConfirmacionFoto"
-          @delete-photo="pedirConfirmacionBorrarFoto"
-        />
+          <PhotoUploader
+            tipo="despues"
+            titulo="3. Equipo Operativo en Servicio & Cierre"
+            descripcion="Equipo solucionado operando en condiciones normales, tablero sin alarmas y caseta cerrada y limpia."
+            badge-label="Después (Solucionado)"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('despues')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="transporte"
+            titulo="4. Soporte Transporte Especial (Si Aplica)"
+            descripcion="Registro fotográfico si se utilizó transporte en lancha fluvial, mula o vehículo de trocha difícil para acceder al sitio."
+            badge-label="Transporte Especial (Opcional)"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('transporte')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+        </template>
+
+        <!-- 2. CASO FORMATO MP: PREVENTIVO PLANTA ELÉCTRICA (GE) -->
+        <template v-else-if="!isPreventivoAire">
+          <PhotoUploader
+            tipo="placas"
+            titulo="1. Placas Técnicas de Equipos"
+            descripcion="Fotos nítidas de la placa de datos de la Planta Eléctrica, placa del Motor Diesel y placa del Generador."
+            badge-label="Placas Técnicas"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="[...getEvidenciasPorTipo('placas'), ...getEvidenciasPorTipo('antes')]"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="inicial"
+            titulo="2. Horómetro Inicial & Estado de Caseta"
+            descripcion="Foto legible del horómetro del tablero antes de la rutina y panorámica del grupo electrógeno en su caseta/cabina."
+            badge-label="Horómetro Inicial"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('inicial')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="mantenimiento"
+            titulo="3. Servicio de Filtración & Mantenimiento"
+            descripcion="Evidencias fotográficas del cambio de filtro de aceite, combustible, aire, lubricante nuevo y refrigerante."
+            badge-label="Filtración & Rutina"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="[...getEvidenciasPorTipo('mantenimiento'), ...getEvidenciasPorTipo('durante'), ...getEvidenciasPorTipo('filtracion')]"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="pruebas"
+            titulo="4. Pruebas Operativas ATS con Carga (15 Min)"
+            descripcion="Prueba con carga simulando falla de energía (15 min), horómetro final de prueba y tablero en modo automático sin alarmas."
+            badge-label="Pruebas con Carga"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="[...getEvidenciasPorTipo('pruebas'), ...getEvidenciasPorTipo('despues')]"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="transporte"
+            titulo="5. Soporte Transporte Especial (Si Aplica)"
+            descripcion="Fotografía de movilización especial fluvial (lancha) o bestia/mula requerida para el mantenimiento del sitio."
+            badge-label="Transporte Especial (Opcional)"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('transporte')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+        </template>
+
+        <!-- 3. CASO FORMATO MP: PREVENTIVO CLIMATIZACIÓN (AIRE ACONDICIONADO) -->
+        <template v-else>
+          <PhotoUploader
+            tipo="placas"
+            titulo="1. Placa Técnica & Estado Previo AA"
+            descripcion="Placa de características técnicas del equipo (evaporador/condensador) y estado de suciedad antes del lavado."
+            badge-label="Placa & Previo"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="[...getEvidenciasPorTipo('placas'), ...getEvidenciasPorTipo('antes')]"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="mantenimiento"
+            titulo="2. Lavado & Mantenimiento de Serpentines"
+            descripcion="Lavado a presión de serpentín condensador/evaporador, limpieza profunda de filtros y bandeja de desagüe."
+            badge-label="Lavado & Mantenimiento"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="[...getEvidenciasPorTipo('mantenimiento'), ...getEvidenciasPorTipo('durante')]"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="pruebas"
+            titulo="3. Mediciones Operativas y Frigoríficas"
+            descripcion="Lectura manométrica (presión de baja/alta PSI), pinza amperimétrica (corriente compresor) y termómetro de inyección/retorno."
+            badge-label="Mediciones & Cierre"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="[...getEvidenciasPorTipo('pruebas'), ...getEvidenciasPorTipo('despues')]"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+
+          <PhotoUploader
+            tipo="transporte"
+            titulo="4. Soporte Transporte Especial (Si Aplica)"
+            descripcion="Fotografía de movilización especial si aplicó para acceder a la estación de climatización."
+            badge-label="Transporte Especial (Opcional)"
+            :codigo-ot="ot.codigo"
+            :evidencias-list="getEvidenciasPorTipo('transporte')"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+            @photo-uploaded="pedirConfirmacionFoto"
+            @delete-photo="pedirConfirmacionBorrarFoto"
+          />
+        </template>
       </div>
 
       <!-- CONTENIDO PESTAÑA 4: REPUESTOS LPU -->
@@ -801,13 +1178,40 @@
         </div>
       </div>
 
-      <!-- CONTENIDO PESTAÑA 5: CHECKLIST DE INTERVENCIÓN -->
+      <!-- CONTENIDO PESTAÑA 5: FORMULARIO TÉCNICO DE CAMPO & CHECKLIST -->
       <div v-if="activeTab === 'checklist'" class="space-y-4">
-        <DynamicChecklist
-          :subsistema="ot.subsistema || 'Sistema Eléctrico y Mantenimiento'"
-          :ot-id="ot.id"
-          @checklist-updated="handleChecklistUpdated"
+        <!-- Formulario Técnico Específico según tipo de trabajo -->
+        <FormularioTecnicoWO
+          v-if="isCorrectivo"
+          v-model="otFormularioData"
         />
+        <FormularioTecnicoMP
+          v-else
+          v-model="otFormularioData"
+          :tipo-preventivo="isPreventivoAire ? 'aire' : 'planta'"
+        />
+
+        <!-- Botón para Guardar Formulario Técnico en Cualquier Momento -->
+        <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div>
+            <div class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+              <IconFileCheck class="w-4 h-4 text-emerald-500 stroke-[2.2]" />
+              <span>Diligenciamiento de Campo (Formato Oficial {{ isCorrectivo ? 'WO' : 'MP' }})</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Guarda tus avances técnicos en cualquier momento durante la intervención en sitio.
+            </p>
+          </div>
+          <button
+            type="button"
+            @click="guardarFormularioTecnico"
+            :disabled="guardandoFormulario"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+          >
+            <IconDeviceFloppy class="w-4 h-4 stroke-[2.2]" />
+            <span>{{ guardandoFormulario ? 'Guardando...' : 'Guardar Formato de Campo' }}</span>
+          </button>
+        </div>
       </div>
 
       <!-- Modal para Gestionar Insumos LPU (sin obligar a cerrar la OT) -->
@@ -873,7 +1277,8 @@ import { useRoute } from 'vue-router';
 import client from '@/api/client';
 import SlaBadge from '@/components/common/SlaBadge.vue';
 import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
-import DynamicChecklist from '@/components/mobile/DynamicChecklist.vue';
+import FormularioTecnicoWO from '@/components/mobile/FormularioTecnicoWO.vue';
+import FormularioTecnicoMP from '@/components/mobile/FormularioTecnicoMP.vue';
 import CloseOtModal from '@/components/mobile/CloseOtModal.vue';
 import ManageRepuestosModal from '@/components/mobile/ManageRepuestosModal.vue';
 import ConfirmDialogModal from '@/components/common/ConfirmDialogModal.vue';
@@ -907,7 +1312,9 @@ import {
   IconExternalLink,
   IconNavigation,
   IconTool,
-  IconCircleX
+  IconCircleX,
+  IconDeviceFloppy,
+  IconFileCheck
 } from '@tabler/icons-vue';
 
 const route = useRoute();
@@ -990,9 +1397,59 @@ const tabs = [
   { id: 'flujo', label: 'Flujo & Acción', shortLabel: 'Flujo', icon: IconSteeringWheel },
   { id: 'avances', label: 'Minutograma PDT', shortLabel: 'Bitácora', icon: IconActivity },
   { id: 'evidencias', label: 'Evidencias', shortLabel: 'Fotos', icon: IconCamera },
-  { id: 'checklist', label: 'Checklist', shortLabel: 'Checklist', icon: IconListCheck },
+  { id: 'checklist', label: 'Formulario de Campo', shortLabel: 'Formato', icon: IconFileCheck },
   { id: 'repuestos', label: 'Repuestos LPU', shortLabel: 'Insumos', icon: IconBox },
 ];
+
+const otFormularioData = ref({});
+const guardandoFormulario = ref(false);
+
+const isCorrectivo = computed(() => {
+  const tAct = ot.value?.tipo_actividad;
+  const tMant = ot.value?.tipo_mantenimiento;
+  return tAct === 'correctivo' || tAct === 'emergencia' || tMant === 'correctivo' || tMant === 'emergencia';
+});
+
+const isPreventivoAire = computed(() => {
+  const tAct = ot.value?.tipo_actividad;
+  const sub = ot.value?.subsistema || '';
+  return tAct === 'preventivo_aire' || sub.toLowerCase().includes('aire');
+});
+
+watch(() => ot.value, (newOt) => {
+  if (newOt) {
+    if (newOt.datos_formulario && typeof newOt.datos_formulario === 'object') {
+      otFormularioData.value = { ...newOt.datos_formulario };
+    } else if (typeof newOt.datos_formulario === 'string') {
+      try {
+        otFormularioData.value = JSON.parse(newOt.datos_formulario);
+      } catch (e) {
+        otFormularioData.value = {};
+      }
+    } else {
+      otFormularioData.value = {};
+    }
+  }
+}, { immediate: true });
+
+const guardarFormularioTecnico = async () => {
+  if (!ot.value?.id) return;
+  guardandoFormulario.value = true;
+  try {
+    const res = await client.put(`/ots/${ot.value.id}`, {
+      datos_formulario: otFormularioData.value
+    });
+    if (res.data.status === 'success') {
+      showNotification('success', 'Formato Guardado', 'El formulario técnico de campo se ha guardado exitosamente.');
+      ot.value.datos_formulario = { ...otFormularioData.value };
+    }
+  } catch (err) {
+    const msg = err.response?.data?.message || 'Error al guardar el formulario técnico.';
+    showNotification('error', 'Error al Guardar', msg);
+  } finally {
+    guardandoFormulario.value = false;
+  }
+};
 
 const nuevoAvance = ref({
   descripcion: '',
@@ -1085,26 +1542,52 @@ const executeDeletePhoto = async (evidenciaId) => {
   }
 };
 
-const handleChecklistUpdated = (data) => {
-  if (ot.value && !['solucionada', 'finalizada'].includes(ot.value.estado)) {
-    // Actualizar el porcentaje de ejecución PDT dinámicamente según avance del checklist
-    ot.value.progreso = Math.max(ot.value.progreso || 0, data.percentage);
-  }
-};
+
+const isPreventivoPlanta = computed(() => {
+  return !isCorrectivo.value && !isPreventivoAire.value;
+});
 
 const requisitosFaltantes = computed(() => {
   if (!ot.value) return [];
   const faltantes = [];
 
-  if (countEvidencias('antes') < 1) {
-    faltantes.push('Falta Evidencia Fotográfica de ANTES (Mínimo 1 foto)');
+  if (isCorrectivo.value) {
+    if (countEvidencias('antes') < 1) {
+      faltantes.push('Falta Evidencia Fotográfica de ANTES (Falla encontrada)');
+    }
+    if (countEvidencias('durante') < 1) {
+      faltantes.push('Falta Evidencia Fotográfica de DURANTE (Intervención técnica)');
+    }
+    if (countEvidencias('despues') < 1) {
+      faltantes.push('Falta Evidencia Fotográfica de DESPUÉS (Equipo solucionado)');
+    }
+  } else if (!isPreventivoAire.value) {
+    // Preventivo Planta Eléctrica
+    if (countEvidencias('placas') < 1 && countEvidencias('antes') < 1) {
+      faltantes.push('Falta Evidencia de Placas Técnicas (Planta, Motor, Generador)');
+    }
+    if (countEvidencias('inicial') < 1 && countEvidencias('antes') < 1) {
+      faltantes.push('Falta Evidencia de Horómetro Inicial & Estado de Caseta');
+    }
+    if (countEvidencias('mantenimiento') < 1 && countEvidencias('durante') < 1 && countEvidencias('filtracion') < 1) {
+      faltantes.push('Falta Evidencia de Servicio de Filtración & Mantenimiento');
+    }
+    if (countEvidencias('pruebas') < 1 && countEvidencias('despues') < 1) {
+      faltantes.push('Falta Evidencia de Pruebas Operativas ATS con Carga (15 min)');
+    }
+  } else {
+    // Preventivo Aire Acondicionado
+    if (countEvidencias('placas') < 1 && countEvidencias('antes') < 1) {
+      faltantes.push('Falta Evidencia de Placa Técnica & Estado Previo AA');
+    }
+    if (countEvidencias('mantenimiento') < 1 && countEvidencias('durante') < 1) {
+      faltantes.push('Falta Evidencia de Lavado & Mantenimiento de Serpentines');
+    }
+    if (countEvidencias('pruebas') < 1 && countEvidencias('despues') < 1) {
+      faltantes.push('Falta Evidencia de Mediciones Operativas y Presiones');
+    }
   }
-  if (countEvidencias('durante') < 1) {
-    faltantes.push('Falta Evidencia Fotográfica de DURANTE (Mínimo 1 foto)');
-  }
-  if (countEvidencias('despues') < 1) {
-    faltantes.push('Falta Evidencia Fotográfica de DESPUÉS (Mínimo 1 foto)');
-  }
+
   if (!ot.value.avances || ot.value.avances.length === 0) {
     faltantes.push('Falta Registro de Bitácora / Avance PDT de la intervención');
   }
@@ -1305,7 +1788,11 @@ const executeHandleCierreSubmit = async (payload) => {
   cierreErrorMsg.value = '';
   updating.value = true;
   try {
-    const res = await client.post(`/ots/${ot.value.id}/cerrar`, payload);
+    const finalPayload = {
+      ...payload,
+      datos_formulario: otFormularioData.value
+    };
+    const res = await client.post(`/ots/${ot.value.id}/cerrar`, finalPayload);
     if (res.data.status === 'success') {
       isCloseModalOpen.value = false;
       showNotification('success', 'Orden Solucionada', res.data.message || 'La Orden de Trabajo fue finalizada con éxito.');

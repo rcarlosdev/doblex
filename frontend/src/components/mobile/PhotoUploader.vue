@@ -3,8 +3,8 @@
     <!-- Encabezado de Tipo de Evidencia -->
     <div class="flex items-center justify-between flex-wrap gap-2">
       <div class="flex items-center gap-2">
-        <span :class="tipoBadgeClass" class="px-2.5 py-0.5 rounded-md text-xs font-black uppercase tracking-wider">
-          Evidencia: {{ tipo }}
+        <span :class="customBadgeClass" class="px-2.5 py-0.5 rounded-md text-xs font-black uppercase tracking-wider">
+          {{ displayBadgeLabel }}
         </span>
         <span class="text-xs text-slate-500 dark:text-slate-400 font-bold">
           ({{ evidenciasList.length }} montadas)
@@ -20,6 +20,16 @@
         <IconCamera class="w-4 h-4 stroke-[2]" />
         <span>{{ uploading ? 'Procesando...' : 'Tomar / Montar Foto' }}</span>
       </button>
+    </div>
+
+    <!-- Título descriptivo y guía técnica (si se proporciona) -->
+    <div v-if="titulo || descripcion" class="space-y-0.5">
+      <div v-if="titulo" class="text-xs font-extrabold text-slate-800 dark:text-slate-200">
+        {{ titulo }}
+      </div>
+      <div v-if="descripcion" class="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+        {{ descripcion }}
+      </div>
     </div>
 
     <!-- Elemento input tipo file oculto para camara/galería nativa -->
@@ -135,7 +145,7 @@ import { IconCamera, IconCheck, IconTrash, IconEye, IconPhotoOff, IconX } from '
 const props = defineProps({
   tipo: {
     type: String,
-    required: true, // 'antes', 'durante', 'despues'
+    required: true,
   },
   codigoOt: {
     type: String,
@@ -148,6 +158,22 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false,
+  },
+  titulo: {
+    type: String,
+    default: '',
+  },
+  descripcion: {
+    type: String,
+    default: '',
+  },
+  badgeLabel: {
+    type: String,
+    default: '',
+  },
+  badgeClass: {
+    type: String,
+    default: '',
   },
 });
 
@@ -163,9 +189,25 @@ const dateText = ref('');
 const currentLat = ref(null);
 const currentLng = ref(null);
 
-const tipoBadgeClass = computed(() => {
-  if (props.tipo === 'antes') return 'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700';
-  if (props.tipo === 'durante') return 'bg-rose-100 text-rose-900 border border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-700';
+const displayBadgeLabel = computed(() => {
+  if (props.badgeLabel) return props.badgeLabel;
+  return `Evidencia: ${props.tipo}`;
+});
+
+const customBadgeClass = computed(() => {
+  if (props.badgeClass) return props.badgeClass;
+  if (props.tipo === 'antes' || props.tipo === 'inicial') {
+    return 'bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700';
+  }
+  if (props.tipo === 'durante' || props.tipo === 'mantenimiento' || props.tipo === 'filtracion') {
+    return 'bg-blue-100 text-blue-900 border border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700';
+  }
+  if (props.tipo === 'placas') {
+    return 'bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700';
+  }
+  if (props.tipo === 'transporte') {
+    return 'bg-slate-100 text-slate-900 border border-slate-300 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700';
+  }
   return 'bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700';
 });
 

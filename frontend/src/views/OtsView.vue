@@ -23,10 +23,15 @@ import {
   IconPencil,
   IconX,
   IconFileCheck,
-  IconCheck
+  IconCheck,
+  IconTool,
+  IconEngine,
+  IconWind,
+  IconCalendar
 } from '@tabler/icons-vue';
 import { selectSitios } from '@/api/sitios';
 import OtAuditModal from '@/components/admin/OtAuditModal.vue';
+import EmpleadoMultiSelect from '@/components/common/EmpleadoMultiSelect.vue';
 
 const openCreateModal = ref(false);
 const openEditModal = ref(false);
@@ -49,41 +54,117 @@ const currentUsername = ref('');
 const loading = ref(false);
 const errorMsg = ref('');
 
-// Datos para registrar nueva OT (Administración)
+// Lista reactiva de operadores asignados (Multi-técnico)
+const newOtOperadores = ref([]);
+const editingOtOperadores = ref([]);
+const newDateInputRef = ref(null);
+const editDateInputRef = ref(null);
+
+const triggerDateInput = (target = 'create') => {
+  const el = target === 'create' ? newDateInputRef.value : editDateInputRef.value;
+  if (el && typeof el.showPicker === 'function') {
+    el.showPicker();
+  } else if (el) {
+    el.focus();
+  }
+};
+
+const getNowDate = () => {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+};
+
+const formatToDate = (str) => {
+  if (!str) return getNowDate();
+  if (str.includes('T')) return str.slice(0, 10);
+  if (str.includes(' ')) return str.split(' ')[0];
+  return str.slice(0, 10);
+};
+
+// Generador de ID de actividad independiente
+const generateActivityId = () => {
+  const year = new Date().getFullYear();
+  const rnd = Math.floor(100000 + Math.random() * 900000);
+  return `ACT-${year}-${rnd}`;
+};
+
+// Datos para registrar nueva OT (Administración - Asignación y Logística)
 const newOt = ref({
   codigo: '',
+  id_actividad: generateActivityId(),
+  tipo_actividad: 'correctivo',
   descripcion: '',
   sitio: '',
   sitio_id: null,
   ubicacion: '',
-  user_id: '', // Operador asignado
-  cuadrilla_id: '',
+  departamento: 'Antioquia',
+  regional: 'R1',
+  categoria: 'normal',
+  tipo_estacion: 'MOVIL',
+  site_owner: '', // Se llena automáticamente de New_SO al seleccionar el sitio
+  coordinador: '',
+  user_id: '', // Operador por persona principal
   prioridad: 'P2',
   tipo_ubicacion: 'urbana',
-  tipo_mantenimiento: 'preventivo',
+  tipo_mantenimiento: 'correctivo',
   subsistema: 'Movil Sistema Eléctrico',
-  tipo_gasto: 'OPEX',
-  fecha_inicio: new Date().toISOString().split('T')[0]
+  fecha_inicio: getNowDate()
 });
 
 // Datos para editar OT (Administración)
 const editingOt = ref({
   id: null,
   codigo: '',
+  id_actividad: '',
+  tipo_actividad: 'correctivo',
   descripcion: '',
   sitio: '',
   sitio_id: null,
   ubicacion: '',
+  departamento: '',
+  regional: 'R1',
+  categoria: 'normal',
+  tipo_estacion: 'MOVIL',
+  site_owner: '',
+  coordinador: '',
   user_id: '',
-  cuadrilla_id: '',
   prioridad: 'P2',
   tipo_ubicacion: 'urbana',
-  tipo_mantenimiento: 'preventivo',
+  tipo_mantenimiento: 'correctivo',
   subsistema: 'Movil Sistema Eléctrico',
-  tipo_gasto: 'OPEX',
   estado: 'asignada',
-  fecha_inicio: new Date().toISOString().split('T')[0]
+  fecha_inicio: getNowDate()
 });
+
+const syncOtModel = (model) => {
+  if (model.tipo_actividad === 'preventivo_planta') {
+    model.tipo_mantenimiento = 'preventivo';
+    if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
+      model.subsistema = 'Movil Plantas Eléctricas';
+    }
+  } else if (model.tipo_actividad === 'preventivo_aire') {
+    model.tipo_mantenimiento = 'preventivo';
+    if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
+      model.subsistema = 'Movil Aires Acondicionados';
+    }
+  } else if (model.tipo_actividad === 'correctivo') {
+    model.tipo_mantenimiento = 'correctivo';
+  } else if (model.tipo_actividad === 'emergencia') {
+    model.tipo_mantenimiento = 'emergencia';
+  }
+
+  if (model.categoria === 'rural') {
+    model.tipo_ubicacion = 'rural';
+  } else {
+    model.tipo_ubicacion = 'urbana';
+  }
+};
+
+const onTipoActividadChange = (target = 'create') => {
+  const model = target === 'create' ? newOt.value : editingOt.value;
+  syncOtModel(model);
+};
 
 // Autocompletado de Sitios
 const sitioSuggestions = ref([]);
@@ -118,39 +199,87 @@ const chooseSitio = (sitio, target = 'create') => {
   } else if (sitio.municipio) {
     model.ubicacion = `${sitio.municipio}${sitio.ciudad_base ? ' - Base ' + sitio.ciudad_base : ''}`;
   }
-  if (sitio.transporte_especial) {
+  if (sitio.departamento) {
+    model.departamento = sitio.departamento;
+  }
+  if (sitio.regional) {
+    model.regional = (sitio.regional.toUpperCase().includes('2') || sitio.regional.toUpperCase().includes('R2')) ? 'R2' : 'R1';
+  }
+  if (sitio.tipo_estacion) {
+    model.tipo_estacion = sitio.tipo_estacion;
+  }
+
+  // Site Owner: Se toma específicamente de la columna New_SO (supervisor_operativo) de la base de datos de sitios
+  model.site_owner = sitio.supervisor_operativo || sitio.new_so || sitio.site_owner || '';
+
+  if (sitio.transporte_especial || sitio.categoria === 'rural') {
+    model.categoria = 'rural';
     model.tipo_ubicacion = 'rural';
+  } else {
+    model.categoria = 'normal';
+    model.tipo_ubicacion = 'urbana';
   }
   showSitioSuggestions.value = false;
 };
 
-// Abrir modal de edición con datos precargados
+// Abrir modal de edición con datos generales
 const openEditOt = (ot) => {
+  // Sincronizar lista de operadores (Multi-técnico)
+  if (Array.isArray(ot.operadores_asignados) && ot.operadores_asignados.length > 0) {
+    editingOtOperadores.value = [...ot.operadores_asignados];
+  } else if (ot.assigned_user) {
+    editingOtOperadores.value = [{
+      id: ot.assigned_user.id,
+      user_id: ot.assigned_user.id,
+      name: ot.assigned_user.name,
+      nombre: ot.assigned_user.name,
+      username: ot.assigned_user.username
+    }];
+  } else {
+    editingOtOperadores.value = [];
+  }
+
   editingOt.value = {
     id: ot.id,
     codigo: ot.codigo,
+    id_actividad: ot.id_actividad || generateActivityId(),
+    tipo_actividad: ot.tipo_actividad || ot.tipo_mantenimiento || 'correctivo',
     descripcion: ot.descripcion,
     sitio: ot.sitio || '',
     sitio_id: ot.sitio_id || null,
     ubicacion: ot.ubicacion,
+    departamento: ot.departamento || '',
+    regional: ot.regional || 'R1',
+    categoria: ot.categoria || (ot.tipo_ubicacion === 'rural' ? 'rural' : 'normal'),
+    tipo_estacion: ot.tipo_estacion || 'MOVIL',
+    site_owner: ot.site_owner || 'CLARO',
+    coordinador: ot.coordinador || '',
     user_id: ot.user_id || (ot.assigned_user ? ot.assigned_user.id : ''),
-    cuadrilla_id: ot.cuadrilla_id || '',
     prioridad: ot.prioridad || 'P2',
     tipo_ubicacion: ot.tipo_ubicacion || 'urbana',
-    tipo_mantenimiento: ot.tipo_mantenimiento || 'preventivo',
+    tipo_mantenimiento: ot.tipo_mantenimiento || 'correctivo',
     subsistema: ot.subsistema || 'Movil Sistema Eléctrico',
-    tipo_gasto: ot.tipo_gasto || 'OPEX',
     estado: ot.estado || 'asignada',
-    fecha_inicio: ot.fecha_inicio ? ot.fecha_inicio.split(' ')[0] : new Date().toISOString().split('T')[0]
+    fecha_inicio: formatToDate(ot.fecha_inicio)
   };
   openEditModal.value = true;
 };
 
 const updateOt = async () => {
   errorMsg.value = '';
+  if (editingOtOperadores.value.length === 0) {
+    errorMsg.value = 'Debes asignar al menos un operador responsable.';
+    return;
+  }
   try {
     const payload = { ...editingOt.value };
-    if (!payload.cuadrilla_id) payload.cuadrilla_id = null;
+    syncOtModel(payload);
+
+    // Operador líder y lista de operadores acompañantes
+    const leadOp = editingOtOperadores.value[0];
+    payload.user_id = leadOp.user_id || leadOp.id;
+    payload.operadores_asignados = editingOtOperadores.value;
+    payload.operadores_ids = editingOtOperadores.value.map(o => o.user_id || o.id);
 
     const response = await client.put(`/ots/${editingOt.value.id}`, payload);
     if (response.data.status === 'success') {
@@ -233,10 +362,13 @@ const filteredOts = computed(() => {
   return ots.value.filter(ot => {
     const searchLower = searchQuery.value.toLowerCase();
     
-    // Búsqueda por código, descripción, ubicación o por el nombre del encargado
-    const matchesSearch = ot.codigo.toLowerCase().includes(searchLower) || 
-                         ot.descripcion.toLowerCase().includes(searchLower) ||
-                         ot.ubicacion.toLowerCase().includes(searchLower) ||
+    // Búsqueda por código, ID de actividad, descripción, ubicación, coordinador o por el nombre del encargado
+    const matchesSearch = (ot.codigo && ot.codigo.toLowerCase().includes(searchLower)) || 
+                         (ot.id_actividad && ot.id_actividad.toLowerCase().includes(searchLower)) ||
+                         (ot.descripcion && ot.descripcion.toLowerCase().includes(searchLower)) ||
+                         (ot.ubicacion && ot.ubicacion.toLowerCase().includes(searchLower)) ||
+                         (ot.coordinador && ot.coordinador.toLowerCase().includes(searchLower)) ||
+                         (ot.departamento && ot.departamento.toLowerCase().includes(searchLower)) ||
                          (ot.assigned_user && ot.assigned_user.name.toLowerCase().includes(searchLower)) ||
                          (ot.cuadrilla && ot.cuadrilla.nombre.toLowerCase().includes(searchLower));
     
@@ -248,30 +380,51 @@ const filteredOts = computed(() => {
 
 const createOt = async () => {
   errorMsg.value = '';
+  if (newOtOperadores.value.length === 0) {
+    errorMsg.value = 'Debes asignar al menos un operador responsable a la Orden de Trabajo.';
+    return;
+  }
   try {
     const payload = { ...newOt.value };
-    if (!payload.cuadrilla_id) payload.cuadrilla_id = null;
+    syncOtModel(payload);
+
+    // Operador líder asignado como user_id y lista completa de operadores
+    const leadOp = newOtOperadores.value[0];
+    payload.user_id = leadOp.user_id || leadOp.id;
+    payload.operadores_asignados = newOtOperadores.value;
+    payload.operadores_ids = newOtOperadores.value.map(o => o.user_id || o.id);
+    payload.datos_formulario = {
+      operadores_asignados: newOtOperadores.value
+    };
 
     const response = await client.post('/ots', payload);
     if (response.data.status === 'success') {
       // Recargar OTs y cerrar modal
       await loadOts();
       openCreateModal.value = false;
+      newOtOperadores.value = [];
       
-      // Limpiar formulario
+      // Limpiar formulario con nuevo ID de actividad generado
       newOt.value = {
         codigo: '',
+        id_actividad: generateActivityId(),
+        tipo_actividad: 'correctivo',
         descripcion: '',
         sitio: '',
+        sitio_id: null,
         ubicacion: '',
+        departamento: 'Antioquia',
+        regional: 'R1',
+        categoria: 'normal',
+        tipo_estacion: 'MOVIL',
+        site_owner: '',
+        coordinador: '',
         user_id: '',
-        cuadrilla_id: '',
         prioridad: 'P2',
         tipo_ubicacion: 'urbana',
-        tipo_mantenimiento: 'preventivo',
+        tipo_mantenimiento: 'correctivo',
         subsistema: 'Movil Sistema Eléctrico',
-        tipo_gasto: 'OPEX',
-        fecha_inicio: new Date().toISOString().split('T')[0]
+        fecha_inicio: getNowDate()
       };
     }
   } catch (err) {
@@ -384,13 +537,12 @@ const getStatusLabel = (status) => {
           <Table>
             <TableHeader class="border-neutral-100 dark:border-neutral-900">
               <TableRow class="hover:bg-transparent border-neutral-100 dark:border-neutral-900">
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase pl-4">Código / SLA</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Sitio / Alcance</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Tipo & Criticidad</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Subsistema & Gasto</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Ubicación</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Encargado (Operador)</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase w-[130px]">Progreso</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase pl-4">Código / ID Actividad</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Sitio & Estación</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Tipo & Clasificación</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Coordinador & Operador</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Ubicación / Dpto</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase w-[120px]">Progreso</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase text-center">Estado</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase text-right pr-4">Acciones</TableHead>
               </TableRow>
@@ -400,6 +552,9 @@ const getStatusLabel = (status) => {
                 <TableCell class="pl-4 py-4">
                   <div class="flex flex-col gap-1">
                     <span class="font-mono font-bold text-primary text-xs">{{ ot.codigo }}</span>
+                    <span v-if="ot.id_actividad" class="font-mono text-[10px] text-neutral-500 bg-neutral-100 dark:bg-neutral-900 px-1.5 py-0.5 rounded border border-neutral-200 dark:border-neutral-800 w-fit">
+                      {{ ot.id_actividad }}
+                    </span>
                     <SlaBadge v-if="ot.fecha_limite_sla" :fecha-limite="ot.fecha_limite_sla" :estado="ot.estado" />
                   </div>
                 </TableCell>
@@ -409,42 +564,73 @@ const getStatusLabel = (status) => {
                       <IconBuildingBroadcastTower class="w-3.5 h-3.5 text-primary shrink-0 stroke-[1.75]" />
                       <span>{{ ot.sitio }}</span>
                     </span>
-                    <span class="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-1">{{ ot.descripcion }}</span>
+                    <div class="flex items-center gap-1.5 text-[10px] text-neutral-500 mt-0.5">
+                      <span class="font-bold text-neutral-700 dark:text-neutral-300">{{ ot.tipo_estacion || 'MOVIL' }}</span>
+                      <span>•</span>
+                      <span>Owner: {{ ot.site_owner || 'CLARO' }}</span>
+                    </div>
+                    <span class="text-xs text-neutral-600 dark:text-neutral-300 line-clamp-1 mt-0.5">{{ ot.descripcion }}</span>
                     <span class="text-[10px] text-neutral-400 mt-0.5">Inicio: {{ ot.fecha_inicio }}</span>
                   </div>
                 </TableCell>
                 <TableCell class="py-4 whitespace-nowrap">
                   <div class="flex flex-col gap-1 items-start">
-                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-sm" :class="ot.tipo_mantenimiento === 'emergencia' ? 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-500/30' : ot.tipo_mantenimiento === 'correctivo' ? 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-500/30' : 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-500/30'">
-                      {{ ot.tipo_mantenimiento || 'Preventivo' }}
+                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-sm" :class="{
+                      'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400 dark:border-rose-500/30': ot.tipo_actividad === 'emergencia' || ot.tipo_mantenimiento === 'emergencia',
+                      'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-500/30': ot.tipo_actividad === 'correctivo' || ot.tipo_mantenimiento === 'correctivo',
+                      'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-500/30': ot.tipo_actividad === 'preventivo_planta',
+                      'bg-cyan-100 text-cyan-800 border border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-400 dark:border-cyan-500/30': ot.tipo_actividad === 'preventivo_aire',
+                      'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-500/30': !ot.tipo_actividad || ot.tipo_mantenimiento === 'preventivo'
+                    }">
+                      {{ ot.tipo_actividad === 'preventivo_planta' ? 'Preventivo - PLANTA' : ot.tipo_actividad === 'preventivo_aire' ? 'Preventivo - AIRE' : (ot.tipo_actividad || ot.tipo_mantenimiento || 'Correctivo').toUpperCase() }}
                     </span>
-                    <span class="text-[10px] font-semibold text-neutral-600 dark:text-slate-400">
-                      Prioridad {{ ot.prioridad || 'P2' }} ({{ (ot.tipo_ubicacion || 'urbana').toUpperCase() }})
-                    </span>
+                    <div class="flex items-center gap-1 text-[10px] font-semibold text-neutral-600 dark:text-slate-400">
+                      <span class="px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 uppercase text-[9px]">{{ ot.categoria || 'normal' }}</span>
+                      <span>{{ ot.regional || 'R1' }}</span>
+                      <span>•</span>
+                      <span>{{ ot.prioridad || 'P2' }}</span>
+                    </div>
+                    <div class="text-[9px] font-mono text-neutral-400 dark:text-neutral-500 truncate max-w-[150px]">
+                      <span class="font-bold text-neutral-600 dark:text-neutral-300">
+                        {{ (['correctivo', 'emergencia'].includes(ot.tipo_actividad || ot.tipo_mantenimiento)) ? 'Fmt WO' : 'Fmt MP' }}
+                      </span>
+                      <span v-if="ot.datos_formulario?.tipo_equipo_falla || ot.datos_formulario?.marca_equipo">
+                        : {{ ot.datos_formulario?.tipo_equipo_falla || ot.datos_formulario?.marca_equipo }}
+                      </span>
+                    </div>
                   </div>
                 </TableCell>
-                <TableCell class="py-4 whitespace-nowrap">
-                  <div class="flex flex-col text-xs">
-                    <span class="font-semibold text-neutral-900 dark:text-neutral-200">{{ ot.subsistema || 'Sistema Eléctrico' }}</span>
-                    <span class="text-[10px] font-mono text-neutral-500 dark:text-neutral-400 uppercase font-bold">{{ ot.tipo_gasto || 'OPEX' }}</span>
+                <TableCell class="py-4 whitespace-nowrap text-xs">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="text-neutral-500 text-[10px]">Coord: <strong class="text-neutral-800 dark:text-neutral-200 font-semibold">{{ ot.coordinador || 'Sin asignar' }}</strong></span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-medium text-neutral-900 dark:text-white">
+                        Op: {{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}
+                      </span>
+                      <span 
+                        v-if="ot.operadores_asignados && ot.operadores_asignados.length > 1" 
+                        class="text-[9px] bg-primary/10 text-primary font-black px-1.5 py-0.2 rounded border border-primary/20"
+                        :title="ot.operadores_asignados.map(o => (o.nombre || o.name) + (o.cargo ? ' (' + o.cargo + ')' : '')).join('\n')"
+                      >
+                        +{{ ot.operadores_asignados.length - 1 }} apoyo(s)
+                      </span>
+                    </div>
                   </div>
                 </TableCell>
                 <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap text-xs">
-                  <span class="inline-flex items-center gap-1">
-                    <IconMapPin class="w-3.5 h-3.5 text-rose-500 shrink-0 stroke-[1.75]" />
-                    <span>{{ ot.ubicacion }}</span>
-                  </span>
-                </TableCell>
-                <TableCell class="text-neutral-700 dark:text-neutral-350 py-4 whitespace-nowrap text-xs font-medium">
-                  <div>{{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}</div>
-                  <span v-if="ot.cuadrilla" class="flex items-center gap-1 text-[10px] text-neutral-400 font-normal">
-                    <IconUsersGroup class="w-3 h-3 text-neutral-400 shrink-0 stroke-[1.75]" />
-                    <span>{{ ot.cuadrilla.nombre }}</span>
-                  </span>
+                  <div class="flex flex-col gap-0.5">
+                    <span class="inline-flex items-center gap-1">
+                      <IconMapPin class="w-3.5 h-3.5 text-rose-500 shrink-0 stroke-[1.75]" />
+                      <span class="font-medium">{{ ot.ubicacion }}</span>
+                    </span>
+                    <span v-if="ot.departamento" class="text-[10px] text-neutral-400 pl-4.5">
+                      Dpto: {{ ot.departamento }}
+                    </span>
+                  </div>
                 </TableCell>
                 <TableCell class="py-4">
                   <div class="flex items-center gap-2">
-                    <Progress :model-value="ot.progreso" class="h-1.5 w-16 bg-neutral-100 dark:bg-white/5" />
+                    <Progress :model-value="ot.progreso" class="h-1.5 w-14 bg-neutral-100 dark:bg-white/5" />
                     <span class="text-xs font-semibold text-neutral-600 dark:text-neutral-400">{{ ot.progreso }}%</span>
                   </div>
                 </TableCell>
@@ -486,7 +672,7 @@ const getStatusLabel = (status) => {
                 </TableCell>
               </TableRow>
               <TableRow v-if="filteredOts.length === 0" class="hover:bg-transparent">
-                <TableCell colspan="7" class="text-center text-neutral-500 py-10">
+                <TableCell colspan="8" class="text-center text-neutral-500 py-10">
                   <span v-if="loading">Cargando registros desde el servidor de base de datos...</span>
                   <span v-else>No se encontraron órdenes de trabajo para mostrar.</span>
                 </TableCell>
@@ -499,28 +685,52 @@ const getStatusLabel = (status) => {
 
     <!-- Modal 1: Registrar Nueva OT (Administrador/Administrativo) -->
     <Dialog :open="openCreateModal" @close="openCreateModal = false">
-      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-900 pb-4 mb-5">
+      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 mb-4">
         <div>
-          <h3 class="text-base font-bold text-neutral-900 dark:text-white">Crear Nueva Orden de Trabajo</h3>
-          <p class="text-[11px] text-neutral-500">Completa los campos para registrar una nueva orden de trabajo</p>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h3 class="text-base font-bold text-neutral-900 dark:text-white">Crear Nueva Orden de Trabajo</h3>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="ID de Actividad Independiente - Control Interno">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              {{ newOt.id_actividad }}
+            </span>
+          </div>
+          <p class="text-[11px] text-neutral-500 mt-0.5">Completa los campos técnicos para la asignación y diligenciamiento en campo</p>
         </div>
         <button @click="openCreateModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
           <IconX class="w-5 h-5 stroke-[2]" />
         </button>
       </div>
 
-      <form @submit.prevent="createOt" class="space-y-4">
-        <!-- Fila 1: Código OT & Sitio / Estación Base -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form @submit.prevent="createOt" class="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
+        <!-- Fila 1: Código OT & Tipo Actividad -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
-            <Input type="text" v-model="newOt.codigo" required placeholder="OT-2026-004" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+            <Input type="text" v-model="newOt.codigo" required placeholder="WO0000005558781 o OT5304019" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
           </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad *</label>
+            <select 
+              v-model="newOt.tipo_actividad" 
+              @change="onTipoActividadChange('create')"
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
+            >
+              <option value="correctivo">Correctivo (Formato WO)</option>
+              <option value="emergencia">Emergencia (Formato WO)</option>
+              <option value="preventivo_planta">Preventivo - PLANTA (Formato MP)</option>
+              <option value="preventivo_aire">Preventivo - AIRE (Formato MP)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila 2: Sitio / Estación Base & Site Owner (New_SO del sitio autocompletado) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="space-y-1.5 relative">
             <div class="flex items-center justify-between">
-              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB) *</label>
               <span v-if="newOt.sitio_id" class="text-[9px] text-emerald-500 font-bold flex items-center gap-0.5">
-                <IconCheck class="w-3 h-3" /> Vinculado a Sitio Maestro
+                <IconCheck class="w-3 h-3" /> Vinculado a Maestro
               </span>
             </div>
             <div class="relative">
@@ -529,10 +739,9 @@ const getStatusLabel = (status) => {
                 v-model="newOt.sitio" 
                 @input="onSitioInput(newOt.sitio, 'create')"
                 @focus="onSitioInput(newOt.sitio, 'create')"
-                placeholder="Escriba para buscar en 1,819 sitios..." 
+                placeholder="Escriba para buscar sitio (ej. ANT.ACUARIO)..." 
                 class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase text-xs" 
               />
-              <!-- Desplegable reactivo de sugerencias de sitios -->
               <div 
                 v-if="showSitioSuggestions && activeInputTarget === 'create' && sitioSuggestions.length > 0"
                 class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800"
@@ -546,7 +755,7 @@ const getStatusLabel = (status) => {
                   <div class="min-w-0">
                     <span class="font-bold text-xs text-neutral-900 dark:text-white block truncate">{{ s.nombre }}</span>
                     <span class="text-[10px] text-neutral-500 block truncate">
-                      {{ s.municipio || s.ciudad_base || 'Sin municipio' }} • {{ s.zona_tecnica || s.zona || '' }}
+                      {{ s.municipio || s.ciudad_base || 'Sin municipio' }} • {{ s.departamento || '' }} • {{ s.regional || '' }} <span v-if="s.supervisor_operativo || s.new_so">• SO: <strong class="text-neutral-700 dark:text-neutral-300">{{ s.supervisor_operativo || s.new_so }}</strong></span>
                     </span>
                   </div>
                   <span v-if="s.transporte_especial" class="text-[9px] font-bold text-purple-600 bg-purple-500/10 px-1.5 py-0.5 rounded shrink-0">
@@ -556,126 +765,137 @@ const getStatusLabel = (status) => {
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Fila 2: Descripción de la Obra -->
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
-          <Input type="text" v-model="newOt.descripcion" required placeholder="Mantenimiento correctivo de planta eléctrica y rectificador" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
-        </div>
-
-        <!-- Fila 3: Tipo de Mantenimiento, Prioridad & Ubicación -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Mantenimiento *</label>
-            <select 
-              v-model="newOt.tipo_mantenimiento" 
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="preventivo">Preventivo (Rutinario)</option>
-              <option value="correctivo">Correctivo (Planificado)</option>
-              <option value="emergencia">Atención de Emergencia</option>
-            </select>
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Site Owner (New_SO) *</label>
+              <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
+                Auto de New_SO
+              </span>
+            </div>
+            <Input 
+              type="text" 
+              v-model="newOt.site_owner" 
+              required 
+              placeholder="Se autocompleta con el sitio (ej. ALFONSO SUAREZ)" 
+              class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary text-xs uppercase font-medium" 
+            />
+          </div>
+        </div>
+
+        <!-- Fila 3: Coordinador & Fecha Inicio (Solo Fecha) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Coordinador *</label>
+            <Input type="text" v-model="newOt.coordinador" required placeholder="Ej: Ing. Mauricio Quintero" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
 
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Prioridad / Criticidad *</label>
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha Inicio *</label>
+              <button 
+                type="button" 
+                @click="newOt.fecha_inicio = getNowDate()" 
+                class="text-[10px] font-semibold text-primary hover:underline flex items-center gap-1"
+              >
+                Hoy
+              </button>
+            </div>
+            <div class="relative flex items-center cursor-pointer" @click="triggerDateInput('create')">
+              <div class="absolute left-3 text-neutral-400 pointer-events-none">
+                <IconCalendar class="w-4 h-4" />
+              </div>
+              <input 
+                ref="newDateInputRef"
+                type="date" 
+                v-model="newOt.fecha_inicio" 
+                required 
+                class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-950 pl-9 pr-3 py-1 text-xs text-neutral-800 dark:text-neutral-200 focus:border-primary focus:ring-primary font-medium cursor-pointer" 
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 4: Operador por persona (Multi-técnico) -->
+        <div>
+          <EmpleadoMultiSelect
+            v-model="newOtOperadores"
+            label="Operador (por persona)"
+            :required="true"
+          />
+        </div>
+
+        <!-- Fila 5: Parámetros Técnicos (Categoría, Regional, Tipo Estación, Prioridad) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Categoría *</label>
+            <select 
+              v-model="newOt.categoria" 
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
+            >
+              <option value="normal">Normal</option>
+              <option value="rural">Rural (Difícil Acceso)</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Regional *</label>
+            <select 
+              v-model="newOt.regional" 
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
+            >
+              <option value="R1">R1 (Regional 1)</option>
+              <option value="R2">R2 (Regional 2)</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Estación *</label>
+            <select 
+              v-model="newOt.tipo_estacion" 
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+            >
+              <option value="MOVIL">MOVIL</option>
+              <option value="FIJA">FIJA</option>
+              <option value="REPETIDORA">REPETIDORA</option>
+              <option value="NODO">NODO</option>
+              <option value="CENTRO_DE_DATOS">CENTRO DE DATOS</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Prioridad *</label>
             <select 
               v-model="newOt.prioridad" 
               required
               class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
-              <option value="P1">P1 - Alta (Falla Crítica)</option>
-              <option value="P2">P2 - Media (Convencional)</option>
-              <option value="P3">P3 - Baja (Difícil Acceso)</option>
-            </select>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Zona de Ubicación *</label>
-            <select 
-              v-model="newOt.tipo_ubicacion" 
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="urbana">Urbana</option>
-              <option value="rural">Rural / Difícil Acceso</option>
+              <option value="P1">P1 - Alta (Crítica)</option>
+              <option value="P2">P2 - Media (Normal)</option>
+              <option value="P3">P3 - Baja (Planificada)</option>
             </select>
           </div>
         </div>
 
-        <!-- Fila 4: Subsistema & Tipo de Gasto -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Fila 6: Departamento & Ubicación / Municipio -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Subsistema Intervenido</label>
-            <select 
-              v-model="newOt.subsistema" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="Movil Aires Acondicionados">Móvil Aires Acondicionados</option>
-              <option value="Movil Plantas Eléctricas">Móvil Plantas Eléctricas</option>
-              <option value="Movil Sistema Eléctrico">Móvil Sistema Eléctrico (MT/BT/SPT)</option>
-              <option value="Movil Power">Móvil Power (Rectificadores/Baterías)</option>
-              <option value="Móvil Acceso-Transmisión">Móvil Acceso - Transmisión</option>
-              <option value="Móvil Apoyo Integral">Móvil Apoyo Integral</option>
-              <option value="Móvil Híbridos SFV">Móvil Híbridos o SFV (Solar)</option>
-            </select>
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Departamento *</label>
+            <Input type="text" v-model="newOt.departamento" required placeholder="Antioquia, Chocó, etc." class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo de Gasto</label>
-            <select 
-              v-model="newOt.tipo_gasto" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="OPEX">OPEX (Operativo)</option>
-              <option value="CAPEX">CAPEX (Inversión)</option>
-            </select>
+          <div class="sm:col-span-2 space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Ubicación / Municipio *</label>
+            <Input type="text" v-model="newOt.ubicacion" required placeholder="Ej: Sitio El Veinte, Finca La Herradura, Apartadó" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
         </div>
 
-        <!-- Fila 5: Ubicación Geográfica, Operador & Cuadrilla -->
+        <!-- Fila 7: Descripción de la Obra / Falla -->
         <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Ubicación / Municipio *</label>
-          <Input type="text" v-model="newOt.ubicacion" required placeholder="Titiribí, Antioquia - Zona R3-Occidente" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
+          <Input type="text" v-model="newOt.descripcion" required placeholder="Ej: Reparación de tarjeta AVR y bobinado Selmec 40SC" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Operador Asignado *</label>
-            <select 
-              v-model="newOt.user_id" 
-              @change="onOperatorChange(newOt.user_id, 'create')"
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="" disabled>Selecciona el encargado</option>
-              <option v-for="op in operadores" :key="op.id" :value="op.id">
-                {{ op.name }} ({{ op.username }})
-              </option>
-            </select>
-          </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Cuadrilla Asignada (Opcional)</label>
-            <select 
-              v-model="newOt.cuadrilla_id" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="">Sin cuadrilla específica</option>
-              <option v-for="c in cuadrillas" :key="c.id" :value="c.id">
-                {{ c.nombre }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha de Inicio *</label>
-          <Input type="date" v-model="newOt.fecha_inicio" required class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
-        </div>
-
-        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-900 pt-5 mt-6">
+        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-900 pt-4 mt-5">
           <Button type="button" variant="outline" @click="openCreateModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto">
             Cancelar
           </Button>
@@ -688,28 +908,52 @@ const getStatusLabel = (status) => {
 
     <!-- Modal de Editar OT (Administrador/Administrativo) -->
     <Dialog :open="openEditModal" @close="openEditModal = false">
-      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-4 mb-5">
+      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 mb-4">
         <div>
-          <h3 class="text-base font-bold text-neutral-900 dark:text-white">Editar Orden de Trabajo</h3>
-          <p class="text-[11px] text-neutral-500">Actualiza los datos y asignación de la OT {{ editingOt.codigo }}</p>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h3 class="text-base font-bold text-neutral-900 dark:text-white">Editar Orden de Trabajo</h3>
+            <span v-if="editingOt.id_actividad" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="ID de Actividad Independiente - Control Interno">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
+              {{ editingOt.id_actividad }}
+            </span>
+          </div>
+          <p class="text-[11px] text-neutral-500 mt-0.5">Actualiza los datos técnicos y asignación de la OT {{ editingOt.codigo }}</p>
         </div>
         <button @click="openEditModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
           <IconX class="w-5 h-5 stroke-[2]" />
         </button>
       </div>
 
-      <form @submit.prevent="updateOt" class="space-y-4">
-        <!-- Fila 1: Código OT & Sitio / Estación Base -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <form @submit.prevent="updateOt" class="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
+        <!-- Fila 1: Código OT & Tipo Actividad -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
-            <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+            <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
           </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad *</label>
+            <select 
+              v-model="editingOt.tipo_actividad" 
+              @change="onTipoActividadChange('edit')"
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
+            >
+              <option value="correctivo">Correctivo (Formato WO)</option>
+              <option value="emergencia">Emergencia (Formato WO)</option>
+              <option value="preventivo_planta">Preventivo - PLANTA (Formato MP)</option>
+              <option value="preventivo_aire">Preventivo - AIRE (Formato MP)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Fila 2: Sitio / Estación Base & Site Owner (New_SO del sitio) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div class="space-y-1.5 relative">
             <div class="flex items-center justify-between">
               <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
               <span v-if="editingOt.sitio_id" class="text-[9px] text-emerald-500 font-bold flex items-center gap-0.5">
-                <IconCheck class="w-3 h-3" /> Vinculado a Sitio Maestro
+                <IconCheck class="w-3 h-3" /> Vinculado a Maestro
               </span>
             </div>
             <div class="relative">
@@ -718,10 +962,9 @@ const getStatusLabel = (status) => {
                 v-model="editingOt.sitio" 
                 @input="onSitioInput(editingOt.sitio, 'edit')"
                 @focus="onSitioInput(editingOt.sitio, 'edit')"
-                placeholder="Escriba para buscar en 1,819 sitios..." 
+                placeholder="Escriba para buscar sitio (ej. ANT.ACUARIO)..." 
                 class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase text-xs" 
               />
-              <!-- Desplegable reactivo de sugerencias de sitios -->
               <div 
                 v-if="showSitioSuggestions && activeInputTarget === 'edit' && sitioSuggestions.length > 0"
                 class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800"
@@ -735,7 +978,7 @@ const getStatusLabel = (status) => {
                   <div class="min-w-0">
                     <span class="font-bold text-xs text-neutral-900 dark:text-white block truncate">{{ s.nombre }}</span>
                     <span class="text-[10px] text-neutral-500 block truncate">
-                      {{ s.municipio || s.ciudad_base || 'Sin municipio' }} • {{ s.zona_tecnica || s.zona || '' }}
+                      {{ s.municipio || s.ciudad_base || 'Sin municipio' }} • {{ s.departamento || '' }} • {{ s.regional || '' }} <span v-if="s.supervisor_operativo || s.new_so">• SO: <strong class="text-neutral-700 dark:text-neutral-300">{{ s.supervisor_operativo || s.new_so }}</strong></span>
                     </span>
                   </div>
                   <span v-if="s.transporte_especial" class="text-[9px] font-bold text-purple-600 bg-purple-500/10 px-1.5 py-0.5 rounded shrink-0">
@@ -745,90 +988,122 @@ const getStatusLabel = (status) => {
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Fila 2: Descripción de la Obra -->
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
-          <Input type="text" v-model="editingOt.descripcion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
-        </div>
-
-        <!-- Fila 3: Tipo de Mantenimiento, Prioridad & Ubicación -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Mantenimiento *</label>
-            <select 
-              v-model="editingOt.tipo_mantenimiento" 
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="preventivo">Preventivo (Rutinario)</option>
-              <option value="correctivo">Correctivo (Planificado)</option>
-              <option value="emergencia">Atención de Emergencia</option>
-            </select>
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Site Owner (New_SO) *</label>
+              <span class="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-200 dark:border-emerald-800">
+                Auto de New_SO
+              </span>
+            </div>
+            <Input 
+              type="text" 
+              v-model="editingOt.site_owner" 
+              required 
+              placeholder="Ej: ALFONSO SUAREZ JOSE ELEAZAR" 
+              class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary text-xs uppercase font-medium" 
+            />
+          </div>
+        </div>
+
+        <!-- Fila 3: Coordinador & Fecha Inicio (Solo Fecha) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Coordinador *</label>
+            <Input type="text" v-model="editingOt.coordinador" required placeholder="Ej: Ing. Mauricio Quintero" class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
 
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Prioridad / Criticidad *</label>
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha Inicio *</label>
+              <button 
+                type="button" 
+                @click="editingOt.fecha_inicio = getNowDate()" 
+                class="text-[10px] font-semibold text-primary hover:underline flex items-center gap-1"
+              >
+                Hoy
+              </button>
+            </div>
+            <div class="relative flex items-center cursor-pointer" @click="triggerDateInput('edit')">
+              <div class="absolute left-3 text-neutral-400 pointer-events-none">
+                <IconCalendar class="w-4 h-4" />
+              </div>
+              <input 
+                ref="editDateInputRef"
+                type="date" 
+                v-model="editingOt.fecha_inicio" 
+                required 
+                class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#0a0b10] pl-9 pr-3 py-1 text-xs text-neutral-800 dark:text-neutral-200 focus:border-primary focus:ring-primary font-medium cursor-pointer" 
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Fila 4: Operador por persona (Multi-técnico) -->
+        <div>
+          <EmpleadoMultiSelect
+            v-model="editingOtOperadores"
+            label="Operador (por persona)"
+            :required="true"
+          />
+        </div>
+
+        <!-- Fila 5: Parámetros Técnicos (Categoría, Regional, Tipo Estación, Prioridad & Estado) -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Categoría *</label>
+            <select 
+              v-model="editingOt.categoria" 
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
+            >
+              <option value="normal">Normal</option>
+              <option value="rural">Rural (Difícil Acceso)</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Regional *</label>
+            <select 
+              v-model="editingOt.regional" 
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
+            >
+              <option value="R1">R1 (Regional 1)</option>
+              <option value="R2">R2 (Regional 2)</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Estación *</label>
+            <select 
+              v-model="editingOt.tipo_estacion" 
+              required
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+            >
+              <option value="MOVIL">MOVIL</option>
+              <option value="FIJA">FIJA</option>
+              <option value="REPETIDORA">REPETIDORA</option>
+              <option value="NODO">NODO</option>
+              <option value="CENTRO_DE_DATOS">CENTRO DE DATOS</option>
+            </select>
+          </div>
+          <div class="space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Prioridad *</label>
             <select 
               v-model="editingOt.prioridad" 
               required
               class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
             >
-              <option value="P1">P1 - Alta (Falla Crítica)</option>
-              <option value="P2">P2 - Media (Convencional)</option>
-              <option value="P3">P3 - Baja (Difícil Acceso)</option>
+              <option value="P1">P1 - Alta (Crítica)</option>
+              <option value="P2">P2 - Media (Normal)</option>
+              <option value="P3">P3 - Baja (Planificada)</option>
             </select>
           </div>
-
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Zona de Ubicación *</label>
-            <select 
-              v-model="editingOt.tipo_ubicacion" 
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="urbana">Urbana</option>
-              <option value="rural">Rural / Difícil Acceso</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Fila 4: Subsistema, Tipo de Gasto & Estado -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Subsistema Intervenido</label>
-            <select 
-              v-model="editingOt.subsistema" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="Movil Aires Acondicionados">Móvil Aires Acondicionados</option>
-              <option value="Movil Plantas Eléctricas">Móvil Plantas Eléctricas</option>
-              <option value="Movil Sistema Eléctrico">Móvil Sistema Eléctrico (MT/BT/SPT)</option>
-              <option value="Movil Power">Móvil Power (Rectificadores/Baterías)</option>
-              <option value="Móvil Acceso-Transmisión">Móvil Acceso - Transmisión</option>
-              <option value="Móvil Apoyo Integral">Móvil Apoyo Integral</option>
-              <option value="Móvil Híbridos SFV">Móvil Híbridos o SFV (Solar)</option>
-            </select>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo de Gasto</label>
-            <select 
-              v-model="editingOt.tipo_gasto" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="OPEX">OPEX (Operativo)</option>
-              <option value="CAPEX">CAPEX (Inversión)</option>
-            </select>
-          </div>
-
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Estado de la OT *</label>
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Estado *</label>
             <select 
               v-model="editingOt.estado" 
               required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
+              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
             >
               <option value="asignada">Asignada / Pendiente</option>
               <option value="en_camino">En Camino</option>
@@ -841,47 +1116,25 @@ const getStatusLabel = (status) => {
           </div>
         </div>
 
-        <!-- Fila 5: Ubicación Geográfica, Operador & Cuadrilla -->
-        <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Ubicación / Municipio *</label>
-          <Input type="text" v-model="editingOt.ubicacion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Fila 6: Departamento & Ubicación / Municipio -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Operador Asignado *</label>
-            <select 
-              v-model="editingOt.user_id" 
-              @change="onOperatorChange(editingOt.user_id, 'edit')"
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="" disabled>Selecciona el encargado</option>
-              <option v-for="op in operadores" :key="op.id" :value="op.id">
-                {{ op.name }} ({{ op.username }})
-              </option>
-            </select>
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Departamento *</label>
+            <Input type="text" v-model="editingOt.departamento" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Cuadrilla Asignada (Opcional)</label>
-            <select 
-              v-model="editingOt.cuadrilla_id" 
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-[#141824] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer"
-            >
-              <option value="">Sin cuadrilla específica</option>
-              <option v-for="c in cuadrillas" :key="c.id" :value="c.id">
-                {{ c.nombre }}
-              </option>
-            </select>
+          <div class="sm:col-span-2 space-y-1.5">
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Ubicación / Municipio *</label>
+            <Input type="text" v-model="editingOt.ubicacion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
         </div>
 
+        <!-- Fila 7: Descripción de la Obra / Falla -->
         <div class="space-y-1.5">
-          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Fecha de Inicio *</label>
-          <Input type="date" v-model="editingOt.fecha_inicio" required class="bg-white dark:bg-[#141824] border-neutral-200 dark:border-neutral-800 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
+          <Input type="text" v-model="editingOt.descripcion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
 
-        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-5 mt-6">
+        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-4 mt-5">
           <Button type="button" variant="outline" @click="openEditModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto">
             Cancelar
           </Button>
