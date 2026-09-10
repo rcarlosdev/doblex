@@ -5,9 +5,28 @@ import Navbar from '@/components/Navbar.vue';
 
 const isSidebarOpen = ref(true);
 
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value;
+  if (typeof window !== 'undefined' && window.innerWidth >= 768) {
+    localStorage.setItem('smu_sidebar_desktop', String(isSidebarOpen.value));
+  }
+};
+
+const handleMobileClose = () => {
+  if (typeof window !== 'undefined' && window.innerWidth < 768) {
+    isSidebarOpen.value = false;
+  }
+};
+
 onMounted(() => {
-  // Inicialización inteligente: cerrado en móviles (< 768px), abierto en escritorios (>= 768px)
-  isSidebarOpen.value = window.innerWidth >= 768;
+  if (typeof window !== 'undefined') {
+    if (window.innerWidth >= 768) {
+      const saved = localStorage.getItem('smu_sidebar_desktop');
+      isSidebarOpen.value = saved !== null ? saved === 'true' : true;
+    } else {
+      isSidebarOpen.value = false;
+    }
+  }
 });
 </script>
 
@@ -16,20 +35,20 @@ onMounted(() => {
     <!-- Overlay oscuro de fondo en móviles cuando el Sidebar está abierto -->
     <div 
       v-if="isSidebarOpen" 
-      class="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden transition-opacity duration-300"
+      class="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm md:hidden transition-opacity duration-300"
       @click="isSidebarOpen = false"
     ></div>
 
     <!-- Sidebar de navegación lateral responsivo y colapsable -->
     <Sidebar 
       :open="isSidebarOpen" 
-      @close="isSidebarOpen = false" 
+      @close="handleMobileClose" 
     />
 
     <!-- Contenedor del contenido principal -->
     <div class="flex-1 flex flex-col min-w-0 h-full overflow-hidden transition-all duration-300">
       <!-- Navbar superior (envía evento para alternar el estado del Sidebar) -->
-      <Navbar @toggle-sidebar="isSidebarOpen = !isSidebarOpen" class="shrink-0" />
+      <Navbar @toggle-sidebar="toggleSidebar" class="shrink-0" />
 
       <!-- Cuerpo principal de contenido -->
       <main class="flex-1 p-4 md:p-8 overflow-y-auto bg-neutral-50 dark:bg-[#0a0b10] bg-radial-at-c-layout transition-colors duration-350">

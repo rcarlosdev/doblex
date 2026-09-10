@@ -60,13 +60,19 @@ const breadcrumbs = computed(() => {
       { name: 'Órdenes de Trabajo', path: '/ordenes-trabajo' }
     ];
   }
+  if (route.path.startsWith('/sitios')) {
+    return [
+      { name: 'Dashboard', path: '/' },
+      { name: 'Sitios / Estaciones Base', path: '/sitios' }
+    ];
+  }
   if (route.path.startsWith('/empleados')) {
     return [
       { name: 'Dashboard', path: '/' },
       { name: 'Gestión de Personal', path: '/empleados' }
     ];
   }
-  return [{ name: 'Inicio', path: '/' }];
+  return [{ name: 'Dashboard', path: '/' }, { name: 'Inicio', path: '/' }];
 });
 </script>
 
@@ -85,8 +91,8 @@ const breadcrumbs = computed(() => {
         <IconMenu2 class="w-5 h-5 stroke-[1.75]" />
       </Button>
 
-      <!-- Migas de Pan -->
-      <div class="hidden xs:flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
+      <!-- Migas de Pan Visibles -->
+      <div class="flex items-center gap-2 text-xs font-medium text-neutral-500 dark:text-neutral-400">
         <template v-for="(crumb, idx) in breadcrumbs" :key="crumb.path">
           <router-link 
             :to="crumb.path" 

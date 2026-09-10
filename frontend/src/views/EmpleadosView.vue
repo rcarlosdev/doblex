@@ -461,7 +461,7 @@ const toggleEstadoEmpleado = async (emp) => {
     <Teleport to="body">
       <div v-if="showModalEmpleado" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <!-- Overlay oscuro que cubre 100% de la pantalla incluyendo Navbar -->
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showModalEmpleado = false"></div>
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" @click="showModalEmpleado = false"></div>
 
         <!-- Contenido Modal -->
         <div class="relative z-10 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto my-auto">
@@ -532,7 +532,7 @@ const toggleEstadoEmpleado = async (emp) => {
     <Teleport to="body">
       <div v-if="showModalCuadrilla" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
         <!-- Overlay oscuro que cubre 100% de la pantalla incluyendo Navbar -->
-        <div class="fixed inset-0 bg-black/60 backdrop-blur-sm" @click="showModalCuadrilla = false"></div>
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" @click="showModalCuadrilla = false"></div>
 
         <!-- Contenido Modal -->
         <div class="relative z-10 bg-white dark:bg-neutral-900 border border-slate-200 dark:border-neutral-800 rounded-2xl max-w-md w-full p-4 sm:p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto my-auto">

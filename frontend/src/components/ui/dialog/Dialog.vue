@@ -11,7 +11,7 @@ defineEmits(["close"]);
     <Transition name="dialog-fade">
       <div v-if="open" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 overflow-y-auto">
         <!-- Overlay -->
-        <div class="fixed inset-0 bg-black/80 backdrop-blur-sm" @click="$emit('close')"></div>
+        <div class="fixed inset-0 bg-black/70 backdrop-blur-sm" @click="$emit('close')"></div>
         
         <!-- Content Wrapper -->
         <div class="relative z-50 w-full max-w-xl border bg-white dark:bg-[#121215] p-4 sm:p-6 shadow-2xl duration-200 rounded-2xl border-neutral-200 dark:border-white/10 max-h-[90vh] overflow-y-auto my-auto transition-all">

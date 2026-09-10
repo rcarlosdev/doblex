@@ -71,6 +71,7 @@ class OtCreate(BaseModel):
     codigo: str
     descripcion: str
     sitio: Optional[str] = None
+    sitio_id: Optional[int] = None
     ubicacion: str
     user_id: int
     cuadrilla_id: Optional[int] = None
@@ -85,6 +86,7 @@ class OtUpdate(BaseModel):
     codigo: str
     descripcion: str
     sitio: Optional[str] = None
+    sitio_id: Optional[int] = None
     ubicacion: str
     user_id: int
     cuadrilla_id: Optional[int] = None

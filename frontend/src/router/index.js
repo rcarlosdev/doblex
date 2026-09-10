@@ -7,6 +7,7 @@ import AppLayout from '../layouts/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
 import OtsView from '../views/OtsView.vue';
 import EmpleadosView from '../views/EmpleadosView.vue';
+import SitiosView from '../views/SitiosView.vue';
 
 const routes = [
     {
@@ -30,6 +31,11 @@ const routes = [
                 alias: ['ots', '/ots'],
                 name: 'ots',
                 component: OtsView
+            },
+            {
+                path: 'sitios',
+                name: 'sitios',
+                component: SitiosView
             },
             {
                 path: 'empleados',
@@ -69,7 +75,7 @@ router.beforeEach((to, from) => {
         if (!isValid) {
             return { name: 'login' };
         }
-        if (userRole === 'operativo' && ['dashboard', 'ots', 'empleados'].includes(to.name)) {
+        if (userRole === 'operativo' && ['dashboard', 'ots', 'empleados', 'sitios'].includes(to.name)) {
             // El personal operativo es redirigido automáticamente a la interfaz de campo móvil
             return { name: 'mobile-dashboard' };
         }

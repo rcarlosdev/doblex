@@ -22,8 +22,10 @@ import {
   IconUsersGroup,
   IconPencil,
   IconX,
-  IconFileCheck
+  IconFileCheck,
+  IconCheck
 } from '@tabler/icons-vue';
+import { selectSitios } from '@/api/sitios';
 import OtAuditModal from '@/components/admin/OtAuditModal.vue';
 
 const openCreateModal = ref(false);
@@ -52,6 +54,7 @@ const newOt = ref({
   codigo: '',
   descripcion: '',
   sitio: '',
+  sitio_id: null,
   ubicacion: '',
   user_id: '', // Operador asignado
   cuadrilla_id: '',
@@ -69,6 +72,7 @@ const editingOt = ref({
   codigo: '',
   descripcion: '',
   sitio: '',
+  sitio_id: null,
   ubicacion: '',
   user_id: '',
   cuadrilla_id: '',
@@ -81,6 +85,45 @@ const editingOt = ref({
   fecha_inicio: new Date().toISOString().split('T')[0]
 });
 
+// Autocompletado de Sitios
+const sitioSuggestions = ref([]);
+const showSitioSuggestions = ref(false);
+const activeInputTarget = ref('create');
+let sitioDebounce = null;
+
+const onSitioInput = (query, target = 'create') => {
+  activeInputTarget.value = target;
+  clearTimeout(sitioDebounce);
+  if (!query || query.trim().length < 2) {
+    sitioSuggestions.value = [];
+    showSitioSuggestions.value = false;
+    return;
+  }
+  sitioDebounce = setTimeout(async () => {
+    try {
+      sitioSuggestions.value = await selectSitios(query.trim(), 12);
+      showSitioSuggestions.value = sitioSuggestions.value.length > 0;
+    } catch (e) {
+      console.error('Error buscando sitios para autocompletar:', e);
+    }
+  }, 250);
+};
+
+const chooseSitio = (sitio, target = 'create') => {
+  const model = target === 'create' ? newOt.value : editingOt.value;
+  model.sitio = sitio.nombre;
+  model.sitio_id = sitio.id;
+  if (sitio.ubicacion) {
+    model.ubicacion = sitio.ubicacion;
+  } else if (sitio.municipio) {
+    model.ubicacion = `${sitio.municipio}${sitio.ciudad_base ? ' - Base ' + sitio.ciudad_base : ''}`;
+  }
+  if (sitio.transporte_especial) {
+    model.tipo_ubicacion = 'rural';
+  }
+  showSitioSuggestions.value = false;
+};
+
 // Abrir modal de edición con datos precargados
 const openEditOt = (ot) => {
   editingOt.value = {
@@ -88,6 +131,7 @@ const openEditOt = (ot) => {
     codigo: ot.codigo,
     descripcion: ot.descripcion,
     sitio: ot.sitio || '',
+    sitio_id: ot.sitio_id || null,
     ubicacion: ot.ubicacion,
     user_id: ot.user_id || (ot.assigned_user ? ot.assigned_user.id : ''),
     cuadrilla_id: ot.cuadrilla_id || '',
@@ -472,9 +516,45 @@ const getStatusLabel = (status) => {
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="newOt.codigo" required placeholder="OT-2026-004" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
-            <Input type="text" v-model="newOt.sitio" placeholder="Ej. ANT.TITIRIBI LA ALBANIA" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <div class="space-y-1.5 relative">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
+              <span v-if="newOt.sitio_id" class="text-[9px] text-emerald-500 font-bold flex items-center gap-0.5">
+                <IconCheck class="w-3 h-3" /> Vinculado a Sitio Maestro
+              </span>
+            </div>
+            <div class="relative">
+              <Input 
+                type="text" 
+                v-model="newOt.sitio" 
+                @input="onSitioInput(newOt.sitio, 'create')"
+                @focus="onSitioInput(newOt.sitio, 'create')"
+                placeholder="Escriba para buscar en 1,819 sitios..." 
+                class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase text-xs" 
+              />
+              <!-- Desplegable reactivo de sugerencias de sitios -->
+              <div 
+                v-if="showSitioSuggestions && activeInputTarget === 'create' && sitioSuggestions.length > 0"
+                class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800"
+              >
+                <div 
+                  v-for="s in sitioSuggestions" 
+                  :key="s.id"
+                  @click="chooseSitio(s, 'create')"
+                  class="p-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 cursor-pointer transition-colors text-left flex items-start justify-between gap-2"
+                >
+                  <div class="min-w-0">
+                    <span class="font-bold text-xs text-neutral-900 dark:text-white block truncate">{{ s.nombre }}</span>
+                    <span class="text-[10px] text-neutral-500 block truncate">
+                      {{ s.municipio || s.ciudad_base || 'Sin municipio' }} • {{ s.zona_tecnica || s.zona || '' }}
+                    </span>
+                  </div>
+                  <span v-if="s.transporte_especial" class="text-[9px] font-bold text-purple-600 bg-purple-500/10 px-1.5 py-0.5 rounded shrink-0">
+                    {{ s.transporte_especial }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -625,9 +705,45 @@ const getStatusLabel = (status) => {
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
           </div>
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
-            <Input type="text" v-model="editingOt.sitio" placeholder="Ej. ANT.TITIRIBI LA ALBANIA" class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <div class="space-y-1.5 relative">
+            <div class="flex items-center justify-between">
+              <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Sitio / Estación Base (EB)</label>
+              <span v-if="editingOt.sitio_id" class="text-[9px] text-emerald-500 font-bold flex items-center gap-0.5">
+                <IconCheck class="w-3 h-3" /> Vinculado a Sitio Maestro
+              </span>
+            </div>
+            <div class="relative">
+              <Input 
+                type="text" 
+                v-model="editingOt.sitio" 
+                @input="onSitioInput(editingOt.sitio, 'edit')"
+                @focus="onSitioInput(editingOt.sitio, 'edit')"
+                placeholder="Escriba para buscar en 1,819 sitios..." 
+                class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase text-xs" 
+              />
+              <!-- Desplegable reactivo de sugerencias de sitios -->
+              <div 
+                v-if="showSitioSuggestions && activeInputTarget === 'edit' && sitioSuggestions.length > 0"
+                class="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 max-h-48 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800"
+              >
+                <div 
+                  v-for="s in sitioSuggestions" 
+                  :key="s.id"
+                  @click="chooseSitio(s, 'edit')"
+                  class="p-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800/60 cursor-pointer transition-colors text-left flex items-start justify-between gap-2"
+                >
+                  <div class="min-w-0">
+                    <span class="font-bold text-xs text-neutral-900 dark:text-white block truncate">{{ s.nombre }}</span>
+                    <span class="text-[10px] text-neutral-500 block truncate">
+                      {{ s.municipio || s.ciudad_base || 'Sin municipio' }} • {{ s.zona_tecnica || s.zona || '' }}
+                    </span>
+                  </div>
+                  <span v-if="s.transporte_especial" class="text-[9px] font-bold text-purple-600 bg-purple-500/10 px-1.5 py-0.5 rounded shrink-0">
+                    {{ s.transporte_especial }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
