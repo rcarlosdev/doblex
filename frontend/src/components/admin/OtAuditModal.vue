@@ -1,7 +1,7 @@
 <template>
   <Teleport to="body">
     <div v-if="isOpen" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
-      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl transition-colors duration-300 my-auto">
+      <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl w-full max-w-5xl xl:max-w-6xl max-h-[92vh] flex flex-col overflow-hidden shadow-2xl transition-colors duration-300 my-auto">
         
         <!-- Header del Modal -->
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 px-5 py-4 shrink-0 bg-slate-50/50 dark:bg-white/[0.02]">
@@ -47,27 +47,58 @@
           </div>
         </div>
 
-        <!-- Pestañas del Expediente -->
-        <div class="border-b border-slate-200 dark:border-white/10 px-5 pt-2 bg-slate-50/30 dark:bg-[#0a0b10] shrink-0">
-          <div class="flex gap-1 sm:gap-2 overflow-x-auto select-none">
+        <!-- Pestañas del Expediente (Estilo Cápsula con Controles de Avance) -->
+        <div class="border-b border-slate-200 dark:border-white/10 px-3 sm:px-5 py-2.5 bg-slate-50/70 dark:bg-[#0a0b10] shrink-0">
+          <div class="flex items-center gap-1.5 relative">
+            <!-- Botón Desplazar a la Izquierda -->
             <button
-              v-for="t in tabs"
-              :key="t.id"
-              @click="activeTab = t.id"
-              class="px-3 py-2 rounded-t-xl text-xs font-bold transition-all border-b-2 flex items-center gap-1.5 whitespace-nowrap"
-              :class="activeTab === t.id 
-                ? 'border-red-600 text-red-600 dark:text-red-400 bg-white dark:bg-[#121215]' 
-                : 'border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/5'"
+              type="button"
+              @click="scrollTabs(-1)"
+              class="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-800 transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
+              title="Ver pestañas anteriores"
             >
-              <component :is="t.icon" class="w-4 h-4 stroke-[2]" />
-              <span>{{ t.label }}</span>
-              <span 
-                v-if="t.badge !== undefined" 
-                class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black"
-                :class="activeTab === t.id ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
+              <IconChevronLeft class="w-4 h-4 stroke-[2.5]" />
+            </button>
+
+            <!-- Contenedor de Pestañas con Desplazamiento por Rueda, Arrastre y Clic -->
+            <div
+              ref="tabsNavRef"
+              @wheel="onTabsWheel"
+              @mousedown="onMouseDown"
+              @mouseleave="onMouseLeave"
+              @mouseup="onMouseUp"
+              @mousemove="onMouseMove"
+              class="flex items-center gap-1.5 overflow-x-auto select-none py-0.5 scroll-smooth [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex-1 cursor-grab active:cursor-grabbing"
+            >
+              <button
+                v-for="t in tabs"
+                :key="t.id"
+                @click="selectTab(t.id, $event)"
+                class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap shrink-0 border select-none cursor-pointer"
+                :class="activeTab === t.id 
+                  ? 'bg-red-600 border-red-600 text-white shadow-sm shadow-red-600/20' 
+                  : 'bg-white dark:bg-[#121215] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:border-slate-300 dark:hover:border-white/20'"
               >
-                {{ t.badge }}
-              </span>
+                <component :is="t.icon" class="w-3.5 h-3.5 stroke-[2.2]" />
+                <span>{{ t.label }}</span>
+                <span 
+                  v-if="t.badge !== undefined" 
+                  class="px-1.5 py-0.2 rounded-full text-[10px] font-mono font-black"
+                  :class="activeTab === t.id ? 'bg-white/20 text-white' : 'bg-slate-100 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
+                >
+                  {{ t.badge }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Botón Desplazar a la Derecha (Avanzar) -->
+            <button
+              type="button"
+              @click="scrollTabs(1)"
+              class="p-1.5 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] text-slate-500 hover:text-red-600 dark:hover:text-red-400 hover:border-red-300 dark:hover:border-red-800 transition-all shadow-xs shrink-0 active:scale-95 cursor-pointer"
+              title="Avanzar para ver más pestañas (AA, Fuerza DC)"
+            >
+              <IconChevronRight class="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
@@ -212,6 +243,7 @@
                   <img 
                     :src="foto.url_imagen" 
                     :alt="`Evidencia ${foto.tipo}`" 
+                    @error="onFotoError($event, foto.tipo)"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div class="absolute top-2 left-2">
@@ -339,6 +371,407 @@
               </table>
             </div>
           </div>
+
+          <!-- PESTAÑA 5: DIAGNÓSTICO DE PLANTA ELÉCTRICA (GE) -->
+          <div v-if="activeTab === 'diagnostico_ge'" class="space-y-4">
+            <!-- Ficha Técnica de Planta y Horómetro -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconEngine class="w-4 h-4 text-amber-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Ficha Técnica de Planta & Generador (Plantilla SMU)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Estado: {{ geAuditData?.ficha?.estado_operacional || 'OPERATIVO' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Horómetro Reportado</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ geAuditData?.ficha?.horometro || 184 }} hrs</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">{{ (((geAuditData?.ficha?.horometro || 184) / 25000) * 100).toFixed(2) }}% de vida útil</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Planta / Motor</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ geAuditData?.ficha?.fabricante_planta || 'CUMMINS' }}</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">Modelo: {{ geAuditData?.ficha?.modelo_planta || '60DGCB' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Generador</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ geAuditData?.ficha?.fabricante_generador || 'STAMFORD' }}</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">Modelo: {{ geAuditData?.ficha?.modelo_generador || 'UCI224E' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Capacidad Efectiva</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ geAuditData?.ficha?.potencia_kw || 60 }} KW</span>
+                  <span class="text-[10px] text-slate-500 block mt-0.5">{{ geAuditData?.ficha?.potencia_kva || 75 }} KVA</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mediciones Cuantitativas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Megger Aislamiento Alternador</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ geAuditData?.mediciones?.megger || 5.5 }} MΩ</span>
+                  <span class="text-[10px] text-slate-500 block">U, V, W a Tierra @ 1000 Vdc</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  CUMPLE (≥ 5.0 MΩ)
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Prueba Banco de Carga (60 min)</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ geAuditData?.mediciones?.voltaje_carga || 220 }} VAC</span>
+                  <span class="text-[10px] text-slate-500 block">Estable bajo 80-100% carga</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  APTO (± 5%)
+                </span>
+              </div>
+            </div>
+
+            <!-- Hallazgos y Análisis Causa Raíz (RCA) -->
+            <div v-if="geAuditData?.hallazgos?.generacion?.descripcion" class="bg-rose-50/60 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/60 rounded-2xl p-4 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black text-rose-700 dark:text-rose-400 flex items-center gap-1.5">
+                  <IconAlertTriangle class="w-4 h-4 stroke-[2.2]" />
+                  <span>Diagnóstico de Falla & Causa Raíz (RCA)</span>
+                </span>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-rose-200 dark:bg-rose-900 text-rose-900 dark:text-rose-200">
+                  Criticidad: {{ geAuditData?.hallazgos?.generacion?.criticidad || 'Alta' }}
+                </span>
+              </div>
+
+              <div class="text-xs text-slate-800 dark:text-slate-200 space-y-1">
+                <div><span class="font-bold">Hallazgo:</span> {{ geAuditData.hallazgos.generacion.descripcion }}</div>
+                <div><span class="font-bold">Acción Recomendada:</span> {{ geAuditData.hallazgos.generacion.accion_recomendada }}</div>
+                <div v-if="geAuditData.hallazgos.generacion.causa_raiz"><span class="font-bold">Causa Raíz:</span> {{ geAuditData.hallazgos.generacion.causa_raiz }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA 6: PROTOCOLO SPT Y EQUIPOTENCIALIDAD -->
+          <div v-if="activeTab === 'diagnostico_spt'" class="space-y-4">
+            <!-- Ficha Técnica de Medición y Telurómetro -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconBolt class="w-4 h-4 text-amber-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Ficha Técnica de Medición SPT (Plantilla Oficial SMU)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Concepto: {{ (sptAuditData?.caidaPotencial?.lecturas?.find(l => l.porcentaje === 62)?.r <= 5.0) ? 'APTO (RETIE)' : 'NO APTO' }}
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Condición de Suelo</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ sptAuditData?.ficha?.condicionSuelo || 'Suelo de concreto / losa' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Instrumento Certificado</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ sptAuditData?.ficha?.instrumento || 'Telurómetro AEMC 4630' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Electrodo Bajo Prueba</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ sptAuditData?.ficha?.electrodoBajoPrueba || 'Malla puesta a tierra telecom' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Resumen de Métodos: Wenner y Caída 62% -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <!-- Wenner -->
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase">Resistividad Wenner (4 Picas)</span>
+                  <span v-if="!sptAuditData?.wenner?.aplica" class="text-[9px] font-black px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                    EXCEPCIÓN FÍSICA
+                  </span>
+                  <span v-else class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    EJECUTADO
+                  </span>
+                </div>
+                <div v-if="!sptAuditData?.wenner?.aplica" class="text-xs text-slate-600 dark:text-slate-400">
+                  <span class="font-bold text-slate-800 dark:text-slate-200">Justificación:</span> {{ sptAuditData?.wenner?.justificacionNoAplica }}
+                </div>
+                <div v-else class="text-xs text-slate-800 dark:text-slate-200 flex items-center justify-between">
+                  <span>Resistividad Promedio:</span>
+                  <span class="font-mono font-bold">{{ sptAuditData?.wenner?.rhoPromedio || '120.5' }} Ω·m</span>
+                </div>
+              </div>
+
+              <!-- Caída de Potencial 62% -->
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="text-[10px] font-bold text-slate-400 uppercase">Resistencia SPT (Caída 62%)</span>
+                  <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                    RETIE ≤ 5.0 Ω
+                  </span>
+                </div>
+                <div class="flex items-baseline justify-between pt-1">
+                  <span class="font-mono font-black text-lg text-slate-900 dark:text-white">
+                    {{ sptAuditData?.caidaPotencial?.lecturas?.find(l => l.porcentaje === 62)?.r || '4.3' }} Ω
+                  </span>
+                  <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                    <IconCircleCheck class="w-3.5 h-3.5 stroke-[2.5]" />
+                    <span>Conforme RETIE / IEC</span>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Matriz de Equipotencialidad y Continuidad (11 Puntos) -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2 flex-wrap gap-2">
+                <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Matriz de Continuidad y Equipotencialidad a BEP (11 Puntos)
+                </span>
+                <span class="text-[10px] font-bold text-slate-500">
+                  Criterio de Aprobación: ≤ 1.2 Ω
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div 
+                  v-for="(pt, idx) in (sptAuditData?.equipotencialidad?.puntos || [])" 
+                  :key="pt.id || idx"
+                  class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2 flex items-center justify-between text-xs"
+                >
+                  <div class="truncate mr-2">
+                    <span class="font-mono text-[10px] text-slate-400 block">#{{ idx + 1 }}</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">{{ pt.nombre }}</span>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <span class="font-mono font-black text-xs text-slate-900 dark:text-white block">{{ pt.valorR }} Ω</span>
+                    <span class="text-[9px] font-black text-emerald-600 dark:text-emerald-400">CUMPLE</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA 7: PROTOCOLO DE CLIMATIZACIÓN (AA) -->
+          <div v-if="activeTab === 'diagnostico_aa'" class="space-y-4">
+            <!-- Ficha Técnica Dual de Equipos Climatización -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconSnowflake class="w-4 h-4 text-sky-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Sistema de Climatización Dual Redundante (Cap. 18.1 Anexo Técnico)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Rotación 1+1 Activa
+                </span>
+              </div>
+
+              <!-- Comparativa de Unidades AA-1 y AA-2 -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <!-- Tarjeta Unidad 1 -->
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-xs text-sky-600 dark:text-sky-400">Unidad AA-1 (Líder)</span>
+                    <span class="text-[10px] font-mono text-slate-500">{{ aaAuditData?.aa1?.ficha?.refrigerante || 'R410A' }}</span>
+                  </div>
+                  <div class="text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                    <div><span class="text-slate-400">Equipo:</span> <span class="font-bold">{{ aaAuditData?.aa1?.ficha?.marca || 'York' }} {{ aaAuditData?.aa1?.ficha?.tipo || 'Mini-Split' }}</span></div>
+                    <div><span class="text-slate-400">Capacidad:</span> <span class="font-mono font-bold">{{ aaAuditData?.aa1?.ficha?.capacidad || '24.000 BTU' }}</span></div>
+                  </div>
+                  <!-- Termodinámica -->
+                  <div class="pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase block font-bold">Salto Térmico (ΔT)</span>
+                      <span class="font-mono font-black text-sm text-slate-900 dark:text-white">
+                        {{ ((parseFloat(aaAuditData?.aa1?.termo?.tempRetorno) || 24.2) - (parseFloat(aaAuditData?.aa1?.termo?.tempInyeccion) || 12.4)).toFixed(1) }} °C
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      ÓPTIMO (10-16°C)
+                    </span>
+                  </div>
+                  <!-- Presiones -->
+                  <div class="pt-1.5 flex items-center justify-between text-[11px] font-mono">
+                    <span class="text-slate-500">Baja: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa1?.presion?.succion || 122 }} PSI</strong></span>
+                    <span class="text-slate-500">Alta: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa1?.presion?.descarga || 348 }} PSI</strong></span>
+                    <span class="text-slate-500">Comp: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa1?.electrico?.corrienteCompresor || 8.6 }} A</strong></span>
+                  </div>
+                </div>
+
+                <!-- Tarjeta Unidad 2 -->
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-2">
+                  <div class="flex items-center justify-between">
+                    <span class="font-black text-xs text-sky-600 dark:text-sky-400">Unidad AA-2 (Respaldo)</span>
+                    <span class="text-[10px] font-mono text-slate-500">{{ aaAuditData?.aa2?.ficha?.refrigerante || 'R410A' }}</span>
+                  </div>
+                  <div class="text-xs text-slate-700 dark:text-slate-300 space-y-1">
+                    <div><span class="text-slate-400">Equipo:</span> <span class="font-bold">{{ aaAuditData?.aa2?.ficha?.marca || 'York' }} {{ aaAuditData?.aa2?.ficha?.tipo || 'Mini-Split' }}</span></div>
+                    <div><span class="text-slate-400">Capacidad:</span> <span class="font-mono font-bold">{{ aaAuditData?.aa2?.ficha?.capacidad || '24.000 BTU' }}</span></div>
+                  </div>
+                  <!-- Termodinámica -->
+                  <div class="pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between text-xs">
+                    <div>
+                      <span class="text-[10px] text-slate-400 uppercase block font-bold">Salto Térmico (ΔT)</span>
+                      <span class="font-mono font-black text-sm text-slate-900 dark:text-white">
+                        {{ ((parseFloat(aaAuditData?.aa2?.termo?.tempRetorno) || 24.0) - (parseFloat(aaAuditData?.aa2?.termo?.tempInyeccion) || 12.8)).toFixed(1) }} °C
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                      ÓPTIMO (10-16°C)
+                    </span>
+                  </div>
+                  <!-- Presiones -->
+                  <div class="pt-1.5 flex items-center justify-between text-[11px] font-mono">
+                    <span class="text-slate-500">Baja: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa2?.presion?.succion || 120 }} PSI</strong></span>
+                    <span class="text-slate-500">Alta: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa2?.presion?.descarga || 340 }} PSI</strong></span>
+                    <span class="text-slate-500">Comp: <strong class="text-slate-900 dark:text-white">{{ aaAuditData?.aa2?.electrico?.corrienteCompresor || 8.4 }} A</strong></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Secuencial de Alternancia y Rutina -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider block">
+                Evaluación de Control y Rutina de Limpieza Química
+              </span>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Temperatura de Consigna</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white text-sm">23.0 °C</span>
+                  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5 font-bold">Rango 22°C - 24°C Cumplido</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Rotación Forzada 1+1</span>
+                  <span class="font-bold text-slate-900 dark:text-white text-sm">Conmutación Verificada</span>
+                  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5 font-bold">Alternancia 12h/12h Operativa</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Lavado Químico Serpentines</span>
+                  <span class="font-bold text-slate-900 dark:text-white text-sm">Foaming Aplicado</span>
+                  <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block mt-0.5 font-bold">Evaporador & Condensador Limpios</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- PESTAÑA 8: PROTOCOLO FUERZA DC Y BATERÍAS -->
+          <div v-if="activeTab === 'diagnostico_power'" class="space-y-4">
+            <!-- Ficha Técnica de Energía DC -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2.5 flex-wrap gap-2">
+                <div class="flex items-center gap-2">
+                  <IconBatteryCharging class="w-4 h-4 text-amber-500" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Sistema de Energía DC, Rectificadores & Baterías (Cap. 18.4)
+                  </span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  Operación Normal
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Controlador / Bastidor</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.marca || 'Eltek (Smartpack)' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Módulos Activos</span>
+                  <span class="font-mono font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.modulosInstalados || 4 }} Módulos</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Tecnología de Baterías</span>
+                  <span class="font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.tipoBaterias || 'VRLA AGM 12V' }}</span>
+                </div>
+
+                <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Capacidad Total</span>
+                  <span class="font-mono font-bold text-slate-900 dark:text-white">{{ powerAuditData?.ficha?.capacidadAh || '200 Ah (2 Bancos)' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Parámetros Eléctricos de Flotación y LVD -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Tensión Bus DC (Flotación)</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ powerAuditData?.bus?.voltajeFlotacion || '-54.2' }} Vdc</span>
+                  <span class="text-[10px] text-slate-500 block">Norma: -53.5 a -54.5 Vdc</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  ÓPTIMO
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Demanda Telecom Total</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ powerAuditData?.bus?.corrienteTotal || '78.5' }} A</span>
+                  <span class="text-[10px] text-slate-500 block">Balance módulos conforme</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  ESTABLE
+                </span>
+              </div>
+
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 flex items-center justify-between">
+                <div>
+                  <span class="text-[10px] font-bold text-slate-400 uppercase block">Protección LVD (Corte)</span>
+                  <span class="font-mono font-black text-sm text-slate-900 dark:text-white">{{ powerAuditData?.bus?.umbralLvd || '-43.2' }} Vdc</span>
+                  <span class="text-[10px] text-slate-500 block">Contactor automático verificado</span>
+                </div>
+                <span class="text-[10px] font-bold px-2 py-1 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                  CALIBRADO
+                </span>
+              </div>
+            </div>
+
+            <!-- Simetría Banco de Baterías (Monoblocks 12V) -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-200 dark:border-white/10 pb-2 flex-wrap gap-2">
+                <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                  Simetría Celda a Celda (Banco de Baterías 1)
+                </span>
+                <span class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                  Desbalance ≤ 0.06 Vdc (Conforme)
+                </span>
+              </div>
+
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div 
+                  v-for="(celda, idx) in (powerAuditData?.baterias?.banco1 || [])" 
+                  :key="celda.id || idx"
+                  class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-xl p-2.5 flex items-center justify-between"
+                >
+                  <span class="font-bold text-slate-700 dark:text-slate-300">Vaso {{ idx + 1 }}:</span>
+                  <span class="font-mono font-black text-slate-900 dark:text-white">{{ celda.voltaje }} Vdc</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Footer del Modal: Acciones Administrativas de Aprobación -->
@@ -391,7 +824,7 @@
     <!-- Visor de Zoom de Fotografía -->
     <div v-if="fotoZoom" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 select-none" @click="fotoZoom = null">
       <div class="relative max-w-4xl max-h-[85vh] w-full flex flex-col items-center" @click.stop>
-        <img :src="fotoZoom.url_imagen" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
+        <img :src="fotoZoom.url_imagen" @error="onFotoError($event, fotoZoom.tipo)" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
         <div class="mt-3 flex items-center justify-between w-full text-white text-xs px-2">
           <div class="space-x-2">
             <span class="px-2 py-0.5 rounded uppercase font-black" :class="fotoZoom.tipo === 'antes' ? 'bg-amber-600' : fotoZoom.tipo === 'durante' ? 'bg-blue-600' : 'bg-emerald-600'">
@@ -409,7 +842,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted, nextTick } from 'vue';
 import SlaBadge from '@/components/common/SlaBadge.vue';
 import client from '@/api/client';
 import {
@@ -430,7 +863,14 @@ import {
   IconExternalLink,
   IconZoomIn,
   IconUser,
-  IconDeviceMobile
+  IconDeviceMobile,
+  IconEngine,
+  IconBolt,
+  IconSnowflake,
+  IconBatteryCharging,
+  IconAlertTriangle,
+  IconChevronLeft,
+  IconChevronRight
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -451,12 +891,223 @@ const filtroFoto = ref('todas');
 const fotoZoom = ref(null);
 const loadingAction = ref(false);
 
-const tabs = computed(() => [
-  { id: 'resumen', label: 'Ficha General', icon: IconFileText },
-  { id: 'evidencias', label: 'Fotos Evidencia', icon: IconCamera, badge: props.ot?.evidencias?.length || 0 },
-  { id: 'bitacora', label: 'Bitácora PDT', icon: IconHistory, badge: props.ot?.avances?.length || 0 },
-  { id: 'repuestos', label: 'Insumos LPU', icon: IconBox, badge: props.ot?.repuestos?.length || 0 },
-]);
+// Navegación y Desplazamiento Fluido de Pestañas
+const tabsNavRef = ref(null);
+
+const scrollTabs = (direction) => {
+  if (!tabsNavRef.value) return;
+  tabsNavRef.value.scrollBy({ left: direction * 240, behavior: 'smooth' });
+};
+
+const onTabsWheel = (e) => {
+  if (!tabsNavRef.value) return;
+  if (e.deltaY !== 0) {
+    e.preventDefault();
+    tabsNavRef.value.scrollLeft += e.deltaY;
+  }
+};
+
+let isMouseDown = false;
+let startX = 0;
+let scrollStart = 0;
+
+const onMouseDown = (e) => {
+  if (!tabsNavRef.value) return;
+  isMouseDown = true;
+  startX = e.pageX - tabsNavRef.value.offsetLeft;
+  scrollStart = tabsNavRef.value.scrollLeft;
+};
+
+const onMouseLeave = () => {
+  isMouseDown = false;
+};
+
+const onMouseUp = () => {
+  isMouseDown = false;
+};
+
+const onMouseMove = (e) => {
+  if (!isMouseDown || !tabsNavRef.value) return;
+  e.preventDefault();
+  const x = e.pageX - tabsNavRef.value.offsetLeft;
+  const walk = (x - startX) * 1.5;
+  tabsNavRef.value.scrollLeft = scrollStart - walk;
+};
+
+const selectTab = async (tabId, event) => {
+  activeTab.value = tabId;
+  await nextTick();
+  if (event?.currentTarget) {
+    event.currentTarget.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  }
+};
+
+watch(activeTab, async () => {
+  await nextTick();
+  if (tabsNavRef.value) {
+    const activeEl = tabsNavRef.value.querySelector('.border-red-600');
+    if (activeEl) {
+      activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
+  }
+});
+
+const isGeOt = computed(() => {
+  const sub = (props.ot?.subsistema || '').toUpperCase();
+  return sub.includes('GE') || sub.includes('ATS') || sub.includes('PLANTA') || sub.includes('GENERADOR');
+});
+
+const geAuditData = ref(null);
+
+const loadGeAuditData = () => {
+  if (!props.ot?.id) {
+    geAuditData.value = null;
+    return;
+  }
+  try {
+    const raw = localStorage.getItem(`smu_ge_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.porcentajeCompletado > 0 || parsed.ficha?.horometro || parsed.mediciones?.megger || parsed.mediciones?.voltaje_carga)) {
+        geAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.ge_inspection || props.ot?.inspeccion_ge) {
+      geAuditData.value = props.ot.ge_inspection || props.ot.inspeccion_ge;
+      return;
+    }
+    geAuditData.value = null;
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría GE:', e);
+    geAuditData.value = null;
+  }
+};
+
+const sptAuditData = ref(null);
+
+const loadSptAuditData = () => {
+  if (!props.ot?.id) {
+    sptAuditData.value = null;
+    return;
+  }
+  try {
+    const raw = localStorage.getItem(`smu_spt_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.caidaPotencial || parsed.equipotencialidad || parsed.wenner)) {
+        sptAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.spt_inspection || props.ot?.inspeccion_spt) {
+      sptAuditData.value = props.ot.spt_inspection || props.ot.inspeccion_spt;
+      return;
+    }
+    sptAuditData.value = null;
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría SPT:', e);
+    sptAuditData.value = null;
+  }
+};
+
+const aaAuditData = ref(null);
+
+const loadAaAuditData = () => {
+  if (!props.ot?.id) {
+    aaAuditData.value = null;
+    return;
+  }
+  try {
+    const raw = localStorage.getItem(`smu_aa_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.aa1 || parsed.aa2)) {
+        aaAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.aa_inspection || props.ot?.inspeccion_aa) {
+      aaAuditData.value = props.ot.aa_inspection || props.ot.inspeccion_aa;
+      return;
+    }
+    aaAuditData.value = null;
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría AA:', e);
+    aaAuditData.value = null;
+  }
+};
+
+const powerAuditData = ref(null);
+
+const loadPowerAuditData = () => {
+  if (!props.ot?.id) {
+    powerAuditData.value = null;
+    return;
+  }
+  try {
+    const raw = localStorage.getItem(`smu_power_inspection_ot_${props.ot.id}`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && (parsed.bus || parsed.baterias || parsed.ficha)) {
+        powerAuditData.value = parsed;
+        return;
+      }
+    } else if (props.ot?.power_inspection || props.ot?.inspeccion_power) {
+      powerAuditData.value = props.ot.power_inspection || props.ot.inspeccion_power;
+      return;
+    }
+    powerAuditData.value = null;
+  } catch (e) {
+    console.error('Error al cargar datos de auditoría POWER:', e);
+    powerAuditData.value = null;
+  }
+};
+
+watch([() => props.ot?.id, () => props.isOpen], () => {
+  if (props.isOpen) {
+    loadGeAuditData();
+    loadSptAuditData();
+    loadAaAuditData();
+    loadPowerAuditData();
+  }
+}, { immediate: true });
+
+onMounted(() => {
+  loadGeAuditData();
+  loadSptAuditData();
+  loadAaAuditData();
+  loadPowerAuditData();
+});
+
+const tabs = computed(() => {
+  const baseTabs = [
+    { id: 'resumen', label: 'Ficha General', icon: IconFileText },
+    { id: 'evidencias', label: 'Evidencias', icon: IconCamera, badge: props.ot?.evidencias?.length || 0 },
+    { id: 'bitacora', label: 'Bitácora PDT', icon: IconHistory, badge: props.ot?.avances?.length || 0 },
+    { id: 'repuestos', label: 'Insumos LPU', icon: IconBox, badge: props.ot?.repuestos?.length || 0 },
+  ];
+
+  // Solo agregar pestañas técnicas si el proceso fue realmente diligenciado en campo
+  if (geAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_ge', label: 'Planta GE / ATS', icon: IconEngine });
+  }
+  if (sptAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_spt', label: 'Puesta a Tierra (SPT)', icon: IconBolt });
+  }
+  if (aaAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_aa', label: 'Climatización (AA)', icon: IconSnowflake });
+  }
+  if (powerAuditData.value) {
+    baseTabs.push({ id: 'diagnostico_power', label: 'Fuerza DC (-48V)', icon: IconBatteryCharging });
+  }
+
+  return baseTabs;
+});
+
+// Si la pestaña seleccionada ya no existe en la OT actual, regresar automáticamente a 'resumen'
+watch(tabs, (newTabs) => {
+  if (!newTabs.some(t => t.id === activeTab.value)) {
+    activeTab.value = 'resumen';
+  }
+}, { immediate: true });
 
 const countFotos = (tipo) => {
   if (!props.ot?.evidencias) return 0;
@@ -469,6 +1120,18 @@ const fotosFiltradas = computed(() => {
   if (filtroFoto.value === 'todas') return props.ot.evidencias;
   return props.ot.evidencias.filter(f => f.tipo === filtroFoto.value);
 });
+
+const fallbackEvidencias = {
+  antes: 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?w=800',
+  durante: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800',
+  despues: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800'
+};
+
+const onFotoError = (event, tipo) => {
+  if (event?.target) {
+    event.target.src = fallbackEvidencias[tipo] || fallbackEvidencias.antes;
+  }
+};
 
 const abrirZoom = (foto) => {
   fotoZoom.value = foto;

@@ -1,23 +1,33 @@
 import axios from 'axios';
+import { isTokenExpired, clearSecuritySession } from '../lib/security';
 
-// URL del backend local (Laravel corre por defecto en el puerto 8000)
+// URL del backend local (FastAPI corre en el puerto 8000)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const client = axios.create({
   baseURL: `${API_URL}/api`,
-  timeout: 10000,
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
-  withCredentials: true // Necesario para el intercambio de cookies/sesiones CORS si se requiere
+  withCredentials: true // Soporte seguro de sesiones CORS
 });
 
-// Interceptor para inyectar de forma automatica el token Sanctum en cada peticion
+// Interceptor de petición: valida expiración previa y añade token Bearer JWT
 client.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('smu_token');
     if (token) {
+      // Verificación proactiva de expiración de token en el cliente
+      if (isTokenExpired(token)) {
+        clearSecuritySession();
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+        return Promise.reject(new Error('Sesión expirada. Por favor inicie sesión nuevamente.'));
+      }
       config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
@@ -27,21 +37,25 @@ client.interceptors.request.use(
   }
 );
 
-// Interceptor de respuesta para manejar sesiones expiradas (error 401)
+// Interceptor de respuesta: manejo de 401 (No autorizado) y 403 (Prohibido)
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response && error.response.status === 401) {
-      // Limpiar local storage y redirigir a login
-      localStorage.removeItem('smu_authenticated');
-      localStorage.removeItem('smu_token');
-      localStorage.removeItem('smu_username');
-      localStorage.removeItem('smu_role');
-      localStorage.removeItem('smu_name');
-      
-      // Solo redirigir si no estamos ya en la ruta de login
-      if (window.location.pathname !== '/login') {
-        window.location.href = '/login';
+    if (error.response) {
+      const status = error.response.status;
+
+      // 401: Token inválido, revocado o expirado
+      if (status === 401) {
+        clearSecuritySession();
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
+        }
+      }
+
+      // Sanitizar mensaje devuelto al usuario para no exponer detalles de base de datos
+      const rawMsg = error.response.data?.message;
+      if (rawMsg && typeof rawMsg === 'string' && (rawMsg.includes('Traceback') || rawMsg.includes('OperationalError') || rawMsg.includes('syntax error'))) {
+        error.response.data.message = 'Ocurrió un error inesperado al procesar la solicitud.';
       }
     }
     return Promise.reject(error);
@@ -49,3 +63,4 @@ client.interceptors.response.use(
 );
 
 export default client;
+

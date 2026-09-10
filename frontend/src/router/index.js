@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { verifyRoleIntegrity } from '../lib/security';
 // Importamos las vistas directamente (lazy load puede hacerse después)
 import LoginView from '../views/LoginView.vue';
+
 import AppLayout from '../layouts/AppLayout.vue';
 import DashboardView from '../views/DashboardView.vue';
 import OtsView from '../views/OtsView.vue';
@@ -54,37 +56,38 @@ const routes = [
 ];
 
 const router = createRouter({
+
     history: createWebHistory(import.meta.env.BASE_URL),
     routes
 });
 
-// Guard de navegación para verificar autenticación y redirigir rol operativo a entorno móvil
-router.beforeEach((to, from, next) => {
-    const isAuthenticated = localStorage.getItem('smu_authenticated') === 'true';
-    const userRole = localStorage.getItem('smu_role');
+// Guard de navegación seguro: verifica autenticación, integridad del token y control de acceso (RBAC)
+router.beforeEach((to, from) => {
+    const { isValid, role: userRole } = verifyRoleIntegrity();
 
     if (to.matched.some(record => record.meta.requiresAuth)) {
-        if (!isAuthenticated) {
-            next({ name: 'login' });
-        } else if (userRole === 'operativo' && ['dashboard', 'ots', 'empleados'].includes(to.name)) {
-            // El módulo operativo es primariamente móvil
-            next({ name: 'mobile-dashboard' });
-        } else {
-            next();
+        if (!isValid) {
+            return { name: 'login' };
         }
-    } else if (to.matched.some(record => record.meta.guestOnly)) {
-        if (isAuthenticated) {
-            if (userRole === 'operativo') {
-                next({ name: 'mobile-dashboard' });
-            } else {
-                next({ name: 'dashboard' });
-            }
-        } else {
-            next();
+        if (userRole === 'operativo' && ['dashboard', 'ots', 'empleados'].includes(to.name)) {
+            // El personal operativo es redirigido automáticamente a la interfaz de campo móvil
+            return { name: 'mobile-dashboard' };
         }
-    } else {
-        next();
+        return true;
     }
+
+    if (to.matched.some(record => record.meta.guestOnly)) {
+        if (isValid) {
+            if (userRole === 'operativo') {
+                return { name: 'mobile-dashboard' };
+            }
+            return { name: 'dashboard' };
+        }
+        return true;
+    }
+
+    return true;
 });
 
 export default router;
+

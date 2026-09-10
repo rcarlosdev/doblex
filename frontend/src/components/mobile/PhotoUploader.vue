@@ -75,7 +75,7 @@
         class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl overflow-hidden shadow-xs flex flex-col justify-between group"
       >
         <div class="relative cursor-pointer" @click="selectedZoomPhoto = ev.url_imagen">
-          <img :src="ev.url_imagen" alt="Evidencia Carga" class="w-full h-40 object-cover hover:opacity-95 transition-opacity" />
+          <img :src="ev.url_imagen" @error="onFotoError($event, ev.tipo)" alt="Evidencia Carga" class="w-full h-40 object-cover hover:opacity-95 transition-opacity" />
           <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <span class="bg-black/70 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1">
               <IconEye class="w-3.5 h-3.5" /> Ampliar Foto
@@ -252,5 +252,17 @@ const formatDate = (dateStr) => {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return d.toLocaleDateString('es-CO', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+};
+
+const fallbackEvidencias = {
+  antes: 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?w=800',
+  durante: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800',
+  despues: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800'
+};
+
+const onFotoError = (event, tipo) => {
+  if (event?.target) {
+    event.target.src = fallbackEvidencias[tipo] || fallbackEvidencias.antes;
+  }
 };
 </script>

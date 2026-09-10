@@ -50,7 +50,23 @@
     </div>
 
     <!-- Contenido del Protocolo Activo Seleccionado -->
-    <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-sm">
+    <div v-if="activeProtocolKey === 'GE'">
+      <GeInspectionProtocol :ot-id="otId" @updated="onGeInspectionUpdated" />
+    </div>
+
+    <div v-else-if="activeProtocolKey === 'SPT'">
+      <SptInspectionProtocol :ot-id="otId" @updated="onSptInspectionUpdated" />
+    </div>
+
+    <div v-else-if="activeProtocolKey === 'AA'">
+      <AaInspectionProtocol :ot-id="otId" @updated="onAaInspectionUpdated" />
+    </div>
+
+    <div v-else-if="activeProtocolKey === 'POWER'">
+      <PowerInspectionProtocol :ot-id="otId" @updated="onPowerInspectionUpdated" />
+    </div>
+
+    <div v-else class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-sm">
       <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-3 flex-wrap gap-2">
         <div>
           <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
@@ -143,6 +159,10 @@
 <script setup>
 import { ref, computed, watch, onMounted } from 'vue';
 import { IconListCheck, IconCheck } from '@tabler/icons-vue';
+import GeInspectionProtocol from './GeInspectionProtocol.vue';
+import SptInspectionProtocol from './SptInspectionProtocol.vue';
+import AaInspectionProtocol from './AaInspectionProtocol.vue';
+import PowerInspectionProtocol from './PowerInspectionProtocol.vue';
 
 const props = defineProps({
   otId: {
@@ -156,6 +176,39 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['checklist-updated']);
+
+const geProgress = ref(0);
+const sptProgress = ref(0);
+const aaProgress = ref(0);
+const powerProgress = ref(0);
+
+const onGeInspectionUpdated = (data) => {
+  if (data && data.porcentajeCompletado !== undefined) {
+    geProgress.value = data.porcentajeCompletado;
+  }
+  notifyUpdate();
+};
+
+const onSptInspectionUpdated = (data) => {
+  if (data && data.porcentajeCompletado !== undefined) {
+    sptProgress.value = data.porcentajeCompletado;
+  }
+  notifyUpdate();
+};
+
+const onAaInspectionUpdated = (data) => {
+  if (data && data.porcentajeCompletado !== undefined) {
+    aaProgress.value = data.porcentajeCompletado;
+  }
+  notifyUpdate();
+};
+
+const onPowerInspectionUpdated = (data) => {
+  if (data && data.porcentajeCompletado !== undefined) {
+    powerProgress.value = data.porcentajeCompletado;
+  }
+  notifyUpdate();
+};
 
 const availableProtocols = [
   { key: 'SPT', shortLabel: 'SPT', name: 'Puesta a Tierra (BEP & Wenner)' },
@@ -413,6 +466,18 @@ const activePercentage = computed(() => {
 });
 
 const getProtocolProgress = (key) => {
+  if (key === 'GE') {
+    return geProgress.value;
+  }
+  if (key === 'SPT') {
+    return sptProgress.value;
+  }
+  if (key === 'AA') {
+    return aaProgress.value;
+  }
+  if (key === 'POWER') {
+    return powerProgress.value;
+  }
   const tasksArr = protocolStates.value[key] || [];
   if (tasksArr.length === 0) return 0;
   const done = tasksArr.filter(t => t.completado).length;
@@ -420,15 +485,19 @@ const getProtocolProgress = (key) => {
 };
 
 const consolidatedPercent = computed(() => {
-  const keys = Object.keys(ALL_PROTOCOLS);
-  let totalTasks = 0;
-  let totalDone = 0;
-  keys.forEach(k => {
-    const arr = protocolStates.value[k] || [];
-    totalTasks += arr.length;
-    totalDone += arr.filter(t => t.completado).length;
-  });
-  return totalTasks > 0 ? Math.round((totalDone / totalTasks) * 100) : 0;
+  if (activeProtocolKey.value === 'GE') {
+    return geProgress.value;
+  }
+  if (activeProtocolKey.value === 'SPT') {
+    return sptProgress.value;
+  }
+  if (activeProtocolKey.value === 'AA') {
+    return aaProgress.value;
+  }
+  if (activeProtocolKey.value === 'POWER') {
+    return powerProgress.value;
+  }
+  return 0;
 });
 
 const notifyUpdate = () => {
@@ -436,6 +505,58 @@ const notifyUpdate = () => {
 };
 
 const loadAllSavedStates = () => {
+  // Cargar estado de protocolo GE desde su clave propia
+  try {
+    const geRaw = localStorage.getItem(`smu_ge_inspection_ot_${props.otId || 'general'}`);
+    if (geRaw) {
+      const geData = JSON.parse(geRaw);
+      if (geData && geData.porcentajeCompletado !== undefined) {
+        geProgress.value = geData.porcentajeCompletado;
+      }
+    }
+  } catch (e) {
+    console.error('Error al cargar progreso GE:', e);
+  }
+
+  // Cargar estado de protocolo SPT desde su clave propia
+  try {
+    const sptRaw = localStorage.getItem(`smu_spt_inspection_ot_${props.otId || 'draft'}`);
+    if (sptRaw) {
+      const sptData = JSON.parse(sptRaw);
+      if (sptData && sptData.caidaPotencial) {
+        sptProgress.value = 100;
+      }
+    }
+  } catch (e) {
+    console.error('Error al cargar progreso SPT:', e);
+  }
+
+  // Cargar estado de protocolo AA desde su clave propia
+  try {
+    const aaRaw = localStorage.getItem(`smu_aa_inspection_ot_${props.otId || 'draft'}`);
+    if (aaRaw) {
+      const aaData = JSON.parse(aaRaw);
+      if (aaData && aaData.aa1) {
+        aaProgress.value = 100;
+      }
+    }
+  } catch (e) {
+    console.error('Error al cargar progreso AA:', e);
+  }
+
+  // Cargar estado de protocolo POWER desde su clave propia
+  try {
+    const powerRaw = localStorage.getItem(`smu_power_inspection_ot_${props.otId || 'draft'}`);
+    if (powerRaw) {
+      const powerData = JSON.parse(powerRaw);
+      if (powerData && powerData.bus) {
+        powerProgress.value = 100;
+      }
+    }
+  } catch (e) {
+    console.error('Error al cargar progreso POWER:', e);
+  }
+
   Object.keys(ALL_PROTOCOLS).forEach(key => {
     const baseTasks = ALL_PROTOCOLS[key].tasks.map(t => ({ ...t }));
     try {
