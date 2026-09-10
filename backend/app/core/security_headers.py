@@ -25,17 +25,30 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
         # 5. Política de Permisos (Sensores de hardware restringidos a origen propio)
         response.headers["Permissions-Policy"] = "geolocation=(self), camera=(self), microphone=(), payment=()"
 
-        # 6. Content-Security-Policy adaptada para API REST y servicio de medios
-        response.headers["Content-Security-Policy"] = (
-            "default-src 'self'; "
-            "img-src 'self' data: blob: http: https:; "
-            "style-src 'self' 'unsafe-inline'; "
-            "script-src 'self'; "
-            "font-src 'self' data:; "
-            "connect-src 'self' http: https: ws: wss:; "
-            "frame-ancestors 'none'; "
-            "object-src 'none';"
-        )
+        # 6. Content-Security-Policy adaptada para API REST y documentación (Swagger / ReDoc)
+        is_docs_route = request.url.path.startswith(("/docs", "/redoc", "/openapi.json"))
+        if is_docs_route:
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; "
+                "img-src 'self' data: blob: http: https: https://fastapi.tiangolo.com; "
+                "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; "
+                "font-src 'self' data: https://cdn.jsdelivr.net; "
+                "connect-src 'self' http: https: ws: wss:; "
+                "frame-ancestors 'none'; "
+                "object-src 'none';"
+            )
+        else:
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; "
+                "img-src 'self' data: blob: http: https:; "
+                "style-src 'self' 'unsafe-inline'; "
+                "script-src 'self'; "
+                "font-src 'self' data:; "
+                "connect-src 'self' http: https: ws: wss:; "
+                "frame-ancestors 'none'; "
+                "object-src 'none';"
+            )
 
         # 7. Strict-Transport-Security (HSTS) para asegurar HTTPS
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"

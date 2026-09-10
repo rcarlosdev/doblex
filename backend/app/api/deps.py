@@ -43,7 +43,7 @@ def get_current_user(
         )
 
     
-    username: str = payload.get("username")
+    username: Optional[str] = payload.get("username")
     if not username:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
