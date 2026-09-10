@@ -6,7 +6,7 @@ Este repositorio contiene la plataforma integral para el **Sistema de Gestión d
 
 ## Estructura del Proyecto
 
-* `/backend_python` - API REST en FastAPI + SQLAlchemy + Pydantic V2 + JWT + Exportadores (Excel, Word, PDF).
+* `/backend` - API REST en FastAPI + SQLAlchemy + Pydantic V2 + JWT + Exportadores (Excel, Word, PDF).
 * `/frontend` - Aplicación SPA reactiva en Vue 3 + Vite + Tailwind/CSS + Axios + Pinia.
 * `docker-compose.yml` - Orquestación de Base de Datos PostgreSQL local.
 * `DESARROLLO.md` - Guía técnica integral para desarrolladores.
@@ -28,7 +28,7 @@ Asegúrate de tener instalados los siguientes componentes:
 
 1. Dirígete a la carpeta del backend:
    ```bash
-   cd backend_python
+   cd backend
    ```
 
 2. Activa el entorno virtual ya configurado:
@@ -109,7 +109,8 @@ Para acceder a la plataforma web (cargadas automáticamente mediante el seeder),
 El backend incluye una suite completa de pruebas unitarias y de integración:
 
 ```bash
-cd backend_python
+cd backend
 .\.venv\Scripts\python tests_integration.py
+.\.venv\Scripts\python tests_security.py
 ```
 *(Valida autenticación, filtros por rol, SLA, estados, evidencias, avances y generación de reportes en menos de 1 segundo).*

@@ -6,7 +6,7 @@ from datetime import datetime
 # Rutas de las bases de datos
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEGACY_DB_PATH = os.path.join(BASE_DIR, "backend", "database", "database.sqlite")
-NEW_DB_PATH = os.path.join(BASE_DIR, "backend_python", "doblex.db")
+NEW_DB_PATH = os.path.join(BASE_DIR, "backend", "doblex.db")
 
 def parse_dt(dt_str):
     if not dt_str:
@@ -30,7 +30,7 @@ def migrate_data():
     legacy_cursor = legacy_conn.cursor()
 
     # Conectar con SQLAlchemy en el backend nuevo
-    sys.path.insert(0, os.path.join(BASE_DIR, "backend_python"))
+    sys.path.insert(0, os.path.join(BASE_DIR, "backend"))
     from app.db.base import Base
     from app.db.session import engine, SessionLocal
     from app.models.user import User
