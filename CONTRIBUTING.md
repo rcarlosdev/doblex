@@ -37,14 +37,14 @@ cd DOBLEX
 ```
 
 ### Paso 2: Aprovisionar Base de Datos
-* **Opción A (SQLite - Por defecto para desarrollo ágil):** No requiere configuración previa; se autogenera en `backend_python/doblex.db`.
+* **Opción A (SQLite - Por defecto para desarrollo ágil):** No requiere configuración previa; se autogenera en `backend/doblex.db`.
 * **Opción B (PostgreSQL con Docker):**
   1. Asegúrate de tener Docker Desktop iniciado.
   2. Desde la raíz de la carpeta `DOBLEX`:
      ```bash
      docker-compose up -d
      ```
-  3. Descomenta la línea de conexión PostgreSQL en `backend_python/.env`.
+  3. Descomenta la línea de conexión PostgreSQL en `backend/.env`.
 
 ---
 
@@ -52,7 +52,7 @@ cd DOBLEX
 
 1. Navega a la carpeta del backend:
    ```bash
-   cd backend_python
+   cd backend
    ```
 
 2. Activa el entorno virtual (`.venv`):
@@ -149,7 +149,7 @@ Para mantener la estabilidad de las ramas principales, aplicamos un flujo de tra
 3. **Validación Obligatoria antes de enviar PR:**
    * **Backend:** Ejecuta la suite de pruebas automatizadas y de seguridad:
      ```bash
-     cd backend_python
+     cd backend
      .\.venv\Scripts\python tests_integration.py
      .\.venv\Scripts\python tests_security.py
      ```

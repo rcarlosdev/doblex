@@ -69,7 +69,7 @@ Para probar los flujos y niveles de acceso de cada rol en el entorno local (gene
 ### 3.1. Estructura de Carpetas
 
 ```text
-backend_python/
+backend/
 ├── app/
 │   ├── api/
 │   │   ├── endpoints/       # Controladores de rutas por módulo
