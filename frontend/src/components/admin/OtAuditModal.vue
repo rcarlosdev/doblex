@@ -243,6 +243,7 @@
                   <img 
                     :src="foto.url_imagen" 
                     :alt="`Evidencia ${foto.tipo}`" 
+                    @error="onFotoError($event, foto.tipo)"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   <div class="absolute top-2 left-2">
@@ -823,7 +824,7 @@
     <!-- Visor de Zoom de Fotografía -->
     <div v-if="fotoZoom" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 select-none" @click="fotoZoom = null">
       <div class="relative max-w-4xl max-h-[85vh] w-full flex flex-col items-center" @click.stop>
-        <img :src="fotoZoom.url_imagen" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
+        <img :src="fotoZoom.url_imagen" @error="onFotoError($event, fotoZoom.tipo)" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
         <div class="mt-3 flex items-center justify-between w-full text-white text-xs px-2">
           <div class="space-x-2">
             <span class="px-2 py-0.5 rounded uppercase font-black" :class="fotoZoom.tipo === 'antes' ? 'bg-amber-600' : fotoZoom.tipo === 'durante' ? 'bg-blue-600' : 'bg-emerald-600'">
@@ -1119,6 +1120,18 @@ const fotosFiltradas = computed(() => {
   if (filtroFoto.value === 'todas') return props.ot.evidencias;
   return props.ot.evidencias.filter(f => f.tipo === filtroFoto.value);
 });
+
+const fallbackEvidencias = {
+  antes: 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?w=800',
+  durante: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800',
+  despues: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800'
+};
+
+const onFotoError = (event, tipo) => {
+  if (event?.target) {
+    event.target.src = fallbackEvidencias[tipo] || fallbackEvidencias.antes;
+  }
+};
 
 const abrirZoom = (foto) => {
   fotoZoom.value = foto;

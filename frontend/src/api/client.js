@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-// URL del backend local (Laravel corre por defecto en el puerto 8000)
+// URL del backend local (FastAPI corre en el puerto 8000)
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 const client = axios.create({
@@ -13,7 +13,7 @@ const client = axios.create({
   withCredentials: true // Necesario para el intercambio de cookies/sesiones CORS si se requiere
 });
 
-// Interceptor para inyectar de forma automatica el token Sanctum en cada peticion
+// Interceptor para inyectar de forma automatica el token Bearer JWT en cada peticion
 client.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('smu_token');

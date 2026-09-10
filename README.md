@@ -1,89 +1,115 @@
 # SMU DOBLEX - Sistema de Gestión de Obra Civil
 
-Este proyecto contiene la arquitectura base para el **Sistema de Gestión de Obra Civil (SMU)**. Está estructurado en un backend API desarrollado con Laravel, un frontend SPA reactivo desarrollado con Vue.js (Vite), y un entorno de base de datos relacional PostgreSQL levantado mediante Docker.
+Este repositorio contiene la plataforma integral para el **Sistema de Gestión de Obra Civil y Mantenimiento de Infraestructura (SMU)** de Doblex S.A.S. Está estructurado bajo una arquitectura moderna y desacoplada con backend en **FastAPI (Python 3.13)**, frontend SPA en **Vue.js 3 (Vite)** y soporte para bases de datos relacionales (**SQLite** para desarrollo ágil y **PostgreSQL** para producción).
 
 ---
 
 ## Estructura del Proyecto
 
-* `/backend` - API REST en Laravel 11 + Sanctum + PostgreSQL.
-* `/frontend` - Aplicación SPA en Vue 3 + Vite + Axios + Pinia.
-* `docker-compose.yml` - Orquestación de la Base de Datos PostgreSQL local.
+* `/backend_python` - API REST en FastAPI + SQLAlchemy + Pydantic V2 + JWT + Exportadores (Excel, Word, PDF).
+* `/frontend` - Aplicación SPA reactiva en Vue 3 + Vite + Tailwind/CSS + Axios + Pinia.
+* `docker-compose.yml` - Orquestación de Base de Datos PostgreSQL local.
+* `DESARROLLO.md` - Guía técnica integral para desarrolladores.
 
 ---
 
 ## Requisitos Previos
 
 Asegúrate de tener instalados los siguientes componentes:
-1. **Docker Desktop** (para la base de datos).
-2. **Node.js** v24+ y **npm** v11+ (para el frontend).
-3. **Laragon** o PHP 8.2+ local y Composer (para el backend).
+1. **Python 3.11+** (recomendado Python 3.13).
+2. **Node.js 20+** y **npm** (para el frontend).
+3. **Docker Desktop** (opcional, si deseas ejecutar PostgreSQL local mediante contenedores).
 
 ---
 
 ## Paso a Paso: Inicio Rápido en Desarrollo
 
-Sigue estos 3 sencillos pasos para levantar todo el entorno localmente:
+### Paso 1: Levantar el Backend (FastAPI en Python)
 
-### Paso 1: Levantar la Base de Datos (Docker)
-En la raíz del proyecto ejecuta:
-```bash
-docker-compose up -d
-```
-Esto iniciará una instancia de PostgreSQL en `localhost:5432` con las credenciales configuradas en tu docker-compose y sincronizadas con el `.env` del backend.
+1. Dirígete a la carpeta del backend:
+   ```bash
+   cd backend_python
+   ```
 
-### Paso 2: Levantar el Backend (Laravel API)
-1. Ve al directorio del backend:
-   ```bash
-   cd backend
-   ```
-2. Inicia el servidor de desarrollo de Laravel:
-   ```bash
-   php artisan serve
-   ```
-   El backend estará escuchando en `http://localhost:8000`.
+2. Activa el entorno virtual ya configurado:
+   * **Windows (PowerShell):**
+     ```powershell
+     .\.venv\Scripts\Activate.ps1
+     ```
+   * **Linux / Mac:**
+     ```bash
+     source .venv/bin/activate
+     ```
 
-### Paso 3: Levantar el Frontend (Vue.js + Vite)
-1. Ve al directorio del frontend:
+3. *(Opcional)* Si necesitas inicializar o sembrar la base de datos con los perfiles y OTs de prueba:
    ```bash
-   cd ../frontend
+   python -m app.db.seeder
    ```
-2. Instala dependencias (si no lo has hecho aún):
+
+4. Inicia el servidor de desarrollo:
+   ```bash
+   python run.py
+   # O directamente con Uvicorn:
+   uvicorn app.main:app --reload --port 8000
+   ```
+   *El backend estará escuchando en `http://localhost:8000` con documentación interactiva en `http://localhost:8000/docs`.*
+
+---
+
+### Paso 2: Levantar el Frontend (Vue.js + Vite)
+
+1. En una nueva terminal, ve al directorio del frontend:
+   ```bash
+   cd frontend
+   ```
+
+2. Instala dependencias si es la primera vez:
    ```bash
    npm install
    ```
-3. Inicia el servidor Vite:
+
+3. Inicia el servidor de desarrollo de Vite:
    ```bash
    npm run dev
    ```
-   El frontend estará escuchando en `http://localhost:5173`.
+   *El frontend estará disponible en `http://localhost:5173`.*
 
 ---
 
 ## Credenciales de Acceso (Entorno Local)
 
-Para acceder a la plataforma web a través del Login maquetado en el entorno local (cargadas mediante `DatabaseSeeder`), puedes utilizar cualquiera de los siguientes perfiles de prueba:
+Para acceder a la plataforma web (cargadas automáticamente mediante el seeder), puedes utilizar cualquiera de los siguientes perfiles:
 
-| Perfil / Rol | Nombre / Empleado | Email / Username | Contraseña | Cargo / Descripción |
+| Perfil / Rol | Nombre / Empleado | Username | Contraseña | Cargo / Región |
 | :--- | :--- | :--- | :--- | :--- |
-| **Administrador** (`admin`) | Admin General | `admin@doblex.com` / `admin.doblex` | `admin123` | Director General de Obra |
-| **Administrativo** (`administrativo`) | Auxiliar Técnico | `adminis@doblex.com` / `adminis.doblex` | `adminis123` | Asistente Administrativo de Campo |
-| **Operativo** (`operativo`) | Ing. Carlos Pérez | `carlos@doblex.com` / `carlos.doblex` | `operador123` | Ingeniero Residente de Estructuras |
-| **Operativo** (`operativo`) | Ing. Luis Martínez | `luis@doblex.com` / `luis.doblex` | `operador123` | Ingeniero de Vías y Excavaciones |
+| **Administrador** (`admin`) | Admin General | `admin.doblex` | `admin123` | Director General de Obra (Gestión total) |
+| **Administrativo** (`administrativo`) | Auxiliar Técnico | `adminis.doblex` | `adminis123` | Asistente Administrativo de Campo |
+| **Operativo** (`operativo`) | Ing. Carlos Pérez | `carlos.doblex` | `operador123` | Ingeniero Residente (Antioquia & Urabá) |
+| **Operativo** (`operativo`) | Ing. Luis Martínez | `luis.doblex` | `operador123` | Ing. Energía y Climatización (Córdoba) |
+| **Operativo** (`operativo`) | Jasmin Ariel Mosquera | `jasmin.doblex` | `operador123` | Técnico Electromecánico (Chocó) |
+| **Operativo** (`operativo`) | Eliseo Smith Granados | `eliseo.doblex` | `operador123` | Técnico Electricista (Atlántico) |
 
 ---
 
-## Configuración y Variables de Entorno
+## Funcionalidades Destacadas del Backend
 
-* **Backend (`backend/.env`):**
-  * `DB_CONNECTION=pgsql`
-  * `DB_HOST=127.0.0.1`
-  * `DB_PORT=5432`
-  * `DB_DATABASE=doblex_smu`
-  * `DB_USERNAME=doblex_user`
-  * `DB_PASSWORD=doblex_password`
-  * `FRONTEND_URL=http://localhost:5173`
-  
-* **Frontend (`frontend/.env` - Opcional):**
-  * `VITE_API_BASE_URL=http://localhost:8000/api`
-  * `VITE_SANCTUM_CSRF_URL=http://localhost:8000/sanctum/csrf-cookie`
+* **Cálculo Automático de SLA:** Matriz paramétrica basada en prioridad (`P1`, `P2`, `P3`) y tipo de ubicación (`urbana`, `rural`).
+* **Auditoría y Cierre Técnico:** Cierre estricto que exige las 3 evidencias fotográficas obligatorias (`antes`, `durante`, `despues`), causa de falla y registro de insumos/repuestos utilizados.
+* **Control de Avance Acumulado:** Reportes diarios en campo con validación de límites (no permite superar el 100%).
+* **Exportaciones al Vuelo:**
+  * Consolidado de OTs en **Excel** (`GET /api/ots/export/excel`).
+  * Informe técnico en **Word** (`GET /api/ots/{id}/export/word`).
+  * Reporte formal en **PDF** (`GET /api/ots/{id}/export/pdf`).
+* **Importación Masiva:** Validación y carga masiva de planillas Excel (`POST /api/ots/import/excel`).
+
+---
+
+## Pruebas Automatizadas
+
+El backend incluye una suite completa de pruebas unitarias y de integración:
+
+```bash
+cd backend_python
+.\.venv\Scripts\python tests_integration.py
+```
+*(Valida autenticación, filtros por rol, SLA, estados, evidencias, avances y generación de reportes en menos de 1 segundo).*
