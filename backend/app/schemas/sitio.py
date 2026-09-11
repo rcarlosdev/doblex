@@ -62,6 +62,11 @@ class SitioSummary(BaseModel):
     estructura: Optional[str] = None
     codigo_transporte_lpu: Optional[str] = None
     transporte_especial: Optional[str] = None
+    supervisor_operativo: Optional[str] = None
+    new_so: Optional[str] = None
+    site_owner: Optional[str] = None
+    jefe_zona: Optional[str] = None
+    ingeniero_soporte: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

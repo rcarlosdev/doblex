@@ -90,6 +90,24 @@ def update_ot_estado(
         "data": data
     }
 
+@router.put("/ots/{ot_id}/formulario")
+def update_formulario(
+    ot_id: int,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Actualizar las respuestas y parámetros del formato técnico de campo (WO / MP).
+    Disponible para el personal operativo y administradores.
+    """
+    data = ot_service.update_formulario(db=db, ot_id=ot_id, payload=payload, current_user=current_user)
+    return {
+        "status": "success",
+        "message": "Formato técnico de campo guardado con éxito.",
+        "data": data
+    }
+
 @router.post("/ots/{ot_id}/evidencia", status_code=status.HTTP_201_CREATED)
 def upload_evidencia(
     ot_id: int,
