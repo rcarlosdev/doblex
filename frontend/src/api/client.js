@@ -29,11 +29,17 @@ client.interceptors.request.use(
         }
         return Promise.reject(new Error('Sesión expirada. Por favor inicie sesión nuevamente.'));
       }
+      // Inyección robusta: cabecera estándar Bearer y cabeceras redundantes (X-Authorization, X-Access-Token)
+      // para atravesar proxies de nube como PandaStack, Cloudflare y Google Cloud Ingress sin pérdida
       if (config.headers && typeof config.headers.set === 'function') {
         config.headers.set('Authorization', `Bearer ${token}`);
+        config.headers.set('X-Authorization', `Bearer ${token}`);
+        config.headers.set('X-Access-Token', token);
       } else {
         config.headers = config.headers || {};
         config.headers['Authorization'] = `Bearer ${token}`;
+        config.headers['X-Authorization'] = `Bearer ${token}`;
+        config.headers['X-Access-Token'] = token;
       }
     }
     return config;
@@ -55,9 +61,24 @@ client.interceptors.response.use(
       if (status === 401) {
         console.error(`[AUTH 401 en ${url}] Motivo devuelto por el servidor:`, error.response.data);
         if (!url || !url.includes('/login')) {
-          clearSecuritySession();
-          if (window.location.pathname !== '/login') {
-            window.location.href = '/login';
+          const serverMsg = (error.response.data?.message || '').toLowerCase();
+          const localToken = localStorage.getItem('smu_token');
+          // Solo expulsamos a /login si:
+          // 1. El token local ya expiró según su timestamp criptográfico exp
+          // 2. O el backend explícitamente respondió que el token está expirado, revocado o inválido
+          const isExplicitTokenError = serverMsg.includes('expirado') || 
+                                       serverMsg.includes('revocado') || 
+                                       serverMsg.includes('inválido') || 
+                                       serverMsg.includes('invalido');
+
+          if (isTokenExpired(localToken) || isExplicitTokenError) {
+            console.warn('[AUTH CLIENT] Sesión inválida confirmada. Redirigiendo a login...');
+            clearSecuritySession();
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login';
+            }
+          } else {
+            console.warn('[AUTH CLIENT] 401 por normalización intermedia de proxy. Preservando sesión local.');
           }
         }
       }

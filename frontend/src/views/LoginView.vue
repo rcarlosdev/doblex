@@ -2,6 +2,7 @@
 import { ref, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import client from '@/api/client';
+import { setSessionCookie } from '@/lib/security';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { IconSun, IconMoon } from '@tabler/icons-vue';
@@ -41,6 +42,7 @@ const handleLogin = async () => {
     if (response.data.status === 'success') {
       localStorage.setItem('smu_authenticated', 'true');
       localStorage.setItem('smu_token', response.data.token);
+      setSessionCookie(response.data.token);
       localStorage.setItem('smu_username', response.data.user.username);
       localStorage.setItem('smu_role', response.data.user.role);
       localStorage.setItem('smu_name', response.data.user.name);

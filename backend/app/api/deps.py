@@ -9,26 +9,62 @@ from app.models.user import User
 
 security_bearer = HTTPBearer(auto_error=False)
 
+def extract_auth_token(
+    request: Request,
+    credentials: Optional[HTTPAuthorizationCredentials] = None
+) -> Optional[str]:
+    """
+    Estrategia de extracción de token multi-capa altamente resiliente ante proxies
+    (Cloudflare, Google Cloud Load Balancer, PandaStack, Vercel, Nginx).
+    """
+    # 1. Credenciales estándar de FastAPI HTTPBearer
+    if credentials and credentials.credentials:
+        return credentials.credentials.strip()
+
+    # 2. Header Authorization estándar o normalizado
+    auth = request.headers.get("Authorization") or request.headers.get("authorization")
+    if auth:
+        if auth.lower().startswith("bearer "):
+            return auth.split(" ", 1)[1].strip()
+        return auth.strip()
+
+    # 3. Header X-Authorization (evita filtros de proxies en cabeceras estándar)
+    x_auth = request.headers.get("X-Authorization") or request.headers.get("x-authorization")
+    if x_auth:
+        if x_auth.lower().startswith("bearer "):
+            return x_auth.split(" ", 1)[1].strip()
+        return x_auth.strip()
+
+    # 4. Headers X-Access-Token y X-Token
+    for h in ["X-Access-Token", "x-access-token", "X-Token", "x-token"]:
+        token_val = request.headers.get(h)
+        if token_val:
+            return token_val.strip()
+
+    # 5. Cookies de sesión
+    for c in ["smu_token", "access_token"]:
+        cookie_val = request.cookies.get(c)
+        if cookie_val:
+            return cookie_val.strip()
+
+    # 6. Parámetros de consulta (Query Params)
+    for q in ["token", "access_token"]:
+        query_val = request.query_params.get(q)
+        if query_val:
+            return query_val.strip()
+
+    return None
+
 def get_current_user(
     request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
     db: Session = Depends(get_db)
 ) -> User:
     """
-    Extrae y valida el token Bearer del header Authorization.
+    Extrae y valida el token Bearer del header Authorization o cabeceras alternativas.
     Verifica firma criptográfica, expiración y estado de revocación en lista negra.
     """
-    token = None
-    if credentials and credentials.credentials:
-        token = credentials.credentials
-    else:
-        # Fallback para proxies (ej. PandaStack/Vercel) que puedan normalizar cabeceras
-        auth_header = request.headers.get("Authorization") or request.headers.get("authorization")
-        if auth_header:
-            if auth_header.lower().startswith("bearer "):
-                token = auth_header.split(" ", 1)[1].strip()
-            else:
-                token = auth_header.strip()
+    token = extract_auth_token(request, credentials)
 
     if not token:
         raise HTTPException(

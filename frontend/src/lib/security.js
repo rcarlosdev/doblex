@@ -45,7 +45,30 @@ export function isTokenExpired(token) {
 }
 
 /**
- * Limpia todas las credenciales de sesión en localStorage.
+ * Almacena el token en una cookie para redundancia de autenticacion ante proxies.
+ */
+export function setSessionCookie(token) {
+  try {
+    const isSecure = window.location.protocol === 'https:';
+    document.cookie = `smu_token=${token}; path=/; max-age=86400; SameSite=Lax${isSecure ? '; Secure' : ''}`;
+  } catch (e) {
+    // Modo defensivo si cookies estan deshabilitadas
+  }
+}
+
+/**
+ * Elimina la cookie de sesion.
+ */
+export function clearSessionCookie() {
+  try {
+    document.cookie = 'smu_token=; path=/; max-age=0; SameSite=Lax';
+  } catch (e) {
+    // Modo defensivo
+  }
+}
+
+/**
+ * Limpia todas las credenciales de sesión en localStorage y cookies.
  */
 export function clearSecuritySession() {
   const keys = [
@@ -57,6 +80,7 @@ export function clearSecuritySession() {
     'smu_user_id'
   ];
   keys.forEach(k => localStorage.removeItem(k));
+  clearSessionCookie();
 }
 
 /**

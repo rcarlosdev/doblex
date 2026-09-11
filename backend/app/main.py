@@ -45,8 +45,18 @@ app.add_middleware(
     allow_origin_regex=r"^https?:\/\/.*(vercel\.app|localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
-    allow_headers=["*"],
-    expose_headers=["Content-Disposition", "Retry-After"],
+    allow_headers=[
+        "*",
+        "Authorization",
+        "X-Authorization",
+        "X-Access-Token",
+        "X-Token",
+        "Content-Type",
+        "Accept",
+        "X-Requested-With",
+        "Origin"
+    ],
+    expose_headers=["Content-Disposition", "Retry-After", "X-Total-Count"],
     max_age=3600,
 )
 

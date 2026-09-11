@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import client from '@/api/client';
-import { decodeJwt, isTokenExpired, clearSecuritySession } from '@/lib/security';
+import { decodeJwt, isTokenExpired, clearSecuritySession, setSessionCookie } from '@/lib/security';
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref(localStorage.getItem('smu_token') || '');
@@ -46,6 +46,7 @@ export const useAuthStore = defineStore('auth', () => {
     const newToken = response.data.token;
     token.value = newToken;
     localStorage.setItem('smu_token', newToken);
+    setSessionCookie(newToken);
 
     const payload = decodeJwt(newToken);
     if (payload) {
