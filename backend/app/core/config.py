@@ -16,11 +16,16 @@ class Settings(BaseSettings):
 
     @property
     def sqlalchemy_database_url(self) -> str:
-        if self.DATABASE_URL.startswith("sqlite:///./"):
+        url = self.DATABASE_URL
+        if url.startswith("postgres://"):
+            url = url.replace("postgres://", "postgresql+psycopg2://", 1)
+        elif url.startswith("postgresql://") and not url.startswith("postgresql+"):
+            url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+        elif url.startswith("sqlite:///./"):
             backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-            db_file = self.DATABASE_URL.replace("sqlite:///./", "")
+            db_file = url.replace("sqlite:///./", "")
             return f"sqlite:///{os.path.join(backend_dir, db_file)}"
-        return self.DATABASE_URL
+        return url
 
     # Parámetros de seguridad
     SECURITY_RATE_LIMIT_ENABLED: bool = True
