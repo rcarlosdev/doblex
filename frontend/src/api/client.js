@@ -22,13 +22,19 @@ client.interceptors.request.use(
     if (token) {
       // Verificación proactiva de expiración de token en el cliente
       if (isTokenExpired(token)) {
+        console.warn('[AUTH CLIENT] Token expirado localmente:', config.url);
         clearSecuritySession();
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';
         }
         return Promise.reject(new Error('Sesión expirada. Por favor inicie sesión nuevamente.'));
       }
-      config.headers['Authorization'] = `Bearer ${token}`;
+      if (config.headers && typeof config.headers.set === 'function') {
+        config.headers.set('Authorization', `Bearer ${token}`);
+      } else {
+        config.headers = config.headers || {};
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
     }
     return config;
   },
@@ -43,12 +49,16 @@ client.interceptors.response.use(
   (error) => {
     if (error.response) {
       const status = error.response.status;
+      const url = error.config?.url;
 
       // 401: Token inválido, revocado o expirado
       if (status === 401) {
-        clearSecuritySession();
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        console.error(`[AUTH 401 en ${url}] Motivo devuelto por el servidor:`, error.response.data);
+        if (!url || !url.includes('/login')) {
+          clearSecuritySession();
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
       }
 

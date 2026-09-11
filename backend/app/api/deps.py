@@ -1,5 +1,5 @@
 from typing import List, Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status, Request
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 from app.db.session import get_db
@@ -10,6 +10,7 @@ from app.models.user import User
 security_bearer = HTTPBearer(auto_error=False)
 
 def get_current_user(
+    request: Request,
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(security_bearer),
     db: Session = Depends(get_db)
 ) -> User:
@@ -17,14 +18,24 @@ def get_current_user(
     Extrae y valida el token Bearer del header Authorization.
     Verifica firma criptográfica, expiración y estado de revocación en lista negra.
     """
-    if not credentials or not credentials.credentials:
+    token = None
+    if credentials and credentials.credentials:
+        token = credentials.credentials
+    else:
+        # Fallback para proxies (ej. PandaStack/Vercel) que puedan normalizar cabeceras
+        auth_header = request.headers.get("Authorization") or request.headers.get("authorization")
+        if auth_header:
+            if auth_header.lower().startswith("bearer "):
+                token = auth_header.split(" ", 1)[1].strip()
+            else:
+                token = auth_header.strip()
+
+    if not token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No se proporcionó token de autenticación.",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    
-    token = credentials.credentials
 
     # Validar si el token fue revocado en /logout
     if token_blacklist.is_token_revoked(token):
