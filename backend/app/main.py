@@ -68,7 +68,8 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         content={
             "status": "error",
-            "message": exc.detail
+            "message": exc.detail,
+            "detail": exc.detail
         },
         headers=exc.headers
     )
