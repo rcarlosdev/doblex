@@ -30,17 +30,22 @@ app = FastAPI(
 # 1. Middleware de Cabeceras de Seguridad HTTP (HSTS, nosniff, frame-options, CSP, etc.)
 app.add_middleware(SecurityHeadersMiddleware)
 
-# 2. Configuración de CORS Profesional y Endurecido
-allowed_origins = [o for o in settings.cors_origins_list if o != "*"]
-if not allowed_origins:
-    allowed_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
+# 2. Configuración de CORS Profesional y Adaptable (Soporta localhost y cualquier dominio Vercel)
+cors_origins = settings.cors_origins_list
+if "*" in cors_origins:
+    allowed_origins = ["*"]
+else:
+    allowed_origins = [o for o in cors_origins if o != "*"]
+    if not allowed_origins:
+        allowed_origins = ["http://localhost:5173", "http://127.0.0.1:5173"]
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
+    allow_origin_regex=r"^https?:\/\/.*(vercel\.app|localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"],
-    allow_headers=["Authorization", "Content-Type", "Accept", "Origin", "X-Requested-With"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
+    allow_headers=["*"],
     expose_headers=["Content-Disposition", "Retry-After"],
     max_age=3600,
 )
