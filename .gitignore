@@ -57,6 +57,7 @@ ENV/
 env/
 *.db
 *.sqlite3
+backend/crear_db.py
 
 # Uploads multimedia locales
 backend/uploads/*

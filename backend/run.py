@@ -18,5 +18,10 @@ if __name__ == "__main__":
     if current_dir not in sys.path:
         sys.path.insert(0, current_dir)
     
-    print("Iniciando Doblex SMU Backend (FastAPI) en http://127.0.0.1:8000 ...")
-    uvicorn.run("app.main:app", host="127.0.0.1", port=8000, reload=True)
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    # Solo activar reload en desarrollo si no hay variable PORT fijada por la plataforma cloud
+    is_dev = os.getenv("PORT") is None and os.getenv("ENV", "development").lower() != "production"
+
+    print(f"Iniciando Doblex SMU Backend (FastAPI) en http://{host}:{port} ...")
+    uvicorn.run("app.main:app", host=host, port=port, reload=is_dev)
