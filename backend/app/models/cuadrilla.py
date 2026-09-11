@@ -1,7 +1,7 @@
-from datetime import datetime
 from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from app.db.base import Base
+from app.core.utils import now_colombia
 
 class Cuadrilla(Base):
     __tablename__ = "cuadrillas"
@@ -10,8 +10,8 @@ class Cuadrilla(Base):
     nombre = Column(String(255), nullable=False)
     especialidad = Column(String(255), nullable=True)
     lider_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    created_at = Column(DateTime, default=now_colombia)
+    updated_at = Column(DateTime, default=now_colombia, onupdate=now_colombia)
 
     # Relaciones
     lider = relationship("User", back_populates="cuadrillas_lideradas")

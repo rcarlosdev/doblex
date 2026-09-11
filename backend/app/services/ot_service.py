@@ -14,7 +14,7 @@ from app.models.repuesto import RepuestoUtilizado
 from app.models.empleado import Empleado
 from app.repositories.ot_repository import ot_repository
 from app.core.config import settings
-from app.core.utils import now_utc
+from app.core.utils import now_utc, to_colombia_datetime
 from app.core.file_validator import (
     validate_and_decode_base64_image,
     generate_secure_filename,
@@ -30,9 +30,13 @@ class OtService:
     @staticmethod
     def parse_datetime(dt_input: Any) -> datetime:
         if isinstance(dt_input, datetime):
-            return dt_input
+            return to_colombia_datetime(dt_input) or now_utc()
         if isinstance(dt_input, str):
-            return date_parser.parse(dt_input)
+            try:
+                parsed = date_parser.parse(dt_input)
+                return to_colombia_datetime(parsed) or now_utc()
+            except Exception:
+                return now_utc()
         return now_utc()
 
     @staticmethod
@@ -123,10 +127,13 @@ class OtService:
         # Manejo de datos_formulario
         datos_formulario_parsed = None
         if ot.datos_formulario:
-            try:
-                datos_formulario_parsed = json.loads(ot.datos_formulario)
-            except Exception:
+            if isinstance(ot.datos_formulario, dict):
                 datos_formulario_parsed = ot.datos_formulario
+            else:
+                try:
+                    datos_formulario_parsed = json.loads(str(ot.datos_formulario))
+                except Exception:
+                    datos_formulario_parsed = ot.datos_formulario
 
         return {
             "id": ot.id,
@@ -337,7 +344,7 @@ class OtService:
             curr_form: dict = {}
             if ot.datos_formulario:
                 try:
-                    curr_form = json.loads(ot.datos_formulario)
+                    curr_form = json.loads(str(ot.datos_formulario))
                 except Exception:
                     curr_form = {}
             if payload.datos_formulario is not None:
@@ -404,7 +411,7 @@ class OtService:
             curr_form = {}
             if ot.datos_formulario:
                 try:
-                    curr_form = json.loads(ot.datos_formulario)
+                    curr_form = json.loads(str(ot.datos_formulario))
                 except Exception:
                     curr_form = {}
             curr_form.update(form_data)

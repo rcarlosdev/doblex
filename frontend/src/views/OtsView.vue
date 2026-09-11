@@ -859,14 +859,14 @@ const getStatusLabel = (status) => {
         </div>
 
         <!-- Fila 3: Coordinador & Fecha Inicio -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start relative z-20">
           <div>
             <EmpleadoMultiSelect
               v-model="newOt.coordinador"
               :multiple="false"
               label="Coordinador"
               role-label="coordinador"
-              placeholder="Buscar coordinador por cédula, nombre o cargo..."
+              placeholder="Buscar por cédula o nombre..."
               :required="true"
             />
           </div>
@@ -898,7 +898,7 @@ const getStatusLabel = (status) => {
         </div>
 
         <!-- Fila 4: Técnico (Multi-técnico) -->
-        <div>
+        <div class="relative z-10">
           <EmpleadoMultiSelect
             v-model="newOtOperadores"
             label="Técnico"
@@ -973,7 +973,13 @@ const getStatusLabel = (status) => {
         <!-- Fila 7: Descripción de la Obra / Falla -->
         <div class="space-y-1.5">
           <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
-          <Input type="text" v-model="newOt.descripcion" required placeholder="Ej: Reparación de tarjeta AVR y bobinado Selmec 40SC" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <textarea 
+            v-model="newOt.descripcion" 
+            required 
+            rows="3"
+            placeholder="Ej: Reparación de tarjeta AVR y bobinado Selmec 40SC" 
+            class="flex w-full rounded-md border border-neutral-200 dark:border-neutral-850 bg-white dark:bg-neutral-950 p-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-y min-h-[72px] font-normal leading-relaxed"
+          ></textarea>
         </div>
         </div>
 
@@ -1102,14 +1108,14 @@ const getStatusLabel = (status) => {
         </div>
 
         <!-- Fila 3: Coordinador & Fecha Inicio -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start relative z-20">
           <div>
             <EmpleadoMultiSelect
               v-model="editingOt.coordinador"
               :multiple="false"
               label="Coordinador"
               role-label="coordinador"
-              placeholder="Buscar coordinador por cédula, nombre o cargo..."
+              placeholder="Buscar por cédula o nombre..."
               :required="true"
             />
           </div>
@@ -1141,7 +1147,7 @@ const getStatusLabel = (status) => {
         </div>
 
         <!-- Fila 4: Técnico (Multi-técnico) -->
-        <div>
+        <div class="relative z-10">
           <EmpleadoMultiSelect
             v-model="editingOtOperadores"
             label="Técnico"
@@ -1232,7 +1238,13 @@ const getStatusLabel = (status) => {
         <!-- Fila 7: Descripción de la Obra / Falla -->
         <div class="space-y-1.5">
           <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
-          <Input type="text" v-model="editingOt.descripcion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+          <textarea 
+            v-model="editingOt.descripcion" 
+            required 
+            rows="3"
+            placeholder="Descripción detallada de la obra o falla técnica..." 
+            class="flex w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] p-2.5 text-xs text-neutral-900 dark:text-white placeholder:text-neutral-400 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary resize-y min-h-[72px] font-normal leading-relaxed"
+          ></textarea>
         </div>
         </div>
 

@@ -1730,7 +1730,7 @@ const executeSubmitAvance = async () => {
       ot_id: ot.value.id,
       descripcion: nuevoAvance.value.descripcion.trim(),
       porcentaje: Number(nuevoAvance.value.porcentaje),
-      fecha_reporte: new Date().toISOString().split('T')[0],
+      fecha_reporte: new Date().toLocaleDateString('en-CA'),
     });
     if (res.data.status === 'success') {
       nuevoAvance.value.descripcion = '';

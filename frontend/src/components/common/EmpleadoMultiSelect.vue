@@ -99,11 +99,11 @@
           ref="searchInputRef"
           type="text"
           v-model="searchQuery"
-          @focus="isOpen = true"
+          @focus="handleFocus"
           @input="isOpen = true"
           @keydown.esc="isOpen = false"
           :placeholder="inputPlaceholder"
-          class="flex h-9 w-full rounded-md border bg-white dark:bg-neutral-950 pl-9 pr-16 py-1 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+          class="flex h-9 w-full rounded-md border bg-white dark:bg-neutral-950 pl-9 pr-14 py-1 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
           :class="{
             'border-rose-300 dark:border-rose-700': required && selectedEmpleados.length === 0 && touched,
             'border-neutral-200 dark:border-white/10': !(required && selectedEmpleados.length === 0 && touched)
@@ -114,7 +114,7 @@
             v-if="searchQuery"
             type="button"
             @click="searchQuery = ''"
-            class="text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-0.5 cursor-pointer"
+            class="text-neutral-400 hover:text-neutral-600 dark:hover:text-white p-0.5 cursor-pointer rounded"
             title="Limpiar búsqueda"
           >
             <IconX class="w-3.5 h-3.5 stroke-[2]" />
@@ -134,15 +134,15 @@
       <!-- Menú Desplegable con Resultados -->
       <div
         v-if="isOpen && (filteredEmpleados.length > 0 || searchQuery.trim().length > 0)"
-        class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-2xl z-50 max-h-56 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800 custom-scrollbar"
+        class="absolute left-0 top-full mt-1.5 w-full min-w-[340px] sm:min-w-[420px] max-w-[calc(100vw-2.5rem)] bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800 custom-scrollbar"
       >
         <!-- Barra de cierre rápido -->
-        <div class="flex items-center justify-between px-3 py-1.5 bg-neutral-50 dark:bg-neutral-900 text-[10px] text-neutral-500 font-bold border-b border-neutral-100 dark:border-neutral-800">
+        <div class="flex items-center justify-between px-3 py-1.5 bg-neutral-50 dark:bg-neutral-900 text-[10px] text-neutral-500 font-bold border-b border-neutral-100 dark:border-neutral-800 sticky top-0 z-10">
           <span>Selecciona un {{ roleLabel }} para asignarlo</span>
           <button 
             type="button" 
             @click="isOpen = false" 
-            class="hover:text-neutral-800 dark:hover:text-white flex items-center gap-0.5 cursor-pointer"
+            class="hover:text-neutral-800 dark:hover:text-white flex items-center gap-0.5 cursor-pointer px-1 py-0.5 rounded hover:bg-neutral-200/50 dark:hover:bg-neutral-800"
           >
             <span>Cerrar</span>
             <IconX class="w-3 h-3" />
@@ -156,32 +156,32 @@
           class="p-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 cursor-pointer transition-colors flex items-center justify-between gap-3 text-left"
           :class="isEmpleadoSelected(emp) ? 'bg-primary/5 dark:bg-primary/10' : ''"
         >
-          <div class="flex items-center gap-2.5 min-w-0">
-            <div class="w-7 h-7 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-white/10 flex items-center justify-center text-[10px] font-black text-neutral-700 dark:text-neutral-300 shrink-0">
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="w-8 h-8 rounded-full bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-white/10 flex items-center justify-center text-[10px] font-black text-neutral-700 dark:text-neutral-300 shrink-0 shadow-xs">
               {{ getInitials(emp.nombre || emp.name) }}
             </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <span class="font-bold text-xs text-neutral-900 dark:text-white truncate">
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-xs text-neutral-900 dark:text-white">
                   {{ emp.nombre || emp.name }}
                 </span>
-                <span v-if="emp.documento" class="text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.2 rounded shrink-0">
+                <span v-if="emp.documento" class="text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-neutral-800 px-1.5 py-0.5 rounded shrink-0">
                   CC {{ emp.documento }}
                 </span>
               </div>
-              <div class="flex items-center gap-2 text-[10px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
+              <div class="flex items-center gap-1.5 text-[10px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
                 <span class="truncate font-medium">{{ emp.cargo || (roleLabel === 'coordinador' ? 'Coordinador' : 'Técnico Operativo') }}</span>
-                <span v-if="emp.username">• @{{ emp.username }}</span>
+                <span v-if="emp.username" class="shrink-0">• @{{ emp.username }}</span>
               </div>
             </div>
           </div>
 
-          <div class="shrink-0 flex items-center">
-            <span v-if="isEmpleadoSelected(emp)" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+          <div class="shrink-0 flex items-center pl-1">
+            <span v-if="isEmpleadoSelected(emp)" class="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-1 rounded-lg">
               <IconCheck class="w-4 h-4 stroke-[2.5]" />
-              <span class="text-[10px] hidden xs:inline">Asignado</span>
+              <span class="text-[10px]">Asignado</span>
             </span>
-            <span v-else class="text-[10px] font-semibold text-neutral-400 group-hover:text-primary flex items-center gap-1">
+            <span v-else class="text-[10px] font-semibold text-neutral-500 hover:text-primary flex items-center gap-1 bg-neutral-100/80 dark:bg-neutral-800/80 hover:bg-primary/10 px-2.5 py-1 rounded-lg transition-colors">
               <IconPlus class="w-3.5 h-3.5" />
               <span>Seleccionar</span>
             </span>
@@ -204,7 +204,7 @@
       <!-- Estado cuando no hay resultados de búsqueda -->
       <div
         v-else-if="isOpen && searchQuery.trim().length > 0 && filteredEmpleados.length === 0"
-        class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 p-4 text-center space-y-2"
+        class="absolute left-0 top-full mt-1.5 w-full min-w-[340px] sm:min-w-[420px] max-w-[calc(100vw-2.5rem)] bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 p-4 text-center space-y-2"
       >
         <p class="text-xs font-bold text-neutral-700 dark:text-neutral-300">
           No se encontraron registros coincidentes
@@ -428,10 +428,19 @@ onUnmounted(() => {
   document.removeEventListener('mousedown', handleClickOutside);
 });
 
+const hasBeenFocused = ref(false);
+
+const handleFocus = () => {
+  isOpen.value = true;
+  hasBeenFocused.value = true;
+};
+
 const handleClickOutside = (e) => {
   if (containerRef.value && !containerRef.value.contains(e.target)) {
     isOpen.value = false;
-    touched.value = true;
+    if (hasBeenFocused.value) {
+      touched.value = true;
+    }
   }
 };
 
