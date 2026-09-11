@@ -383,6 +383,39 @@ class OtService:
         db.refresh(ot)
         return self.serialize_ot(ot)
 
+    def update_formulario(self, db: Session, ot_id: int, payload: dict, current_user: User) -> dict:
+        ot = db.query(Ot).filter(Ot.id == ot_id).first()
+        if not ot:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Orden de Trabajo no encontrada."
+            )
+
+        if current_user.role == "operativo":
+            user_cuadrilla_id = current_user.empleado.cuadrilla_id if current_user.empleado else None
+            if ot.user_id != current_user.id and ot.cuadrilla_id != user_cuadrilla_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="No tiene autorización para modificar esta Orden de Trabajo."
+                )
+
+        form_data = payload.get("datos_formulario", payload)
+        if isinstance(form_data, dict):
+            curr_form = {}
+            if ot.datos_formulario:
+                try:
+                    curr_form = json.loads(ot.datos_formulario)
+                except Exception:
+                    curr_form = {}
+            curr_form.update(form_data)
+            ot.datos_formulario = json.dumps(curr_form, ensure_ascii=False)
+        elif isinstance(form_data, str):
+            ot.datos_formulario = form_data
+
+        db.commit()
+        db.refresh(ot)
+        return self.serialize_ot(ot)
+
     def upload_evidencia(self, db: Session, ot_id: int, payload: EvidenciaCreate, current_user: User) -> dict:
         ot = db.query(Ot).filter(Ot.id == ot_id).first()
         if not ot:

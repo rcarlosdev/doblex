@@ -1436,7 +1436,7 @@ const guardarFormularioTecnico = async () => {
   if (!ot.value?.id) return;
   guardandoFormulario.value = true;
   try {
-    const res = await client.put(`/ots/${ot.value.id}`, {
+    const res = await client.put(`/ots/${ot.value.id}/formulario`, {
       datos_formulario: otFormularioData.value
     });
     if (res.data.status === 'success') {

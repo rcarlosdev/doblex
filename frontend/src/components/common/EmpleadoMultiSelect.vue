@@ -6,19 +6,60 @@
         <span>{{ label }}</span>
         <span v-if="required" class="text-rose-500 font-black">*</span>
       </label>
-      <span class="text-[10px] font-mono font-bold" :class="selectedEmpleados.length > 0 ? 'text-primary' : 'text-neutral-400'">
-        {{ selectedEmpleados.length }} {{ selectedEmpleados.length === 1 ? 'técnico asignado' : 'técnicos asignados' }}
+      <span class="text-[10px] font-mono font-bold" :class="selectedEmpleados.length > 0 ? (multiple ? 'text-primary' : 'text-emerald-600 dark:text-emerald-400') : 'text-neutral-400'">
+        <template v-if="multiple">
+          {{ selectedEmpleados.length }} {{ selectedEmpleados.length === 1 ? roleLabel + ' asignado' : roleLabel + 's asignados' }}
+        </template>
+        <template v-else>
+          {{ selectedEmpleados.length === 1 ? '1 ' + roleLabel + ' asignado' : 'Sin ' + roleLabel + ' asignado' }}
+        </template>
       </span>
     </div>
 
-    <!-- Chips / Tarjetas de Empleados Seleccionados (Sin marcar a nadie como líder) -->
-    <div v-if="selectedEmpleados.length > 0" class="flex flex-wrap gap-1.5 p-2 bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-white/10 rounded-xl">
+    <!-- MODO SINGLE: Tarjeta del Empleado Seleccionado (Coordinador) -->
+    <div 
+      v-if="!multiple && selectedEmpleados.length > 0" 
+      class="flex items-center justify-between p-2.5 bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-white/10 rounded-xl shadow-xs"
+    >
+      <div class="flex items-center gap-2.5 min-w-0">
+        <div class="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black shrink-0 bg-primary/10 text-primary border border-primary/20">
+          {{ getInitials(selectedEmpleados[0].nombre || selectedEmpleados[0].name) }}
+        </div>
+        <div class="flex flex-col min-w-0">
+          <div class="flex items-center gap-2">
+            <span class="font-bold text-xs text-neutral-900 dark:text-white truncate">
+              {{ selectedEmpleados[0].nombre || selectedEmpleados[0].name }}
+            </span>
+            <span v-if="selectedEmpleados[0].documento" class="text-[10px] font-mono font-bold text-neutral-600 dark:text-neutral-300 bg-neutral-200/60 dark:bg-neutral-800 px-1.5 py-0.2 rounded shrink-0">
+              CC {{ selectedEmpleados[0].documento }}
+            </span>
+          </div>
+          <span class="text-[10px] text-neutral-500 dark:text-neutral-400 truncate">
+            {{ selectedEmpleados[0].cargo || (roleLabel === 'coordinador' ? 'Coordinador' : 'Empleado') }}
+          </span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-1 shrink-0">
+        <button
+          v-if="!disabled"
+          type="button"
+          @click.stop="removeEmpleado(0)"
+          class="p-1 rounded-md hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/60 dark:hover:text-rose-400 text-neutral-400 transition-colors cursor-pointer"
+          :title="'Quitar ' + roleLabel"
+        >
+          <IconX class="w-4 h-4 stroke-[2]" />
+        </button>
+      </div>
+    </div>
+
+    <!-- MODO MULTIPLE: Chips de Empleados Seleccionados (Operadores) -->
+    <div v-if="multiple && selectedEmpleados.length > 0" class="flex flex-wrap gap-1.5 p-2 bg-neutral-50 dark:bg-neutral-900/60 border border-neutral-200 dark:border-white/10 rounded-xl">
       <div
         v-for="(emp, idx) in selectedEmpleados"
         :key="emp.id || emp.user_id || idx"
         class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs shadow-xs transition-all animate-in fade-in bg-white dark:bg-[#18181b] border-neutral-200 dark:border-white/10 text-neutral-800 dark:text-neutral-200 hover:border-neutral-300 dark:hover:border-white/20"
       >
-        <!-- Icono de usuario / avatar iniciales neutral -->
         <div 
           class="w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black shrink-0 bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
         >
@@ -38,21 +79,20 @@
           </div>
         </div>
 
-        <!-- Botón para remover empleado -->
         <button
           v-if="!disabled"
           type="button"
           @click.stop="removeEmpleado(idx)"
           class="p-1 rounded-md hover:bg-rose-100 hover:text-rose-600 dark:hover:bg-rose-950/60 dark:hover:text-rose-400 text-neutral-400 transition-colors ml-1 cursor-pointer"
-          title="Quitar técnico"
+          :title="'Quitar ' + roleLabel"
         >
           <IconX class="w-3.5 h-3.5 stroke-[2.5]" />
         </button>
       </div>
     </div>
 
-    <!-- Input de Búsqueda y Dropdown -->
-    <div class="relative" v-if="!disabled">
+    <!-- Input de Búsqueda y Dropdown (Visible si es multiple o si no se ha elegido aún el único) -->
+    <div class="relative" v-if="!disabled && (multiple || selectedEmpleados.length === 0)">
       <div class="relative flex items-center">
         <IconSearch class="w-4 h-4 text-neutral-400 absolute left-3 pointer-events-none stroke-[2]" />
         <input
@@ -62,7 +102,7 @@
           @focus="isOpen = true"
           @input="isOpen = true"
           @keydown.esc="isOpen = false"
-          :placeholder="selectedEmpleados.length === 0 ? 'Buscar técnico por cédula, nombre o cargo...' : '+ Agregar otro técnico (cédula, nombre, cargo)...'"
+          :placeholder="inputPlaceholder"
           class="flex h-9 w-full rounded-md border bg-white dark:bg-neutral-950 pl-9 pr-16 py-1 text-xs text-neutral-800 dark:text-neutral-200 placeholder:text-neutral-400 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
           :class="{
             'border-rose-300 dark:border-rose-700': required && selectedEmpleados.length === 0 && touched,
@@ -93,12 +133,12 @@
 
       <!-- Menú Desplegable con Resultados -->
       <div
-        v-if="isOpen && filteredEmpleados.length > 0"
-        class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-2xl z-50 max-h-56 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800"
+        v-if="isOpen && (filteredEmpleados.length > 0 || searchQuery.trim().length > 0)"
+        class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-2xl z-50 max-h-56 overflow-y-auto divide-y divide-neutral-100 dark:divide-neutral-800 custom-scrollbar"
       >
         <!-- Barra de cierre rápido -->
         <div class="flex items-center justify-between px-3 py-1.5 bg-neutral-50 dark:bg-neutral-900 text-[10px] text-neutral-500 font-bold border-b border-neutral-100 dark:border-neutral-800">
-          <span>Selecciona un técnico para agregarlo</span>
+          <span>Selecciona un {{ roleLabel }} para asignarlo</span>
           <button 
             type="button" 
             @click="isOpen = false" 
@@ -111,7 +151,7 @@
 
         <div
           v-for="emp in filteredEmpleados"
-          :key="emp.id"
+          :key="emp.id || emp.user_id"
           @click="selectEmpleado(emp)"
           class="p-2.5 hover:bg-neutral-50 dark:hover:bg-neutral-800/80 cursor-pointer transition-colors flex items-center justify-between gap-3 text-left"
           :class="isEmpleadoSelected(emp) ? 'bg-primary/5 dark:bg-primary/10' : ''"
@@ -130,7 +170,7 @@
                 </span>
               </div>
               <div class="flex items-center gap-2 text-[10px] text-neutral-500 dark:text-neutral-400 truncate mt-0.5">
-                <span class="truncate font-medium">{{ emp.cargo || 'Técnico Operativo' }}</span>
+                <span class="truncate font-medium">{{ emp.cargo || (roleLabel === 'coordinador' ? 'Coordinador' : 'Técnico Operativo') }}</span>
                 <span v-if="emp.username">• @{{ emp.username }}</span>
               </div>
             </div>
@@ -143,29 +183,41 @@
             </span>
             <span v-else class="text-[10px] font-semibold text-neutral-400 group-hover:text-primary flex items-center gap-1">
               <IconPlus class="w-3.5 h-3.5" />
-              <span>Agregar</span>
+              <span>Seleccionar</span>
             </span>
           </div>
+        </div>
+
+        <!-- Opción de texto libre si no está en la base de datos -->
+        <div
+          v-if="searchQuery.trim().length > 0"
+          @click="selectCustomText(searchQuery.trim())"
+          class="p-2.5 bg-neutral-50/70 dark:bg-neutral-900/70 hover:bg-primary/10 cursor-pointer text-left text-xs flex items-center justify-between border-t border-neutral-100 dark:border-neutral-800 transition-colors"
+        >
+          <span class="text-neutral-700 dark:text-neutral-300 text-[11px]">
+            Asignar nombre personalizado: <strong>"{{ searchQuery.trim() }}"</strong>
+          </span>
+          <span class="text-[10px] text-primary font-bold shrink-0">Asignar</span>
         </div>
       </div>
 
       <!-- Estado cuando no hay resultados de búsqueda -->
       <div
         v-else-if="isOpen && searchQuery.trim().length > 0 && filteredEmpleados.length === 0"
-        class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 p-4 text-center space-y-1"
+        class="absolute left-0 right-0 top-full mt-1.5 bg-white dark:bg-[#18181b] border border-neutral-200 dark:border-neutral-700 rounded-xl shadow-xl z-50 p-4 text-center space-y-2"
       >
         <p class="text-xs font-bold text-neutral-700 dark:text-neutral-300">
-          No se encontraron técnicos coincidentes
+          No se encontraron registros coincidentes
         </p>
         <p class="text-[10px] text-neutral-400">
           No hay registros con cédula, nombre o cargo "{{ searchQuery }}"
         </p>
-        <button 
-          type="button" 
-          @click="isOpen = false" 
-          class="mt-2 text-xs font-bold text-primary hover:underline cursor-pointer"
+        <button
+          type="button"
+          @click="selectCustomText(searchQuery.trim())"
+          class="text-xs font-bold text-primary hover:underline cursor-pointer block mx-auto"
         >
-          Cerrar lista
+          Usar "{{ searchQuery }}" como {{ roleLabel }}
         </button>
       </div>
     </div>
@@ -173,7 +225,7 @@
     <!-- Mensaje de Validación Si es Requerido y no hay ninguno -->
     <p v-if="required && selectedEmpleados.length === 0 && touched" class="text-[10px] font-bold text-rose-500 flex items-center gap-1">
       <IconAlertCircle class="w-3 h-3 stroke-[2.5]" />
-      <span>Debe asignar al menos un técnico responsable a la orden de trabajo.</span>
+      <span>Debe asignar un {{ roleLabel }} responsable a la orden de trabajo.</span>
     </p>
   </div>
 </template>
@@ -184,14 +236,26 @@ import client from '@/api/client';
 import { IconSearch, IconX, IconPlus, IconCheck, IconAlertCircle } from '@tabler/icons-vue';
 
 const props = defineProps({
-  // Puede recibir array de IDs o array de objetos completos
+  // Puede recibir array de IDs/objetos, o un string con el nombre (para single select)
   modelValue: {
-    type: Array,
+    type: [Array, String, Object, Number],
     default: () => []
   },
   label: {
     type: String,
-    default: 'Operador(es) Asignado(s) *'
+    default: 'Técnico'
+  },
+  roleLabel: {
+    type: String,
+    default: 'técnico'
+  },
+  placeholder: {
+    type: String,
+    default: ''
+  },
+  multiple: {
+    type: Boolean,
+    default: true
   },
   required: {
     type: Boolean,
@@ -215,11 +279,20 @@ const loading = ref(false);
 
 const selectedEmpleados = ref([]);
 
+const inputPlaceholder = computed(() => {
+  if (props.placeholder) return props.placeholder;
+  if (props.multiple) {
+    return selectedEmpleados.value.length === 0
+      ? `Buscar ${props.roleLabel} por cédula, nombre o cargo...`
+      : `+ Agregar otro ${props.roleLabel} (cédula, nombre, cargo)...`;
+  }
+  return `Buscar ${props.roleLabel} por cédula, nombre o cargo...`;
+});
+
 // Cargar catálogo de empleados
 const fetchEmpleados = async () => {
   loading.value = true;
   try {
-    // Intentar cargar desde /api/empleados
     const res = await client.get('/empleados');
     if (res.data?.status === 'success' && Array.isArray(res.data?.data)) {
       empleados.value = res.data.data.map(e => ({
@@ -234,7 +307,6 @@ const fetchEmpleados = async () => {
         telefono: e.telefono || ''
       }));
     } else {
-      // Fallback a /ots/operadores
       const fallback = await client.get('/ots/operadores');
       if (fallback.data?.status === 'success' && Array.isArray(fallback.data?.data)) {
         empleados.value = fallback.data.data.map(o => ({
@@ -276,12 +348,56 @@ const fetchEmpleados = async () => {
 
 // Sincronizar selección inicial
 const syncFromModelValue = () => {
+  if (!props.multiple) {
+    if (!props.modelValue && props.modelValue !== 0) {
+      selectedEmpleados.value = [];
+      return;
+    }
+    if (typeof props.modelValue === 'string') {
+      const valStr = props.modelValue.trim();
+      if (!valStr) {
+        selectedEmpleados.value = [];
+        return;
+      }
+      const query = normalizeText(valStr);
+      const found = empleados.value.find(e => {
+        const nom = normalizeText(e.nombre || e.name);
+        return nom === query || nom.includes(query) || query.includes(nom);
+      });
+      if (found) {
+        selectedEmpleados.value = [{ ...found }];
+      } else {
+        selectedEmpleados.value = [{
+          id: 'custom',
+          nombre: valStr,
+          name: valStr,
+          cargo: props.roleLabel === 'coordinador' ? 'Coordinador' : 'Personal',
+          documento: ''
+        }];
+      }
+      return;
+    }
+    if (typeof props.modelValue === 'number') {
+      const found = empleados.value.find(e => e.id === props.modelValue || e.user_id === props.modelValue);
+      if (found) selectedEmpleados.value = [{ ...found }];
+      return;
+    }
+    if (typeof props.modelValue === 'object') {
+      if (Array.isArray(props.modelValue)) {
+        selectedEmpleados.value = props.modelValue.slice(0, 1);
+      } else {
+        selectedEmpleados.value = [{ ...props.modelValue }];
+      }
+      return;
+    }
+  }
+
+  // Modo Multiple
   if (!props.modelValue || !Array.isArray(props.modelValue)) {
     selectedEmpleados.value = [];
     return;
   }
 
-  // Si modelValue contiene números/IDs
   if (props.modelValue.length > 0 && typeof props.modelValue[0] === 'number') {
     const list = [];
     for (const val of props.modelValue) {
@@ -291,7 +407,6 @@ const syncFromModelValue = () => {
     }
     selectedEmpleados.value = list;
   } else if (props.modelValue.length > 0 && typeof props.modelValue[0] === 'object') {
-    // Si ya son objetos
     selectedEmpleados.value = [...props.modelValue];
   } else {
     selectedEmpleados.value = [];
@@ -334,7 +449,6 @@ const normalizeText = (text) => {
 const filteredEmpleados = computed(() => {
   const q = normalizeText(searchQuery.value.trim());
   if (!q) {
-    // Si no hay búsqueda, mostrar los primeros 8 empleados disponibles
     return empleados.value.slice(0, 8);
   }
 
@@ -358,8 +472,15 @@ const isEmpleadoSelected = (emp) => {
 
 const selectEmpleado = (emp) => {
   touched.value = true;
+  if (!props.multiple) {
+    selectedEmpleados.value = [{ ...emp }];
+    searchQuery.value = '';
+    isOpen.value = false;
+    emitChanges();
+    return;
+  }
+
   if (isEmpleadoSelected(emp)) {
-    // Si ya está, removerlo (toggle)
     const idx = selectedEmpleados.value.findIndex(s => s.id === emp.id || (s.user_id && s.user_id === emp.user_id));
     if (idx >= 0) removeEmpleado(idx);
     isOpen.value = false;
@@ -368,7 +489,27 @@ const selectEmpleado = (emp) => {
 
   selectedEmpleados.value.push({ ...emp });
   searchQuery.value = '';
-  isOpen.value = false; // Cierra el menú inmediatamente al agregar el técnico
+  isOpen.value = false;
+  emitChanges();
+};
+
+const selectCustomText = (text) => {
+  if (!text) return;
+  touched.value = true;
+  const customEmp = {
+    id: 'custom-' + Date.now(),
+    nombre: text,
+    name: text,
+    cargo: props.roleLabel === 'coordinador' ? 'Coordinador' : 'Personal',
+    documento: ''
+  };
+  if (!props.multiple) {
+    selectedEmpleados.value = [customEmp];
+  } else {
+    selectedEmpleados.value.push(customEmp);
+  }
+  searchQuery.value = '';
+  isOpen.value = false;
   emitChanges();
 };
 
@@ -378,10 +519,18 @@ const removeEmpleado = (index) => {
 };
 
 const emitChanges = () => {
-  emit('update:modelValue', [...selectedEmpleados.value]);
-  emit('change', [...selectedEmpleados.value]);
-  const primary = selectedEmpleados.value[0] || null;
-  emit('leader-change', primary);
+  if (!props.multiple) {
+    const selected = selectedEmpleados.value[0] || null;
+    const val = selected ? (selected.nombre || selected.name || '') : '';
+    emit('update:modelValue', val);
+    emit('change', selected);
+    emit('leader-change', selected);
+  } else {
+    emit('update:modelValue', [...selectedEmpleados.value]);
+    emit('change', [...selectedEmpleados.value]);
+    const primary = selectedEmpleados.value[0] || null;
+    emit('leader-change', primary);
+  }
 };
 
 const getInitials = (name) => {

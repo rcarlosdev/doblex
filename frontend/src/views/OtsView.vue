@@ -161,6 +161,51 @@ const syncOtModel = (model) => {
   }
 };
 
+// Manejo de Tipo de Actividad (Correctivo, Preventivo, Emergencia) y Planta/Aire
+const newOtTipoPrincipal = ref('correctivo');
+const newOtSubtipoPreventivo = ref('planta');
+const editingOtTipoPrincipal = ref('correctivo');
+const editingOtSubtipoPreventivo = ref('planta');
+
+const openCreateOtModal = () => {
+  newOtTipoPrincipal.value = 'correctivo';
+  newOtSubtipoPreventivo.value = 'planta';
+  newOt.value.tipo_actividad = 'correctivo';
+  openCreateModal.value = true;
+};
+
+const onNewOtTipoPrincipalChange = () => {
+  if (newOtTipoPrincipal.value === 'preventivo') {
+    newOt.value.tipo_actividad = newOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+  } else {
+    newOt.value.tipo_actividad = newOtTipoPrincipal.value;
+  }
+  onTipoActividadChange('create');
+};
+
+const onNewOtSubtipoChange = () => {
+  if (newOtTipoPrincipal.value === 'preventivo') {
+    newOt.value.tipo_actividad = newOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+    onTipoActividadChange('create');
+  }
+};
+
+const onEditingOtTipoPrincipalChange = () => {
+  if (editingOtTipoPrincipal.value === 'preventivo') {
+    editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+  } else {
+    editingOt.value.tipo_actividad = editingOtTipoPrincipal.value;
+  }
+  onTipoActividadChange('edit');
+};
+
+const onEditingOtSubtipoChange = () => {
+  if (editingOtTipoPrincipal.value === 'preventivo') {
+    editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+    onTipoActividadChange('edit');
+  }
+};
+
 const onTipoActividadChange = (target = 'create') => {
   const model = target === 'create' ? newOt.value : editingOt.value;
   syncOtModel(model);
@@ -239,6 +284,22 @@ const openEditOt = (ot) => {
     editingOtOperadores.value = [];
   }
 
+  // Parsear Tipo de Actividad y Subtipo (Planta/Aire)
+  const tAct = ot.tipo_actividad || ot.tipo_mantenimiento || 'correctivo';
+  if (tAct === 'preventivo_aire' || (tAct === 'preventivo' && (ot.subsistema || '').toLowerCase().includes('aire'))) {
+    editingOtTipoPrincipal.value = 'preventivo';
+    editingOtSubtipoPreventivo.value = 'aire';
+  } else if (tAct === 'preventivo_planta' || tAct === 'preventivo') {
+    editingOtTipoPrincipal.value = 'preventivo';
+    editingOtSubtipoPreventivo.value = 'planta';
+  } else if (tAct === 'emergencia') {
+    editingOtTipoPrincipal.value = 'emergencia';
+    editingOtSubtipoPreventivo.value = 'planta';
+  } else {
+    editingOtTipoPrincipal.value = 'correctivo';
+    editingOtSubtipoPreventivo.value = 'planta';
+  }
+
   editingOt.value = {
     id: ot.id,
     codigo: ot.codigo,
@@ -268,7 +329,7 @@ const openEditOt = (ot) => {
 const updateOt = async () => {
   errorMsg.value = '';
   if (editingOtOperadores.value.length === 0) {
-    errorMsg.value = 'Debes asignar al menos un operador responsable.';
+    errorMsg.value = 'Debes asignar al menos un técnico responsable.';
     return;
   }
   try {
@@ -381,7 +442,7 @@ const filteredOts = computed(() => {
 const createOt = async () => {
   errorMsg.value = '';
   if (newOtOperadores.value.length === 0) {
-    errorMsg.value = 'Debes asignar al menos un operador responsable a la Orden de Trabajo.';
+    errorMsg.value = 'Debes asignar al menos un técnico responsable a la Orden de Trabajo.';
     return;
   }
   try {
@@ -403,6 +464,8 @@ const createOt = async () => {
       await loadOts();
       openCreateModal.value = false;
       newOtOperadores.value = [];
+      newOtTipoPrincipal.value = 'correctivo';
+      newOtSubtipoPreventivo.value = 'planta';
       
       // Limpiar formulario con nuevo ID de actividad generado
       newOt.value = {
@@ -488,7 +551,7 @@ const getStatusLabel = (status) => {
       </div>
       <Button 
         v-if="userRole === 'admin' || userRole === 'administrativo'"
-        @click="openCreateModal = true" 
+        @click="openCreateOtModal" 
         class="bg-primary text-primary-foreground hover:bg-primary/95 flex items-center gap-2 font-semibold w-full sm:w-auto justify-center"
       >
         <IconPlus class="w-4 h-4 stroke-[2]" /> Nueva OT
@@ -507,7 +570,7 @@ const getStatusLabel = (status) => {
         <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
           <Input 
             type="text" 
-            placeholder="Buscar por código, descripción u operador..." 
+            placeholder="Buscar por código, descripción o técnico..." 
             v-model="searchQuery" 
             class="w-full lg:w-72 bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-800 dark:text-white text-xs placeholder:text-neutral-450 focus-visible:ring-primary focus-visible:border-primary"
           />
@@ -540,7 +603,7 @@ const getStatusLabel = (status) => {
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase pl-4">Código / ID Actividad</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Sitio & Estación</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Tipo & Clasificación</TableHead>
-                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Coordinador & Operador</TableHead>
+                <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Coordinador & Técnico</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase">Ubicación / Dpto</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase w-[120px]">Progreso</TableHead>
                 <TableHead class="text-neutral-500 dark:text-neutral-500 font-semibold text-xs tracking-wider uppercase text-center">Estado</TableHead>
@@ -605,7 +668,7 @@ const getStatusLabel = (status) => {
                     <span class="text-neutral-500 text-[10px]">Coord: <strong class="text-neutral-800 dark:text-neutral-200 font-semibold">{{ ot.coordinador || 'Sin asignar' }}</strong></span>
                     <div class="flex items-center gap-1.5 flex-wrap">
                       <span class="font-medium text-neutral-900 dark:text-white">
-                        Op: {{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}
+                        Téc: {{ ot.assigned_user ? ot.assigned_user.name : 'No Asignado' }}
                       </span>
                       <span 
                         v-if="ot.operadores_asignados && ot.operadores_asignados.length > 1" 
@@ -685,25 +748,26 @@ const getStatusLabel = (status) => {
 
     <!-- Modal 1: Registrar Nueva OT (Administrador/Administrativo) -->
     <Dialog :open="openCreateModal" @close="openCreateModal = false">
-      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 mb-4">
-        <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h3 class="text-base font-bold text-neutral-900 dark:text-white">Crear Nueva Orden de Trabajo</h3>
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="ID de Actividad Independiente - Control Interno">
+      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 mb-3 shrink-0">
+        <div class="min-w-0 pr-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-sm sm:text-base font-bold text-neutral-900 dark:text-white">Crear Nueva Orden de Trabajo</h3>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="ID de Actividad Independiente - Control Interno">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
               {{ newOt.id_actividad }}
             </span>
           </div>
-          <p class="text-[11px] text-neutral-500 mt-0.5">Completa los campos técnicos para la asignación y diligenciamiento en campo</p>
+          <p class="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5 truncate">Completa los campos técnicos para la asignación y diligenciamiento en campo</p>
         </div>
-        <button @click="openCreateModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
+        <button @click="openCreateModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors shrink-0">
           <IconX class="w-5 h-5 stroke-[2]" />
         </button>
       </div>
 
-      <form @submit.prevent="createOt" class="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
-        <!-- Fila 1: Código OT & Tipo Actividad -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <form @submit.prevent="createOt" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div class="space-y-3 sm:space-y-3.5 overflow-y-auto pr-1 sm:pr-2 flex-1 custom-scrollbar">
+          <!-- Fila 1: Código OT & Tipo Actividad -->
+        <div class="grid grid-cols-1 gap-3" :class="newOtTipoPrincipal === 'preventivo' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="newOt.codigo" required placeholder="WO0000005558781 o OT5304019" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
@@ -711,15 +775,26 @@ const getStatusLabel = (status) => {
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad *</label>
             <select 
-              v-model="newOt.tipo_actividad" 
-              @change="onTipoActividadChange('create')"
+              v-model="newOtTipoPrincipal" 
+              @change="onNewOtTipoPrincipalChange"
               required
               class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
             >
-              <option value="correctivo">Correctivo (Formato WO)</option>
-              <option value="emergencia">Emergencia (Formato WO)</option>
-              <option value="preventivo_planta">Preventivo - PLANTA (Formato MP)</option>
-              <option value="preventivo_aire">Preventivo - AIRE (Formato MP)</option>
+              <option value="correctivo">Correctivo</option>
+              <option value="preventivo">Preventivo</option>
+              <option value="emergencia">Emergencia</option>
+            </select>
+          </div>
+          <div v-if="newOtTipoPrincipal === 'preventivo'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+            <label class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Planta o Aire *</label>
+            <select 
+              v-model="newOtSubtipoPreventivo" 
+              @change="onNewOtSubtipoChange"
+              required
+              class="flex h-9 w-full rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-semibold"
+            >
+              <option value="planta">Planta</option>
+              <option value="aire">Aire</option>
             </select>
           </div>
         </div>
@@ -783,11 +858,17 @@ const getStatusLabel = (status) => {
           </div>
         </div>
 
-        <!-- Fila 3: Coordinador & Fecha Inicio (Solo Fecha) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Coordinador *</label>
-            <Input type="text" v-model="newOt.coordinador" required placeholder="Ej: Ing. Mauricio Quintero" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+        <!-- Fila 3: Coordinador & Fecha Inicio -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <EmpleadoMultiSelect
+              v-model="newOt.coordinador"
+              :multiple="false"
+              label="Coordinador"
+              role-label="coordinador"
+              placeholder="Buscar coordinador por cédula, nombre o cargo..."
+              :required="true"
+            />
           </div>
 
           <div class="space-y-1.5">
@@ -816,11 +897,11 @@ const getStatusLabel = (status) => {
           </div>
         </div>
 
-        <!-- Fila 4: Operador por persona (Multi-técnico) -->
+        <!-- Fila 4: Técnico (Multi-técnico) -->
         <div>
           <EmpleadoMultiSelect
             v-model="newOtOperadores"
-            label="Operador (por persona)"
+            label="Técnico"
             :required="true"
           />
         </div>
@@ -894,12 +975,14 @@ const getStatusLabel = (status) => {
           <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
           <Input type="text" v-model="newOt.descripcion" required placeholder="Ej: Reparación de tarjeta AVR y bobinado Selmec 40SC" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
+        </div>
 
-        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-900 pt-4 mt-5">
-          <Button type="button" variant="outline" @click="openCreateModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto">
+        <!-- Botones de Acción (Fijo al pie del modal) -->
+        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-3 mt-2 shrink-0">
+          <Button type="button" variant="outline" @click="openCreateModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto h-9 text-xs">
             Cancelar
           </Button>
-          <Button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/95 font-semibold w-full sm:w-auto">
+          <Button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/95 font-semibold w-full sm:w-auto h-9 text-xs">
             Registrar OT
           </Button>
         </div>
@@ -908,25 +991,26 @@ const getStatusLabel = (status) => {
 
     <!-- Modal de Editar OT (Administrador/Administrativo) -->
     <Dialog :open="openEditModal" @close="openEditModal = false">
-      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 mb-4">
-        <div>
-          <div class="flex items-center gap-2.5 flex-wrap">
-            <h3 class="text-base font-bold text-neutral-900 dark:text-white">Editar Orden de Trabajo</h3>
-            <span v-if="editingOt.id_actividad" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="ID de Actividad Independiente - Control Interno">
+      <div class="flex items-center justify-between border-b border-neutral-200 dark:border-neutral-800 pb-3 mb-3 shrink-0">
+        <div class="min-w-0 pr-2">
+          <div class="flex items-center gap-2 flex-wrap">
+            <h3 class="text-sm sm:text-base font-bold text-neutral-900 dark:text-white">Editar Orden de Trabajo</h3>
+            <span v-if="editingOt.id_actividad" class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-mono font-bold bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20" title="ID de Actividad Independiente - Control Interno">
               <span class="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></span>
               {{ editingOt.id_actividad }}
             </span>
           </div>
-          <p class="text-[11px] text-neutral-500 mt-0.5">Actualiza los datos técnicos y asignación de la OT {{ editingOt.codigo }}</p>
+          <p class="text-[10px] sm:text-[11px] text-neutral-500 mt-0.5 truncate">Actualiza los datos técnicos y asignación de la OT {{ editingOt.codigo }}</p>
         </div>
-        <button @click="openEditModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors">
+        <button @click="openEditModal = false" class="text-neutral-500 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white p-1.5 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/5 transition-colors shrink-0">
           <IconX class="w-5 h-5 stroke-[2]" />
         </button>
       </div>
 
-      <form @submit.prevent="updateOt" class="space-y-3.5 max-h-[75vh] overflow-y-auto pr-1">
-        <!-- Fila 1: Código OT & Tipo Actividad -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <form @submit.prevent="updateOt" class="flex flex-col flex-1 min-h-0 overflow-hidden">
+        <div class="space-y-3 sm:space-y-3.5 overflow-y-auto pr-1 sm:pr-2 flex-1 custom-scrollbar">
+          <!-- Fila 1: Código OT & Tipo Actividad -->
+        <div class="grid grid-cols-1 gap-3" :class="editingOtTipoPrincipal === 'preventivo' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
@@ -934,15 +1018,26 @@ const getStatusLabel = (status) => {
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad *</label>
             <select 
-              v-model="editingOt.tipo_actividad" 
-              @change="onTipoActividadChange('edit')"
+              v-model="editingOtTipoPrincipal" 
+              @change="onEditingOtTipoPrincipalChange"
               required
               class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
             >
-              <option value="correctivo">Correctivo (Formato WO)</option>
-              <option value="emergencia">Emergencia (Formato WO)</option>
-              <option value="preventivo_planta">Preventivo - PLANTA (Formato MP)</option>
-              <option value="preventivo_aire">Preventivo - AIRE (Formato MP)</option>
+              <option value="correctivo">Correctivo</option>
+              <option value="preventivo">Preventivo</option>
+              <option value="emergencia">Emergencia</option>
+            </select>
+          </div>
+          <div v-if="editingOtTipoPrincipal === 'preventivo'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+            <label class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Planta o Aire *</label>
+            <select 
+              v-model="editingOtSubtipoPreventivo" 
+              @change="onEditingOtSubtipoChange"
+              required
+              class="flex h-9 w-full rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-semibold"
+            >
+              <option value="planta">Planta</option>
+              <option value="aire">Aire</option>
             </select>
           </div>
         </div>
@@ -1006,11 +1101,17 @@ const getStatusLabel = (status) => {
           </div>
         </div>
 
-        <!-- Fila 3: Coordinador & Fecha Inicio (Solo Fecha) -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Coordinador *</label>
-            <Input type="text" v-model="editingOt.coordinador" required placeholder="Ej: Ing. Mauricio Quintero" class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
+        <!-- Fila 3: Coordinador & Fecha Inicio -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-start">
+          <div>
+            <EmpleadoMultiSelect
+              v-model="editingOt.coordinador"
+              :multiple="false"
+              label="Coordinador"
+              role-label="coordinador"
+              placeholder="Buscar coordinador por cédula, nombre o cargo..."
+              :required="true"
+            />
           </div>
 
           <div class="space-y-1.5">
@@ -1039,11 +1140,11 @@ const getStatusLabel = (status) => {
           </div>
         </div>
 
-        <!-- Fila 4: Operador por persona (Multi-técnico) -->
+        <!-- Fila 4: Técnico (Multi-técnico) -->
         <div>
           <EmpleadoMultiSelect
             v-model="editingOtOperadores"
-            label="Operador (por persona)"
+            label="Técnico"
             :required="true"
           />
         </div>
@@ -1133,12 +1234,14 @@ const getStatusLabel = (status) => {
           <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Descripción de la Obra / Falla *</label>
           <Input type="text" v-model="editingOt.descripcion" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary" />
         </div>
+        </div>
 
-        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-4 mt-5">
-          <Button type="button" variant="outline" @click="openEditModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto">
+        <!-- Botones de Acción (Fijo al pie del modal) -->
+        <div class="flex flex-col sm:flex-row justify-end gap-2 border-t border-neutral-200 dark:border-neutral-800 pt-3 mt-2 shrink-0">
+          <Button type="button" variant="outline" @click="openEditModal = false" class="border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-white/5 text-neutral-700 dark:text-neutral-300 w-full sm:w-auto h-9 text-xs">
             Cancelar
           </Button>
-          <Button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/95 font-semibold w-full sm:w-auto">
+          <Button type="submit" class="bg-primary text-primary-foreground hover:bg-primary/95 font-semibold w-full sm:w-auto h-9 text-xs">
             Guardar Cambios
           </Button>
         </div>

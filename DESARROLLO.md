@@ -237,3 +237,37 @@ El sistema incorpora una arquitectura de seguridad en profundidad (Defense-in-De
 * **Verificación Previa de Expiración:** Interceptor de Axios que cancela proactivamente peticiones con tokens expirados, ahorrando llamadas innecesarias al backend.
 * **Compilación Segura:** Vite configurado con esbuild para descartar sentencias `console.log` y `debugger` en builds de producción.
 
+---
+
+## 7. Estructura Oficial de OTs y Formularios de Campo (WO & MP)
+
+### 7.1. Base de Sitios y Relación con OTs
+* Se cargaron **1,819 estaciones base** oficiales desde `docs/ARCHIVO FACTURACIÓN.xlsx` en SQLite y PostgreSQL (`sitios`), incluyendo nemotécnicos, departamentos, municipios, transporte especial y supervisores operativos de Claro.
+* Las órdenes de trabajo (`ots`) se vinculan a través de `sitio_id` (ForeignKey) y almacenan `id_actividad`, `coordinador`, `tipo_actividad` (`correctivo`, `emergencia`, `preventivo_planta`, `preventivo_aire`), `tipo_estacion` y `site_owner`.
+
+### 7.2. Formato Correctivo & Emergencia (WO)
+* **Plantilla de referencia:** `docs/WO0000005558781 MC MON.CENTRO.xlsx`.
+* **Componente:** `FormularioTecnicoWO.vue` y endpoint dedicado `PUT /api/ots/{id}/formulario`.
+* **Secciones:**
+  1. *Información General & Afectación:* Tipo de sitio (Urbano/Rural), subsistema y afectación de servicio (Sí/No).
+  2. *Diagnóstico de Falla & Equipo:* Tipo de equipo en falla, marca, modelo, intervención (Reparación, Reinstalación, Cambio), descripción de falla y solución técnica ejecutada.
+  3. *Trazabilidad de Repuestos:* Datos de repuesto retirado (marca, modelo, serial) vs repuesto instalado nuevo.
+  4. *Materiales LPU:* Tabla dinámica de materiales utilizados (descripción, unidad [Galón, Metro, UND, etc.], cantidad).
+  5. *Transporte Especial:* Registro de medio (Vehículo 4x4, Lancha fluvial, Mula/Bestia, Caminata), distancia Km, tiempo y observaciones.
+  6. *Novedades en Estación:* Hallazgos que comprometen el sitio (sistema, prioridad Alta/Media/Baja, descripción, resuelto en visita).
+  7. *Cierre & Supervisión:* Falla resuelta a satisfacción (Sí/No), supervisor Claro notificado y observaciones finales de cierre.
+
+### 7.3. Formato Preventivo Planta & Aire (MP)
+* **Plantilla de referencia:** `docs/OT5304019_MP_CHO.RPT BAHIA SOLANO.xlsx`.
+* **Componente:** `FormularioTecnicoMP.vue`.
+* **Secciones (Preventivo Planta GE):**
+  1. *Ficha Técnica / Placas:* Marca, modelo, serial y horómetro de planta, motor diesel, alternador Stamford y transferencia automática ATS con capacidad Amp.
+  2. *Baterías de Arranque:* Voltaje VDC, capacidad Ah/CCA, tipo de batería y estado de bornes.
+  3. *Rutina & Prueba de Encendido:* Horómetro final, prueba 15 min con carga simulando falla de energía, estado alarmas tablero, alarma externa NOC y temporización.
+  4. *Parámetros Eléctricos en Carga:* Voltajes fase-fase (Vab, Vbc, Vca), voltajes fase-neutro (Van, Vbn, Vcn), corrientes L1/L2/L3, frecuencia Hz y % cargabilidad.
+  5. *Checklist de Mantenimiento:* Filtración (aceite, combustible, aire), cambio aceite 15W40, galones, presión de aceite PSI, temperatura °C, nivel de tanque y trampa de agua.
+* **Secciones (Preventivo Climatización AA):**
+  1. *Ficha Técnica AA:* Marca, modelo, serial, capacidad BTU, refrigerante ecológico (R410A) y corriente compresor (Amp).
+  2. *Parámetros Frigoríficos:* Presión de baja/alta PSI, temperaturas de inyección y retorno con cálculo automático de salto térmico (Delta T).
+  3. *Checklist:* Lavado evaporador/condensador, filtros de aire y drenaje despejado.
+
