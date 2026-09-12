@@ -390,6 +390,49 @@ class OtService:
         db.refresh(ot)
         return self.serialize_ot(ot)
 
+    @staticmethod
+    def _save_base64_to_disk(
+        db: Session, 
+        ot_id: int, 
+        tipo: str, 
+        base64_str: str,
+        latitud: Optional[float] = None,
+        longitud: Optional[float] = None
+    ) -> Optional[str]:
+        if not base64_str or not isinstance(base64_str, str):
+            return None
+        if base64_str.startswith("/uploads/") or base64_str.startswith("http://") or base64_str.startswith("https://"):
+            return base64_str
+        if "base64," in base64_str or len(base64_str) > 100:
+            try:
+                decoded_bytes, ext = validate_and_decode_base64_image(base64_str)
+                filename = generate_secure_filename(ext)
+                filepath = os.path.join(settings.UPLOAD_DIR, filename)
+                with open(filepath, "wb") as f:
+                    f.write(decoded_bytes)
+                url_final = f"/uploads/{filename}"
+
+                # Registrar evidencia en la base de datos si no existe con esa URL
+                existente = db.query(EvidenciaFotografica).filter(
+                    EvidenciaFotografica.ot_id == ot_id,
+                    EvidenciaFotografica.url_imagen == url_final
+                ).first()
+                if not existente:
+                    ev = EvidenciaFotografica(
+                        ot_id=ot_id,
+                        tipo=tipo,
+                        url_imagen=url_final,
+                        latitud=latitud,
+                        longitud=longitud,
+                        fecha_hora_captura=now_utc()
+                    )
+                    db.add(ev)
+                return url_final
+            except Exception as e:
+                print(f"[WARN] No se pudo guardar imagen base64 de {tipo}: {e}")
+                return base64_str
+        return base64_str
+
     def update_formulario(self, db: Session, ot_id: int, payload: dict, current_user: User) -> dict:
         ot = db.query(Ot).filter(Ot.id == ot_id).first()
         if not ot:
@@ -415,6 +458,57 @@ class OtService:
                 except Exception:
                     curr_form = {}
             curr_form.update(form_data)
+
+            # 1. Guardar a disco y registrar evidencia para llegada a sitio
+            llegada_lat = curr_form.get("llegada_lat")
+            llegada_lng = curr_form.get("llegada_lng")
+            if curr_form.get("llegada_foto"):
+                saved_url = self._save_base64_to_disk(
+                    db, ot.id, "llegada_sitio", curr_form["llegada_foto"],
+                    latitud=llegada_lat, longitud=llegada_lng
+                )
+                curr_form["llegada_foto"] = saved_url
+                curr_form["llegada_sitio"] = saved_url
+                curr_form["llegada_carnet"] = saved_url
+                curr_form["llegada_estacion"] = saved_url
+            elif curr_form.get("llegada_sitio"):
+                saved_url = self._save_base64_to_disk(
+                    db, ot.id, "llegada_sitio", curr_form["llegada_sitio"],
+                    latitud=llegada_lat, longitud=llegada_lng
+                )
+                curr_form["llegada_sitio"] = saved_url
+                curr_form["llegada_foto"] = saved_url
+
+            # 2. Guardar fotos de transportes especiales a disco
+            if isinstance(curr_form.get("transportes_especiales"), list):
+                for t in curr_form["transportes_especiales"]:
+                    if isinstance(t, dict) and t.get("foto"):
+                        t["foto"] = self._save_base64_to_disk(db, ot.id, "transporte", t["foto"])
+
+            # 3. Guardar fotos de repuestos cambiados a disco
+            if isinstance(curr_form.get("repuestos_cambios"), list):
+                for r in curr_form["repuestos_cambios"]:
+                    if isinstance(r, dict):
+                        if r.get("foto_retirado"):
+                            r["foto_retirado"] = self._save_base64_to_disk(db, ot.id, "repuesto_retirado", r["foto_retirado"])
+                        if r.get("foto_instalado"):
+                            r["foto_instalado"] = self._save_base64_to_disk(db, ot.id, "repuesto_instalado", r["foto_instalado"])
+
+            # 4. Guardar fotos de insumos menores (antes y después) a disco
+            if isinstance(curr_form.get("insumos_menores"), list):
+                for ins in curr_form["insumos_menores"]:
+                    if isinstance(ins, dict):
+                        if ins.get("foto_antes"):
+                            ins["foto_antes"] = self._save_base64_to_disk(db, ot.id, "insumo_antes", ins["foto_antes"])
+                        if ins.get("foto_despues"):
+                            ins["foto_despues"] = self._save_base64_to_disk(db, ot.id, "insumo_despues", ins["foto_despues"])
+
+            # 5. Guardar fotos de novedades y hallazgos a disco
+            if isinstance(curr_form.get("hallazgos"), list):
+                for h in curr_form["hallazgos"]:
+                    if isinstance(h, dict) and h.get("foto"):
+                        h["foto"] = self._save_base64_to_disk(db, ot.id, "hallazgo", h["foto"])
+
             ot.datos_formulario = json.dumps(curr_form, ensure_ascii=False)
         elif isinstance(form_data, str):
             ot.datos_formulario = form_data
@@ -531,9 +625,78 @@ class OtService:
         faltantes = []
         is_preventivo = (
             ot.tipo_mantenimiento == "preventivo" or 
-            (ot.tipo_actividad and "preventivo" in ot.tipo_actividad.lower())
+            (ot.tipo_actividad and any(k in ot.tipo_actividad.lower() for k in ["preventivo", "rutina", "7x24"]))
         )
 
+        # Parsear datos_formulario
+        form_data = payload.datos_formulario if payload.datos_formulario is not None else ot.datos_formulario
+        if isinstance(form_data, str):
+            try:
+                form_data = json.loads(form_data)
+            except Exception:
+                form_data = {}
+        elif not isinstance(form_data, dict):
+            form_data = {}
+
+        # -------------------------------------------------------------
+        # REGLAS TRANSVERSALES OBLIGATORIAS (PARA TODOS LOS TIPOS DE TRABAJO)
+        # -------------------------------------------------------------
+        # 1. Foto cuando se llega a sitio (Una sola foto del técnico con el carnet y el sitio atrás, con localización y fecha)
+        tiene_llegada_unica = bool(
+            form_data.get("llegada_foto") or 
+            form_data.get("llegada_sitio") or 
+            form_data.get("llegada_tecnico_sitio") or 
+            form_data.get("llegada_carnet_sitio")
+        ) or any(t in tipos_existentes for t in ["llegada_sitio", "llegada_tecnico_sitio", "llegada_carnet_sitio", "llegada"])
+
+        tiene_llegada_legada = (
+            bool(form_data.get("llegada_carnet")) or "llegada_carnet" in tipos_existentes or "carnet" in tipos_existentes
+        ) and (
+            bool(form_data.get("llegada_estacion")) or "llegada_estacion" in tipos_existentes or "estacion" in tipos_existentes
+        )
+
+        if not (tiene_llegada_unica or tiene_llegada_legada):
+            faltantes.append("Foto de llegada a sitio (Técnico con carnet y estación al fondo)")
+
+        # 2. Registro de Transporte Especial (LPU) - OBLIGATORIO con soporte fotográfico
+        transportes = form_data.get("transportes_especiales", [])
+        tiene_transporte = (
+            (isinstance(transportes, list) and len(transportes) > 0 and any(t.get("foto") for t in transportes if isinstance(t, dict))) or
+            "transporte" in tipos_existentes
+        )
+        if not tiene_transporte:
+            faltantes.append("Registro de Transporte Especial (LPU) con foto soporte obligatoria")
+
+        # 3. Repuestos retirados e instalados (si se reportan cambios, verificar foto)
+        repuestos_cambios = form_data.get("repuestos_cambios", [])
+        if isinstance(repuestos_cambios, list) and repuestos_cambios:
+            for idx, r in enumerate(repuestos_cambios, 1):
+                if isinstance(r, dict) and (r.get("item_retirado") or r.get("item_instalado")):
+                    if not r.get("foto_retirado") or not r.get("foto_instalado"):
+                        faltantes.append(f"Fotos de repuesto retirado e instalado en ítem #{idx}")
+                        break
+
+        # 4. Materiales e insumos menores (si se reportan, foto antes y después)
+        insumos_menores = form_data.get("insumos_menores", [])
+        if isinstance(insumos_menores, list) and insumos_menores:
+            for idx, ins in enumerate(insumos_menores, 1):
+                if isinstance(ins, dict) and ins.get("nombre_item"):
+                    if not ins.get("foto_antes") or not ins.get("foto_despues"):
+                        faltantes.append(f"Foto antes y después de insumo menor en ítem #{idx}")
+                        break
+
+        # 5. Novedades y hallazgos en estación (si se reportan, foto obligatoria)
+        hallazgos = form_data.get("hallazgos", [])
+        if isinstance(hallazgos, list) and hallazgos:
+            for idx, h in enumerate(hallazgos, 1):
+                if isinstance(h, dict) and (h.get("descripcion") or h.get("sistema")):
+                    if not h.get("foto"):
+                        faltantes.append(f"Foto soporte para hallazgo #{idx}")
+                        break
+
+        # -------------------------------------------------------------
+        # REQUISITOS ESPECÍFICOS SEGÚN TIPO DE TRABAJO
+        # -------------------------------------------------------------
         if is_preventivo:
             # Requisitos oficiales para formatos MP (Preventivo Planta / Aire)
             tiene_placas = any(t in tipos_existentes for t in ["placas", "antes", "inicial"])

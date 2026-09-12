@@ -1,5 +1,5 @@
 from typing import List, Any
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -119,6 +119,27 @@ def upload_evidencia(
     Cargar evidencia fotográfica con validación estricta de seguridad.
     """
     data = ot_service.upload_evidencia(db=db, ot_id=ot_id, payload=payload, current_user=current_user)
+    return {
+        "status": "success",
+        "message": "Evidencia fotográfica guardada con éxito.",
+        "data": data
+    }
+
+@router.post("/evidencias", status_code=status.HTTP_201_CREATED)
+def upload_evidencia_directa(
+    payload: EvidenciaCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Cargar evidencia fotográfica directamente en /api/evidencias especificando ot_id en el payload.
+    """
+    if not payload.ot_id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="Se requiere especificar el campo 'ot_id' en el cuerpo de la petición."
+        )
+    data = ot_service.upload_evidencia(db=db, ot_id=payload.ot_id, payload=payload, current_user=current_user)
     return {
         "status": "success",
         "message": "Evidencia fotográfica guardada con éxito.",

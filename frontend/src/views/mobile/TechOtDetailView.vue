@@ -301,6 +301,139 @@
             </div>
 
             <!-- Grid de tarjetas de requisitos según Tipo de Trabajo -->
+            <!-- 0. REGLAS TRANSVERSALES OBLIGATORIAS (TODOS LOS TIPOS DE TRABAJO) -->
+            <div class="space-y-1.5 pb-2">
+              <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                Reglas Transversales Obligatorias
+              </span>
+              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                <!-- 1. Llegada Sitio (Carnet y Estación) -->
+                <div 
+                  class="border rounded-xl p-3 space-y-1 transition-all"
+                  :class="tieneLlegadaOk
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                    : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+                >
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-[11px]">Llegada Sitio</span>
+                    <IconCircleCheck v-if="tieneLlegadaOk" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                  </div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    {{ tieneLlegadaOk ? 'Técnico + Carnet + Sitio OK' : 'Pendiente foto' }}
+                  </div>
+                  <button 
+                    v-if="!tieneLlegadaOk" 
+                    @click="isLlegadaModalOpen = true"
+                    class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
+                  >
+                    + Registrar Llegada
+                  </button>
+                </div>
+
+                <!-- 2. Transporte Especial LPU -->
+                <div 
+                  class="border rounded-xl p-3 space-y-1 transition-all"
+                  :class="tieneTransporteOk
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                    : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+                >
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-[11px]">Transporte LPU</span>
+                    <IconCircleCheck v-if="tieneTransporteOk" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                  </div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    {{ tieneTransporteOk ? 'Con foto soporte' : 'Obligatorio' }}
+                  </div>
+                  <button 
+                    v-if="!tieneTransporteOk" 
+                    @click="activeTab = 'checklist'"
+                    class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
+                  >
+                    + Registrar LPU
+                  </button>
+                </div>
+
+                <!-- 3. Insumos Menores (Antes & Después) -->
+                <div 
+                  class="border rounded-xl p-3 space-y-1 transition-all"
+                  :class="tieneInsumosOk
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                    : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+                >
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-[11px]">Insumos Menores</span>
+                    <IconCircleCheck v-if="tieneInsumosOk" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                  </div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    {{ tieneInsumosOk ? 'Antes & Después OK' : 'Faltan fotos' }}
+                  </div>
+                  <button 
+                    v-if="!tieneInsumosOk" 
+                    @click="activeTab = 'repuestos'"
+                    class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
+                  >
+                    + Ver Insumos
+                  </button>
+                </div>
+
+                <!-- 4. Repuestos Cambiados -->
+                <div 
+                  class="border rounded-xl p-3 space-y-1 transition-all"
+                  :class="tieneRepuestosOk
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                    : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+                >
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-[11px]">Repuestos Ret./Inst.</span>
+                    <IconCircleCheck v-if="tieneRepuestosOk" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                  </div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    {{ tieneRepuestosOk ? 'Fotos completas' : 'Faltan fotos' }}
+                  </div>
+                  <button 
+                    v-if="!tieneRepuestosOk" 
+                    @click="activeTab = 'repuestos'"
+                    class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
+                  >
+                    + Ver Repuestos
+                  </button>
+                </div>
+
+                <!-- 5. Novedades y Hallazgos -->
+                <div 
+                  class="border rounded-xl p-3 space-y-1 transition-all"
+                  :class="tieneHallazgosOk
+                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
+                    : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
+                >
+                  <div class="flex items-center justify-between text-xs">
+                    <span class="font-bold text-[11px]">Hallazgos Estación</span>
+                    <IconCircleCheck v-if="tieneHallazgosOk" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
+                    <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
+                  </div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
+                    {{ tieneHallazgosOk ? 'Fotos completas' : 'Falta foto soporte' }}
+                  </div>
+                  <button 
+                    v-if="!tieneHallazgosOk" 
+                    @click="activeTab = 'checklist'"
+                    class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
+                  >
+                    + Ver Hallazgos
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Separador / Título de Requisitos Específicos -->
+            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+              Requisitos Específicos del Tipo de Mantenimiento
+            </span>
+
             <!-- 1. CASO WO: CORRECTIVO Y EMERGENCIA -->
             <div v-if="isCorrectivo" class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <!-- Requisito Foto Antes -->
@@ -622,6 +755,19 @@
               </div>
             </div>
 
+            <!-- Lista de Pendientes si falta algo para cerrar -->
+            <div v-if="requisitosFaltantes.length > 0" class="p-3 bg-amber-500/10 border border-amber-500/30 rounded-xl space-y-1.5 text-xs">
+              <div class="flex items-center gap-1.5 font-bold text-amber-700 dark:text-amber-400">
+                <IconAlertTriangle class="w-4 h-4 shrink-0" />
+                <span>Pendientes para Habilitar Cierre Técnico ({{ requisitosFaltantes.length }}):</span>
+              </div>
+              <ul class="list-disc list-inside space-y-0.5 text-[11px] text-amber-800 dark:text-amber-300/90 font-medium pl-1">
+                <li v-for="(req, rIdx) in requisitosFaltantes" :key="rIdx">
+                  {{ req }}
+                </li>
+              </ul>
+            </div>
+
             <!-- Botón Principal de Cierre Definitivo -->
             <button
               @click="isCloseModalOpen = true"
@@ -899,7 +1045,7 @@
         <div class="p-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-between flex-wrap gap-2">
           <div>
             <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-              Protocolo de Evidencias: {{ isCorrectivo ? 'Correctivos & Emergencias (WO)' : (isPreventivoAire ? 'Preventivo Climatización (MP AA)' : 'Preventivo Planta Eléctrica (MP GE)') }}
+              Protocolo de Evidencias: {{ isCorrectivo ? 'Correctivos & Obras (WO)' : (isPreventivoAire ? 'Preventivo Climatización (MP AA)' : (isPreventivo7x24 ? 'Preventivo Rutina 7x24 (MP)' : 'Preventivo Planta Eléctrica (MP GE)')) }}
             </h3>
             <p class="text-[11px] text-slate-500 dark:text-slate-400">
               Formato de captura fotográfica con geolocalización GPS y fecha incrustada
@@ -1077,110 +1223,116 @@
       </div>
 
       <!-- CONTENIDO PESTAÑA 4: REPUESTOS LPU -->
+      <!-- CONTENIDO PESTAÑA 4: REPUESTOS E INSUMOS -->
       <div v-if="activeTab === 'repuestos'" class="space-y-4">
-        <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-sm transition-colors duration-300">
-          
-          <!-- Cabecera limpia y responsiva que nunca se corta en móvil -->
-          <div class="flex items-center justify-between flex-wrap gap-2.5 border-b border-slate-100 dark:border-white/10 pb-3.5">
-            <div class="flex items-center gap-2.5">
-              <div class="w-8 h-8 rounded-xl bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 flex items-center justify-center text-red-600 dark:text-red-400 shrink-0">
-                <IconBox class="w-4 h-4 stroke-[2]" />
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    Insumos & Repuestos LPU
-                  </h3>
-                  <span 
-                    class="text-[10px] font-mono font-extrabold px-2 py-0.5 rounded-full"
-                    :class="ot.repuestos && ot.repuestos.length > 0 
-                      ? 'bg-red-50 dark:bg-red-950/80 text-red-700 dark:text-red-300 border border-red-200 dark:border-red-800' 
-                      : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 border border-slate-200/60 dark:border-white/5'"
-                  >
-                    {{ ot.repuestos?.length || 0 }} {{ (ot.repuestos?.length === 1) ? 'ítem' : 'ítems' }}
-                  </span>
-                </div>
-                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium mt-0.5">
-                  Catálogo oficial de insumos y materiales consumidos en sitio
-                </p>
-              </div>
+        <!-- 1. Materiales e Insumos Menores Utilizados (Buscador + Foto Antes y Después) -->
+        <InsumosMenoresManager
+          v-model="otFormularioData.insumos_menores"
+          :codigo-ot="ot.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+        />
+
+        <!-- 2. Repuestos Retirados e Instalados con Foto -->
+        <RepuestosCambiosManager
+          v-model="otFormularioData.repuestos_cambios"
+          :codigo-ot="ot.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+        />
+
+        <!-- Botón para Guardar Insumos y Repuestos de Campo -->
+        <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
+          <div>
+            <div class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
+              <IconBox class="w-4 h-4 text-red-600 stroke-[2.2]" />
+              <span>Guardar Insumos Menores & Repuestos Cambiados</span>
             </div>
-
-            <button 
-              v-if="!['solucionada', 'finalizada'].includes(ot.estado)"
-              @click="isManageRepuestosModalOpen = true" 
-              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-extrabold bg-red-50 dark:bg-red-950/60 text-red-700 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/60 border border-red-200 dark:border-red-800 transition-all active:scale-95 shadow-xs whitespace-nowrap"
-            >
-              <IconPlus class="w-3.5 h-3.5 stroke-[2.5]" />
-              <span>{{ ot.repuestos && ot.repuestos.length > 0 ? 'Gestionar Insumos' : 'Registrar Insumos' }}</span>
-            </button>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+              Guarda tus consumibles menores y piezas reemplazadas con sus fotografías de respaldo.
+            </p>
           </div>
-
-          <!-- Estado Vacío amigable con botón de acción central -->
-          <div 
-            v-if="!ot.repuestos || ot.repuestos.length === 0" 
-            class="text-center py-8 px-4 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-2xl space-y-3 select-none"
+          <button
+            type="button"
+            @click="guardarFormularioTecnico"
+            :disabled="guardandoFormulario"
+            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black bg-red-600 hover:bg-red-500 text-white shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
           >
-            <div class="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 flex items-center justify-center mx-auto text-slate-400 dark:text-slate-500 shadow-xs">
-              <IconPackageOff class="w-6 h-6 stroke-[1.5]" />
-            </div>
-            <div>
-              <div class="text-xs font-black text-slate-800 dark:text-slate-200">
-                Sin repuestos ni materiales vinculados
-              </div>
-              <p class="text-[11px] text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1 leading-relaxed">
-                Si consumiste materiales o repuestos LPU en esta intervención, regístralos aquí para el control de inventario de obra.
-              </p>
-            </div>
-
-            <button
-              v-if="!['solucionada', 'finalizada'].includes(ot.estado)"
-              @click="isManageRepuestosModalOpen = true"
-              class="inline-flex items-center gap-2 bg-red-600 hover:bg-red-500 text-white font-extrabold px-4 py-2.5 rounded-xl text-xs shadow-md shadow-red-600/20 active:scale-95 transition-all"
-            >
-              <IconPlus class="w-4 h-4 stroke-[2.5]" />
-              <span>Registrar Insumos Utilizados</span>
-            </button>
-          </div>
-
-          <!-- Lista de repuestos vinculados -->
-          <div v-else class="space-y-2.5">
-            <div 
-              v-for="(rep, idx) in ot.repuestos" 
-              :key="rep.id || idx" 
-              class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-3.5 flex items-center justify-between gap-3 shadow-xs"
-            >
-              <div class="space-y-0.5 min-w-0 flex-1">
-                <div class="text-xs font-bold text-slate-900 dark:text-white truncate">
-                  {{ rep.nombre_item }}
-                </div>
-                <div class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
-                  Unidad: <span class="font-mono font-semibold">{{ rep.unidad_medida || 'unidad' }}</span>
-                </div>
-              </div>
-
-              <div class="bg-red-50 dark:bg-red-950/80 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 font-mono text-xs px-3 py-1.5 rounded-xl font-black shrink-0 shadow-xs">
-                Cant: {{ rep.cantidad }}
-              </div>
-            </div>
-
-            <!-- Botón inferior para modificar o agregar más -->
-            <div v-if="!['solucionada', 'finalizada'].includes(ot.estado)" class="pt-1">
-              <button
-                @click="isManageRepuestosModalOpen = true"
-                class="w-full py-2.5 rounded-xl border border-dashed border-slate-300 dark:border-white/15 text-xs font-extrabold text-slate-700 dark:text-slate-300 hover:text-red-600 dark:hover:text-red-400 hover:border-red-400 dark:hover:border-red-500/50 hover:bg-red-50/50 dark:hover:bg-red-950/20 transition-all flex items-center justify-center gap-1.5"
-              >
-                <IconPlus class="w-4 h-4 stroke-[2.5]" />
-                <span>Modificar o agregar más repuestos</span>
-              </button>
-            </div>
-          </div>
+            <IconDeviceFloppy class="w-4 h-4 stroke-[2.2]" />
+            <span>{{ guardandoFormulario ? 'Guardando...' : 'Guardar Insumos & Repuestos' }}</span>
+          </button>
         </div>
       </div>
 
       <!-- CONTENIDO PESTAÑA 5: FORMULARIO TÉCNICO DE CAMPO & CHECKLIST -->
       <div v-if="activeTab === 'checklist'" class="space-y-4">
-        <!-- Formulario Técnico Específico según tipo de trabajo -->
+        <!-- Barra de Estado de Sincronización del Formulario -->
+        <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-xs">
+          <div class="flex items-center gap-2">
+            <IconFileCheck class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+            <span class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+              Formato Técnico de Campo
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span 
+              v-if="autoSaveStatus === 'saving' || guardandoFormulario" 
+              class="text-[11px] font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1.5"
+            >
+              <svg class="animate-spin h-3.5 w-3.5 text-amber-600 dark:text-amber-400" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+              </svg>
+              Guardando cambios...
+            </span>
+            <span 
+              v-else-if="autoSaveStatus === 'saved'" 
+              class="text-[11px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1"
+            >
+              <IconCheck class="w-3.5 h-3.5 stroke-[3]" />
+              Guardado en servidor
+            </span>
+            <span 
+              v-else-if="autoSaveStatus === 'unsaved'" 
+              class="text-[11px] font-bold text-slate-400 flex items-center gap-1"
+            >
+              Cambios pendientes
+            </span>
+            <button
+              type="button"
+              @click="guardarFormularioTecnico"
+              :disabled="guardandoFormulario || isAutoSaving"
+              class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/5 hover:bg-slate-200 dark:hover:bg-white/10 text-slate-700 dark:text-slate-300 text-[10px] font-bold transition-all cursor-pointer"
+            >
+              Guardar ahora
+            </button>
+          </div>
+        </div>
+
+        <!-- 1. Control de Llegada a Sitio (Técnico con Carnet y Sitio al Fondo) -->
+        <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+          <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+            <div class="flex items-center gap-2">
+              <IconMapPinCheck class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2]" />
+              <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Control de Llegada a Sitio (Técnico con Carnet & Estación)
+              </h4>
+            </div>
+          </div>
+
+          <div>
+            <SinglePhotoCapture
+              v-model="otFormularioData.llegada_foto"
+              label="Foto del Técnico con Carnet y Estación al Fondo *"
+              tag="LLEGADA - TECNICO + CARNET + SITIO"
+              :codigo-ot="ot.codigo"
+              :disabled="['solucionada', 'finalizada'].includes(ot.estado)"
+              placeholder="Tomar foto del técnico con carnet visible y sitio al fondo"
+              :required="true"
+              @change="handleFotoLlegadaChange"
+            />
+          </div>
+        </div>
+
+        <!-- 2. Formulario Técnico Específico según tipo de trabajo -->
         <FormularioTecnicoWO
           v-if="isCorrectivo"
           v-model="otFormularioData"
@@ -1188,7 +1340,35 @@
         <FormularioTecnicoMP
           v-else
           v-model="otFormularioData"
-          :tipo-preventivo="isPreventivoAire ? 'aire' : 'planta'"
+          :tipo-preventivo="isPreventivoAire ? 'aire' : (isPreventivo7x24 ? 'rutina_7x24' : 'planta')"
+        />
+
+        <!-- 3. Repuestos Retirados e Instalados (con Fotos de Sustitución) -->
+        <RepuestosCambiosManager
+          v-model="otFormularioData.repuestos_cambios"
+          :codigo-ot="ot.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+        />
+
+        <!-- 4. Materiales e Insumos Menores Utilizados (con Fotos Antes y Después) -->
+        <InsumosMenoresManager
+          v-model="otFormularioData.insumos_menores"
+          :codigo-ot="ot.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+        />
+
+        <!-- 5. Registro de Transporte Especial (LPU) - OBLIGATORIO -->
+        <TransporteEspecialManager
+          v-model="otFormularioData.transportes_especiales"
+          :codigo-ot="ot.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+        />
+
+        <!-- 6. Novedades y Hallazgos en Estación (con Fotos de Respaldo) -->
+        <NovedadesHallazgosManager
+          v-model="otFormularioData.hallazgos"
+          :codigo-ot="ot.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
         />
 
         <!-- Botón para Guardar Formulario Técnico en Cualquier Momento -->
@@ -1213,6 +1393,16 @@
           </button>
         </div>
       </div>
+
+      <!-- Modal para Registrar Llegada a Sitio (Técnico con carnet y sitio atrás) -->
+      <LlegadaSitioModal
+        :is-open="isLlegadaModalOpen"
+        :codigo-ot="ot?.codigo_ot || ''"
+        :saving="updating"
+        :initial-foto="otFormularioData?.llegada_foto || otFormularioData?.llegada_sitio || otFormularioData?.llegada_carnet || ''"
+        @close="isLlegadaModalOpen = false"
+        @confirm="handleConfirmarLlegada"
+      />
 
       <!-- Modal para Gestionar Insumos LPU (sin obligar a cerrar la OT) -->
       <ManageRepuestosModal
@@ -1282,6 +1472,12 @@ import FormularioTecnicoMP from '@/components/mobile/FormularioTecnicoMP.vue';
 import CloseOtModal from '@/components/mobile/CloseOtModal.vue';
 import ManageRepuestosModal from '@/components/mobile/ManageRepuestosModal.vue';
 import ConfirmDialogModal from '@/components/common/ConfirmDialogModal.vue';
+import LlegadaSitioModal from '@/components/mobile/LlegadaSitioModal.vue';
+import TransporteEspecialManager from '@/components/mobile/TransporteEspecialManager.vue';
+import NovedadesHallazgosManager from '@/components/mobile/NovedadesHallazgosManager.vue';
+import RepuestosCambiosManager from '@/components/mobile/RepuestosCambiosManager.vue';
+import InsumosMenoresManager from '@/components/mobile/InsumosMenoresManager.vue';
+import SinglePhotoCapture from '@/components/mobile/SinglePhotoCapture.vue';
 import { 
   IconArrowLeft, 
   IconRefresh, 
@@ -1314,7 +1510,11 @@ import {
   IconTool,
   IconCircleX,
   IconDeviceFloppy,
-  IconFileCheck
+  IconFileCheck,
+  IconTruck,
+  IconTools,
+  IconExchange,
+  IconIdBadge2
 } from '@tabler/icons-vue';
 
 const route = useRoute();
@@ -1323,6 +1523,7 @@ const loading = ref(true);
 const updating = ref(false);
 const isCloseModalOpen = ref(false);
 const isManageRepuestosModalOpen = ref(false);
+const isLlegadaModalOpen = ref(false);
 const savingRepuestos = ref(false);
 const cierreErrorMsg = ref('');
 const activeTab = ref('flujo');
@@ -1404,20 +1605,33 @@ const tabs = [
 const otFormularioData = ref({});
 const guardandoFormulario = ref(false);
 
-const isCorrectivo = computed(() => {
-  const tAct = ot.value?.tipo_actividad;
-  const tMant = ot.value?.tipo_mantenimiento;
-  return tAct === 'correctivo' || tAct === 'emergencia' || tMant === 'correctivo' || tMant === 'emergencia';
+const isPreventivo = computed(() => {
+  const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
+  const tMant = (ot.value?.tipo_mantenimiento || '').toLowerCase();
+  return tMant === 'preventivo' || tAct.includes('preventivo') || tAct.includes('rutina') || tAct.includes('7x24');
 });
+
+const isCorrectivo = computed(() => !isPreventivo.value);
 
 const isPreventivoAire = computed(() => {
-  const tAct = ot.value?.tipo_actividad;
-  const sub = ot.value?.subsistema || '';
-  return tAct === 'preventivo_aire' || sub.toLowerCase().includes('aire');
+  const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
+  const sub = (ot.value?.subsistema || '').toLowerCase();
+  return tAct === 'preventivo_aire' || sub.includes('aire');
 });
 
+const isPreventivo7x24 = computed(() => {
+  const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
+  return tAct.includes('7x24') || tAct.includes('rutina');
+});
+
+const autoSaveStatus = ref('saved'); // 'saved', 'saving', 'unsaved'
+let lastSavedSnapshot = '';
+let isAutoSaving = false;
+let autosaveTimeout = null;
+let initialDataLoaded = false;
+
 watch(() => ot.value, (newOt) => {
-  if (newOt) {
+  if (newOt && !initialDataLoaded) {
     if (newOt.datos_formulario && typeof newOt.datos_formulario === 'object') {
       otFormularioData.value = { ...newOt.datos_formulario };
     } else if (typeof newOt.datos_formulario === 'string') {
@@ -1429,27 +1643,92 @@ watch(() => ot.value, (newOt) => {
     } else {
       otFormularioData.value = {};
     }
+    if (!otFormularioData.value.llegada_foto) {
+      otFormularioData.value.llegada_foto = 
+        otFormularioData.value.llegada_sitio || 
+        otFormularioData.value.llegada_carnet_sitio || 
+        otFormularioData.value.llegada_carnet || '';
+    }
+    lastSavedSnapshot = JSON.stringify(otFormularioData.value);
+    initialDataLoaded = true;
   }
 }, { immediate: true });
 
-const guardarFormularioTecnico = async () => {
-  if (!ot.value?.id) return;
-  guardandoFormulario.value = true;
+// Guardado del formulario técnico con control estricto de concurrencia y sin loops reactivos
+const ejecutarGuardadoFormulario = async (silencioso = true) => {
+  if (!ot.value?.id || ['solucionada', 'finalizada'].includes(ot.value?.estado)) return;
+  
+  const currentSnapshot = JSON.stringify(otFormularioData.value);
+  // Si no hay cambios reales respecto al último guardado, abortar para no saturar la red
+  if (currentSnapshot === lastSavedSnapshot || isAutoSaving) return;
+
+  isAutoSaving = true;
+  autoSaveStatus.value = 'saving';
+  if (!silencioso) guardandoFormulario.value = true;
+
   try {
     const res = await client.put(`/ots/${ot.value.id}/formulario`, {
       datos_formulario: otFormularioData.value
     });
-    if (res.data.status === 'success') {
-      showNotification('success', 'Formato Guardado', 'El formulario técnico de campo se ha guardado exitosamente.');
-      ot.value.datos_formulario = { ...otFormularioData.value };
+
+    if (res.data?.status === 'success') {
+      lastSavedSnapshot = currentSnapshot;
+      autoSaveStatus.value = 'saved';
+
+      // Si el backend reemplazó fotos en base64 por rutas /uploads/, sincronizar solo esos campos
+      if (res.data.data?.datos_formulario) {
+        const parsed = typeof res.data.data.datos_formulario === 'string'
+          ? JSON.parse(res.data.data.datos_formulario)
+          : res.data.data.datos_formulario;
+
+        if (parsed?.llegada_foto && parsed.llegada_foto.startsWith('/uploads/')) {
+          otFormularioData.value.llegada_foto = parsed.llegada_foto;
+          otFormularioData.value.llegada_sitio = parsed.llegada_foto;
+        }
+        lastSavedSnapshot = JSON.stringify(otFormularioData.value);
+      }
+
+      if (res.data.data?.evidencias) {
+        ot.value.evidencias = res.data.data.evidencias;
+      }
+
+      if (!silencioso) {
+        showNotification('success', 'Formato Guardado', 'El formulario técnico de campo se ha guardado exitosamente.');
+      }
     }
   } catch (err) {
-    const msg = err.response?.data?.message || 'Error al guardar el formulario técnico.';
-    showNotification('error', 'Error al Guardar', msg);
+    autoSaveStatus.value = 'unsaved';
+    if (!silencioso) {
+      const msg = err.response?.data?.message || 'Error al guardar el formulario técnico.';
+      showNotification('error', 'Error al Guardar', msg);
+    }
   } finally {
-    guardandoFormulario.value = false;
+    isAutoSaving = false;
+    if (!silencioso) guardandoFormulario.value = false;
   }
 };
+
+const guardarFormularioTecnico = () => ejecutarGuardadoFormulario(false);
+
+// 1. Guardar automáticamente al cambiar de pestaña
+watch(activeTab, (newTab, oldTab) => {
+  if (oldTab === 'checklist') {
+    ejecutarGuardadoFormulario(true);
+  }
+});
+
+// 2. Guardar automáticamente por inactividad tras cambios reales (debounce seguro de 3.5 segundos)
+watch(otFormularioData, () => {
+  if (!initialDataLoaded || !ot.value?.id || ['solucionada', 'finalizada'].includes(ot.value?.estado)) return;
+  const currentSnapshot = JSON.stringify(otFormularioData.value);
+  if (currentSnapshot === lastSavedSnapshot) return;
+
+  autoSaveStatus.value = 'unsaved';
+  if (autosaveTimeout) clearTimeout(autosaveTimeout);
+  autosaveTimeout = setTimeout(() => {
+    ejecutarGuardadoFormulario(true);
+  }, 3500);
+}, { deep: true });
 
 const nuevoAvance = ref({
   descripcion: '',
@@ -1547,10 +1826,74 @@ const isPreventivoPlanta = computed(() => {
   return !isCorrectivo.value && !isPreventivoAire.value;
 });
 
+// Reglas Transversales Computadas
+const tieneLlegadaOk = computed(() => {
+  const f = Boolean(
+    otFormularioData.value?.llegada_foto || 
+    otFormularioData.value?.llegada_sitio || 
+    otFormularioData.value?.llegada_tecnico_sitio ||
+    otFormularioData.value?.llegada_carnet_sitio ||
+    countEvidencias('llegada_sitio') > 0 ||
+    countEvidencias('llegada') > 0
+  );
+  const c = Boolean(otFormularioData.value?.llegada_carnet || countEvidencias('llegada_carnet') > 0 || countEvidencias('carnet') > 0);
+  const e = Boolean(otFormularioData.value?.llegada_estacion || countEvidencias('llegada_estacion') > 0 || countEvidencias('estacion') > 0);
+  return f || (c && e);
+});
+
+const tieneTransporteOk = computed(() => {
+  const tr = otFormularioData.value?.transportes_especiales || [];
+  return (Array.isArray(tr) && tr.length > 0 && tr.some(t => Boolean(t.foto))) || countEvidencias('transporte') > 0;
+});
+
+const tieneRepuestosOk = computed(() => {
+  const rc = otFormularioData.value?.repuestos_cambios || [];
+  if (!Array.isArray(rc) || rc.length === 0) return true;
+  return rc.every(r => (!r.item_retirado && !r.item_instalado) || (Boolean(r.foto_retirado) && Boolean(r.foto_instalado)));
+});
+
+const tieneInsumosOk = computed(() => {
+  const ins = otFormularioData.value?.insumos_menores || [];
+  if (!Array.isArray(ins) || ins.length === 0) return true;
+  return ins.every(i => !i.nombre_item || (Boolean(i.foto_antes) && Boolean(i.foto_despues)));
+});
+
+const tieneHallazgosOk = computed(() => {
+  const h = otFormularioData.value?.hallazgos || [];
+  if (!Array.isArray(h) || h.length === 0) return true;
+  return h.every(item => (!item.descripcion && !item.sistema) || Boolean(item.foto));
+});
+
 const requisitosFaltantes = computed(() => {
   if (!ot.value) return [];
   const faltantes = [];
 
+  // 1. REGLA OBLIGATORIA: Foto llegada a sitio (Técnico con carnet y sitio atrás)
+  if (!tieneLlegadaOk.value) {
+    faltantes.push('Falta Foto de Llegada a Sitio (Técnico con carnet y estación al fondo)');
+  }
+
+  // 2. REGLA OBLIGATORIA: Registro de Transporte Especial (LPU) con foto
+  if (!tieneTransporteOk.value) {
+    faltantes.push('Falta Registro Obligatorio de Transporte Especial con Foto Soporte');
+  }
+
+  // 3. REGLA: Fotos en repuestos cambiados si existen
+  if (!tieneRepuestosOk.value) {
+    faltantes.push('Hay repuestos cambiados pendientes de foto retirada o instalada');
+  }
+
+  // 4. REGLA: Fotos antes y después en insumos menores si existen
+  if (!tieneInsumosOk.value) {
+    faltantes.push('Hay insumos menores pendientes de foto ANTES o DESPUÉS');
+  }
+
+  // 5. REGLA: Foto en novedades y hallazgos si existen
+  if (!tieneHallazgosOk.value) {
+    faltantes.push('Hay novedades o hallazgos pendientes de fotografía soporte');
+  }
+
+  // Requisitos específicos según tipo de trabajo
   if (isCorrectivo.value) {
     if (countEvidencias('antes') < 1) {
       faltantes.push('Falta Evidencia Fotográfica de ANTES (Falla encontrada)');
@@ -1611,14 +1954,82 @@ const pedirConfirmacionDesplazamiento = () => {
 };
 
 const pedirConfirmacionLlegada = () => {
-  openConfirm({
-    title: 'Marcar Llegada a Sitio',
-    subtitle: 'Registro GPS & Hora',
-    message: '¿Confirmar llegada al sitio telecom? Se registrará la marca de tiempo actual y coordenadas GPS.',
-    confirmText: 'Sí, Registrar Llegada',
-    type: 'success',
-    action: () => cambiarEstado('en_sitio')
-  });
+  isLlegadaModalOpen.value = true;
+};
+
+const handleFotoLlegadaChange = async (data) => {
+  if (data && typeof data === 'object') {
+    if (data.gps) {
+      otFormularioData.value.gps_llegada = data.gps;
+      if (typeof data.gps === 'string' && data.gps.includes(',')) {
+        const parts = data.gps.split(',');
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+        if (!isNaN(lat) && !isNaN(lng)) {
+          otFormularioData.value.llegada_lat = lat;
+          otFormularioData.value.llegada_lng = lng;
+        }
+      }
+    }
+    if (data.fecha) {
+      otFormularioData.value.fecha_hora_texto_llegada = data.fecha;
+      otFormularioData.value.llegada_fecha = data.fecha;
+    }
+    otFormularioData.value.fecha_llegada = new Date().toISOString();
+    if (data.imagen_base64 && ot.value?.id) {
+      try {
+        await client.post(`/ots/${ot.value.id}/evidencia`, {
+          tipo: 'llegada_sitio',
+          imagen_base64: data.imagen_base64,
+          latitud: otFormularioData.value.llegada_lat,
+          longitud: otFormularioData.value.llegada_lng,
+        });
+      } catch (e) {
+        console.warn('Evidencia de llegada subida:', e);
+      }
+    }
+  }
+};
+
+const handleConfirmarLlegada = async (data) => {
+  updating.value = true;
+  try {
+    const foto = data.foto_llegada || data.foto_carnet;
+    otFormularioData.value.llegada_foto = foto;
+    otFormularioData.value.llegada_sitio = foto;
+    otFormularioData.value.llegada_carnet = foto;
+    otFormularioData.value.llegada_estacion = foto;
+    otFormularioData.value.fecha_llegada = data.timestamp;
+    otFormularioData.value.fecha_hora_texto_llegada = data.fecha_hora_texto;
+    otFormularioData.value.gps_llegada = data.gps;
+
+    // Subir foto como evidencia formal
+    try {
+      await client.post(`/ots/${ot.value.id}/evidencia`, {
+        tipo: 'llegada_sitio',
+        imagen_base64: foto,
+      });
+    } catch (e) {
+      console.warn('Evidencia subida en formulario:', e);
+    }
+
+    // Guardar formulario actualizado
+    await client.put(`/ots/${ot.value.id}/formulario`, {
+      datos_formulario: otFormularioData.value
+    });
+
+    // Cambiar estado a 'en_sitio'
+    await cambiarEstado('en_sitio');
+
+    isLlegadaModalOpen.value = false;
+    showNotification('success', 'Llegada Registrada', 'Foto del técnico con carnet y sitio al fondo guardada con éxito.');
+    fetchOtDetail();
+  } catch (err) {
+    const msg = err.response?.data?.message || 'Error al registrar llegada a sitio.';
+    showNotification('error', 'Error', msg);
+  } finally {
+    updating.value = false;
+  }
 };
 
 const cambiarEstado = async (nuevoEstado) => {

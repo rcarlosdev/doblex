@@ -121,8 +121,8 @@
               <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-1">
                 <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Tipo & Criticidad</span>
                 <div class="flex items-center gap-2">
-                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="tipoBadgeClass(ot?.tipo_mantenimiento)">
-                    {{ ot?.tipo_mantenimiento || 'Preventivo' }}
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase" :class="tipoBadgeClass(ot?.tipo_actividad || ot?.tipo_mantenimiento)">
+                    {{ formatTipoLabel(ot?.tipo_actividad || ot?.tipo_mantenimiento) }}
                   </span>
                   <span class="font-mono font-bold text-xs text-slate-700 dark:text-slate-300">
                     {{ ot?.prioridad }} ({{ ot?.tipo_ubicacion }})
@@ -203,21 +203,616 @@
             </div>
           </div>
 
+          <!-- PESTAÑA: FORMATO TÉCNICO DE CAMPO -->
+          <div v-if="activeTab === 'formato_campo'" class="space-y-4">
+            <!-- Header Resumen del Formulario -->
+            <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div class="space-y-0.5">
+                <div class="flex items-center gap-2">
+                  <IconFileCheck class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+                  <h4 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    Formato Técnico Oficial Claro
+                  </h4>
+                </div>
+                <p class="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  {{ tituloFormatoCampo }}
+                </p>
+              </div>
+              <div class="flex items-center gap-2">
+                <span 
+                  class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider"
+                  :class="hasFormData ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
+                >
+                  {{ hasFormData ? 'Diligenciado en Sitio' : 'Pendiente de Diligenciar' }}
+                </span>
+                <span class="px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 text-[10px] font-black uppercase">
+                  {{ isFormatoWo ? 'WO Correctivo' : (isFormatoMpAire ? 'MP Climatización' : 'MP Planta Eléctrica') }}
+                </span>
+              </div>
+            </div>
+
+            <!-- 1. CONTROL DE LLEGADA A SITIO (TÉCNICO CON CARNET Y ESTACIÓN AL FONDO) -->
+            <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconMapPinCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    1. Control de Llegada a Sitio (Técnico + Carnet + Estación)
+                  </span>
+                </div>
+                <span 
+                  v-if="parsedFormData.llegada_foto || parsedFormData.llegada_sitio" 
+                  class="text-[10px] font-black px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 flex items-center gap-1"
+                >
+                  <IconCheck class="w-3 h-3 stroke-[3]" /> Foto Verificada
+                </span>
+                <span v-else class="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                  Sin Foto de Llegada
+                </span>
+              </div>
+
+              <div v-if="parsedFormData.llegada_foto || parsedFormData.llegada_sitio" class="grid grid-cols-1 sm:grid-cols-3 gap-3 items-center">
+                <!-- Miniatura con Zoom -->
+                <div 
+                  class="relative aspect-video rounded-xl overflow-hidden bg-black/60 group cursor-pointer border border-slate-200 dark:border-white/10"
+                  @click="abrirZoom(parsedFormData.llegada_foto || parsedFormData.llegada_sitio, 'Llegada a Sitio', parsedFormData.llegada_fecha)"
+                >
+                  <img 
+                    :src="parsedFormData.llegada_foto || parsedFormData.llegada_sitio" 
+                    alt="Llegada a Sitio" 
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white text-xs font-bold gap-1 transition-opacity">
+                    <IconZoomIn class="w-4 h-4" />
+                    <span>Ampliar</span>
+                  </div>
+                  <div class="absolute bottom-1 left-1 bg-black/70 px-1.5 py-0.5 rounded text-[9px] text-white font-mono">
+                    LLEGADA
+                  </div>
+                </div>
+
+                <!-- Metadatos de Llegada -->
+                <div class="sm:col-span-2 space-y-2 text-xs">
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                      <span class="text-[10px] text-slate-400 font-bold block uppercase">Fecha y Hora de Arribo</span>
+                      <span class="font-mono font-black text-slate-800 dark:text-slate-200">
+                        {{ parsedFormData.llegada_fecha ? formatDate(parsedFormData.llegada_fecha) : (ot?.fecha_llegada_sitio ? formatDate(ot.fecha_llegada_sitio) : 'Capturada en Foto') }}
+                      </span>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                      <span class="text-[10px] text-slate-400 font-bold block uppercase">Georreferenciación GPS</span>
+                      <div class="flex items-center justify-between">
+                        <span class="font-mono font-black text-emerald-600 dark:text-emerald-400 text-[11px]">
+                          {{ parsedFormData.llegada_lat && parsedFormData.llegada_lng ? `${Number(parsedFormData.llegada_lat).toFixed(5)}, ${Number(parsedFormData.llegada_lng).toFixed(5)}` : 'Estampada en Foto' }}
+                        </span>
+                        <button
+                          v-if="parsedFormData.llegada_lat && parsedFormData.llegada_lng"
+                          type="button"
+                          @click="abrirMaps(`${parsedFormData.llegada_lat},${parsedFormData.llegada_lng}`)"
+                          class="text-[10px] text-blue-600 hover:underline flex items-center gap-0.5 font-bold cursor-pointer"
+                        >
+                          <IconExternalLink class="w-3 h-3" /> Maps
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5 flex items-center justify-between">
+                    <div>
+                      <span class="text-[10px] text-slate-400 font-bold block uppercase">Técnico / Cuadrilla</span>
+                      <span class="font-bold text-slate-800 dark:text-slate-200">{{ ot?.assigned_user?.name || ot?.coordinador || 'Personal de Campo' }}</span>
+                    </div>
+                    <span class="text-[10px] font-mono text-slate-400">Estación: {{ ot?.sitio || 'Sin Sitio' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div v-else class="text-center py-6 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-xl space-y-1">
+                <IconCameraOff class="w-6 h-6 text-slate-400 mx-auto stroke-[1.5]" />
+                <p class="text-xs font-bold text-slate-600 dark:text-slate-400">El técnico aún no ha cargado la fotografía de llegada a sitio</p>
+              </div>
+            </div>
+
+            <!-- 2. ESPECIFICACIONES TÉCNICAS SEGÚN TIPO DE TRABAJO -->
+            <!-- A. CASO FORMATO WO: CORRECTIVOS Y EMERGENCIAS -->
+            <div v-if="isFormatoWo" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconTool class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    2. Diagnóstico Técnico & Cierre Claro WO
+                  </span>
+                </div>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                  Ref. WO0000005558781
+                </span>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Tipo de Sitio</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.tipo_sitio || 'Urbano' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Subsistema</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.subsistema || ot?.subsistema || 'Planta eléctrica' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">¿Afectación de Servicios?</span>
+                  <span class="font-black" :class="parsedFormData.presenta_afectacion === 'Si' ? 'text-rose-600' : 'text-emerald-600'">
+                    {{ parsedFormData.presenta_afectacion || 'No' }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Equipo en Falla</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.tipo_equipo_falla || 'Planta eléctrica' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Marca</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.marca_equipo || 'Selmec / Cummins' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Modelo / Ref.</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.modelo_equipo || 'N/A' }}</span>
+                </div>
+              </div>
+
+              <!-- Intervenciones Realizadas -->
+              <div class="flex flex-wrap gap-2 text-xs">
+                <span class="text-[10px] text-slate-400 font-bold uppercase self-center mr-1">Intervención:</span>
+                <span v-if="parsedFormData.reparacion" class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[10px]">✓ Reparación</span>
+                <span v-if="parsedFormData.reinstalacion" class="px-2 py-0.5 rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold text-[10px]">✓ Reinstalación</span>
+                <span v-if="parsedFormData.cambio_equipo" class="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-bold text-[10px]">✓ Cambio de Equipo</span>
+              </div>
+
+              <!-- Textos de Falla y Solución -->
+              <div class="space-y-2 text-xs">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-3">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase mb-1">Descripción de la Falla Encontrada</span>
+                  <p class="text-slate-800 dark:text-slate-200 leading-relaxed">{{ parsedFormData.descripcion_falla || ot?.descripcion || 'Sin descripción de falla' }}</p>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-3">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase mb-1">Solución Técnica Ejecutada en Sitio</span>
+                  <p class="text-slate-800 dark:text-slate-200 leading-relaxed">{{ parsedFormData.descripcion_solucion || ot?.observaciones_cierre || 'Sin solución técnica registrada' }}</p>
+                </div>
+              </div>
+
+              <!-- Cierre de Supervisión Claro -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs pt-1 border-t border-slate-100 dark:border-white/10">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">¿Falla Resuelta a Satisfacción?</span>
+                  <span class="font-black" :class="parsedFormData.falla_resuelta === 'No' ? 'text-rose-600' : 'text-emerald-600'">
+                    {{ parsedFormData.falla_resuelta === 'No' ? 'No (Requiere 2da intervención)' : 'Sí (Equipo en servicio normal)' }}
+                  </span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Supervisor Claro Notificado</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.nombre_supervisor || 'Ing. de Guardia Claro' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- B. CASO FORMATO MP: PREVENTIVO PLANTA ELÉCTRICA (Ref: OT5304019) -->
+            <div v-else-if="isFormatoMpPlanta" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconEngine class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    2. Parámetros Técnicos Planta Eléctrica (Ref: OT5304019)
+                  </span>
+                </div>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">
+                  Planilla Oficial GE
+                </span>
+              </div>
+
+              <!-- Ficha GE y Motor -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Marca GE</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.marca_equipo || 'AGG POWER SOLUTIONS' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Horómetro Inicial</span>
+                  <span class="font-mono font-black text-red-600 dark:text-red-400">{{ parsedFormData.horometro_inicial !== null && parsedFormData.horometro_inicial !== undefined ? `${parsedFormData.horometro_inicial} hrs` : 'N/A' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Motor Diésel</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.marca_motor || 'CUMMINS' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Presión Aceite</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.presion_aceite_bar ? `${parsedFormData.presion_aceite_bar} Bar` : '4.2 Bar' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Temp. Refrigerante</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.temperatura_refrigerante_c ? `${parsedFormData.temperatura_refrigerante_c} °C` : '80 °C' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Voltaje Batería</span>
+                  <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">{{ parsedFormData.voltaje_bateria ? `${parsedFormData.voltaje_bateria} Vdc` : '25.4 Vdc' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Combustible</span>
+                  <span class="font-mono font-bold text-amber-600 dark:text-amber-400">{{ parsedFormData.nivel_combustible_porcentaje ? `${parsedFormData.nivel_combustible_porcentaje}%` : '80%' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Prueba ATS 15 Min</span>
+                  <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ parsedFormData.prueba_ats_15min || 'Exitosa con Carga' }}</span>
+                </div>
+              </div>
+
+              <!-- Parámetros Eléctricos en Carga -->
+              <div class="p-3 bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl space-y-2">
+                <span class="text-[10px] text-slate-500 font-bold uppercase block">Parámetros Eléctricos en Carga (L-L & L-N)</span>
+                <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
+                  <div class="p-1.5 bg-white dark:bg-[#121215] rounded-lg border border-slate-200 dark:border-white/5">
+                    <span class="text-[9px] text-slate-400 font-mono block">V L1-L2</span>
+                    <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.voltaje_l1_l2 || 220 }} V</span>
+                  </div>
+                  <div class="p-1.5 bg-white dark:bg-[#121215] rounded-lg border border-slate-200 dark:border-white/5">
+                    <span class="text-[9px] text-slate-400 font-mono block">V L2-L3</span>
+                    <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.voltaje_l2_l3 || 220 }} V</span>
+                  </div>
+                  <div class="p-1.5 bg-white dark:bg-[#121215] rounded-lg border border-slate-200 dark:border-white/5">
+                    <span class="text-[9px] text-slate-400 font-mono block">V L1-L3</span>
+                    <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.voltaje_l1_l3 || 220 }} V</span>
+                  </div>
+                  <div class="p-1.5 bg-white dark:bg-[#121215] rounded-lg border border-slate-200 dark:border-white/5">
+                    <span class="text-[9px] text-slate-400 font-mono block">V L1-N</span>
+                    <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.voltaje_l1_n || 127 }} V</span>
+                  </div>
+                  <div class="p-1.5 bg-white dark:bg-[#121215] rounded-lg border border-slate-200 dark:border-white/5">
+                    <span class="text-[9px] text-slate-400 font-mono block">V L2-N</span>
+                    <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.voltaje_l2_n || 127 }} V</span>
+                  </div>
+                  <div class="p-1.5 bg-white dark:bg-[#121215] rounded-lg border border-slate-200 dark:border-white/5">
+                    <span class="text-[9px] text-slate-400 font-mono block">Frecuencia</span>
+                    <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.frecuencia_operacion_hz || 60 }} Hz</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Resumen Servicio de Filtración -->
+              <div class="flex flex-wrap gap-2 text-xs">
+                <span class="text-[10px] text-slate-400 font-bold uppercase self-center mr-1">Filtración MP:</span>
+                <span class="px-2 py-0.5 rounded-lg font-bold text-[10px]" :class="parsedFormData.cambio_aceite === 'SI' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600'">Aceite: {{ parsedFormData.cambio_aceite || 'SI' }}</span>
+                <span class="px-2 py-0.5 rounded-lg font-bold text-[10px]" :class="parsedFormData.cambio_filtros_aire === 'SI' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600'">Filtro Aire: {{ parsedFormData.cambio_filtros_aire || 'SI' }}</span>
+                <span class="px-2 py-0.5 rounded-lg font-bold text-[10px]" :class="parsedFormData.cambio_filtros_combustible === 'SI' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600'">Filtro Combustible: {{ parsedFormData.cambio_filtros_combustible || 'SI' }}</span>
+                <span class="px-2 py-0.5 rounded-lg font-bold text-[10px]" :class="parsedFormData.cambio_refrigerante === 'SI' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-slate-100 text-slate-600'">Refrigerante: {{ parsedFormData.cambio_refrigerante || 'SI' }}</span>
+                <span class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[10px]">Planta en Automático: {{ parsedFormData.planta_en_automatico || 'Si' }}</span>
+              </div>
+            </div>
+
+            <!-- C. CASO FORMATO MP: PREVENTIVO CLIMATIZACIÓN (Ref: WO0000005520436) -->
+            <div v-else-if="isFormatoMpAire" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconSnowflake class="w-4 h-4 text-cyan-600 dark:text-cyan-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    2. Parámetros Técnicos Climatización (Ref: WO0000005520436)
+                  </span>
+                </div>
+                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
+                  Planilla Oficial AA
+                </span>
+              </div>
+
+              <!-- Ficha AA y Temperaturas -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Marca AA</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.marca_aa || 'MCQUAY' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Tipo de Aire</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.tipo_aire || 'Mini Split' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Capacidad BTU</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.capacidad_btu_aa ? `${parsedFormData.capacidad_btu_aa} kBTU` : '24 kBTU' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Estado del Equipo</span>
+                  <span class="font-bold text-emerald-600 dark:text-emerald-400">{{ parsedFormData.estado_equipo_aa || 'OPERATIVO' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Temp. Cuarto Equipos</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.temperatura_cuarto_equipo ? `${parsedFormData.temperatura_cuarto_equipo} °C` : '30 °C' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Temp. Entrada Evap.</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.temperatura_aa_entrada ? `${parsedFormData.temperatura_aa_entrada} °C` : '28 °C' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Temp. Inyección/Salida</span>
+                  <span class="font-mono font-bold text-cyan-600 dark:text-cyan-400">{{ parsedFormData.temperatura_aa_salida ? `${parsedFormData.temperatura_aa_salida} °C` : '20 °C' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Ajuste Termostato</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.ajuste_termostato ? `${parsedFormData.ajuste_termostato} °C` : '22 °C' }}</span>
+                </div>
+              </div>
+
+              <!-- Compresor y Presiones -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Refrigerante</span>
+                  <span class="font-mono font-black text-slate-800 dark:text-slate-200">{{ parsedFormData.compresor_refrigerante || 'R410A' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Presión Succión</span>
+                  <span class="font-mono font-bold text-blue-600 dark:text-blue-400">{{ parsedFormData.presion_succion_psi ? `${parsedFormData.presion_succion_psi} PSI` : '100 PSI' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Presión Descarga</span>
+                  <span class="font-mono font-bold text-rose-600 dark:text-rose-400">{{ parsedFormData.presion_descarga_psi ? `${parsedFormData.presion_descarga_psi} PSI` : '300 PSI' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Corriente Compresor</span>
+                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.compresor_corriente ? `${parsedFormData.compresor_corriente} A` : '9.3 A' }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. REPUESTOS RETIRADOS E INSTALADOS (FOTOS DE SUSTITUCIÓN) -->
+            <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconExchange class="w-4 h-4 text-indigo-600 dark:text-indigo-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    3. Repuestos Retirados e Instalados (Fotos de Sustitución)
+                  </span>
+                </div>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
+                  {{ parsedFormData.repuestos_cambios?.length || 0 }} Repuestos
+                </span>
+              </div>
+
+              <div v-if="parsedFormData.repuestos_cambios && parsedFormData.repuestos_cambios.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                <table class="w-full text-xs text-left">
+                  <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                    <tr>
+                      <th class="py-2.5 px-3">#</th>
+                      <th class="py-2.5 px-3">Repuesto Retirado vs Instalado</th>
+                      <th class="py-2.5 px-3 text-right">Cant.</th>
+                      <th class="py-2.5 px-3">Motivo del Cambio</th>
+                      <th class="py-2.5 px-3 text-center">Foto Retirado</th>
+                      <th class="py-2.5 px-3 text-center">Foto Instalado</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                    <tr v-for="(rep, idx) in parsedFormData.repuestos_cambios" :key="idx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                      <td class="py-2.5 px-3 font-mono text-slate-400">{{ idx + 1 }}</td>
+                      <td class="py-2.5 px-3">
+                        <div class="font-bold text-slate-800 dark:text-slate-200">
+                          Retirado: {{ rep.item_retirado || rep.descripcion || rep.nombre || 'Repuesto' }}
+                        </div>
+                        <div v-if="rep.item_instalado" class="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+                          Instalado: {{ rep.item_instalado }}
+                        </div>
+                        <div v-if="rep.serial_retirado || rep.serial_instalado" class="font-mono text-[10px] text-slate-400">
+                          S/N Ret: {{ rep.serial_retirado || 'N/A' }} | S/N Inst: {{ rep.serial_instalado || 'N/A' }}
+                        </div>
+                      </td>
+                      <td class="py-2.5 px-3 text-right font-mono font-black text-slate-800 dark:text-slate-200">{{ rep.cantidad || 1 }}</td>
+                      <td class="py-2.5 px-3 text-slate-600 dark:text-slate-400">{{ rep.motivo || 'Reemplazo preventivo/correctivo' }}</td>
+                      <td class="py-2.5 px-3 text-center">
+                        <div v-if="rep.foto_retirado" class="inline-block relative w-12 h-10 rounded-lg overflow-hidden border border-rose-300 dark:border-rose-700/60 cursor-pointer group" @click="abrirZoom(rep.foto_retirado, 'Repuesto Retirado')">
+                          <img :src="rep.foto_retirado" alt="Repuesto Retirado" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white">
+                            <IconEye class="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <span v-else class="text-[10px] text-slate-400 italic">Sin foto</span>
+                      </td>
+                      <td class="py-2.5 px-3 text-center">
+                        <div v-if="rep.foto_instalado" class="inline-block relative w-12 h-10 rounded-lg overflow-hidden border border-emerald-300 dark:border-emerald-700/60 cursor-pointer group" @click="abrirZoom(rep.foto_instalado, 'Repuesto Instalado')">
+                          <img :src="rep.foto_instalado" alt="Repuesto Instalado" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white">
+                            <IconEye class="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <span v-else class="text-[10px] text-slate-400 italic">Sin foto</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="text-center py-6 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-xl">
+                <p class="text-xs text-slate-500">No se registraron cambios de repuestos principales</p>
+              </div>
+            </div>
+
+            <!-- 4. MATERIALES E INSUMOS MENORES UTILIZADOS (FOTOS ANTES & DESPUÉS) -->
+            <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconTools class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    4. Materiales e Insumos Menores Utilizados (Fotos Antes & Después)
+                  </span>
+                </div>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
+                  {{ parsedFormData.insumos_menores?.length || 0 }} Insumos
+                </span>
+              </div>
+
+              <div v-if="parsedFormData.insumos_menores && parsedFormData.insumos_menores.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                <table class="w-full text-xs text-left">
+                  <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                    <tr>
+                      <th class="py-2.5 px-3">#</th>
+                      <th class="py-2.5 px-3">Código / Descripción del Insumo</th>
+                      <th class="py-2.5 px-3 text-center">Unidad</th>
+                      <th class="py-2.5 px-3 text-right">Cantidad</th>
+                      <th class="py-2.5 px-3 text-center">Foto Antes</th>
+                      <th class="py-2.5 px-3 text-center">Foto Después</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                    <tr v-for="(ins, idx) in parsedFormData.insumos_menores" :key="idx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                      <td class="py-2.5 px-3 font-mono text-slate-400">{{ idx + 1 }}</td>
+                      <td class="py-2.5 px-3">
+                        <div class="font-bold text-slate-800 dark:text-slate-200">{{ ins.descripcion || ins.nombre || ins.nombre_item || 'Insumo menor' }}</div>
+                        <div v-if="ins.codigo" class="font-mono text-[10px] text-slate-400">{{ ins.codigo }}</div>
+                      </td>
+                      <td class="py-2.5 px-3 text-center font-mono text-slate-500">{{ ins.unidad || ins.unidad_medida || 'UND' }}</td>
+                      <td class="py-2.5 px-3 text-right font-mono font-black text-amber-600 dark:text-amber-400">{{ ins.cantidad }}</td>
+                      <td class="py-2.5 px-3 text-center">
+                        <div v-if="ins.foto_antes" class="inline-block relative w-12 h-10 rounded-lg overflow-hidden border border-amber-300 dark:border-amber-700/60 cursor-pointer group" @click="abrirZoom(ins.foto_antes, 'Insumo (Antes)')">
+                          <img :src="ins.foto_antes" alt="Insumo Antes" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white">
+                            <IconEye class="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <span v-else class="text-[10px] text-slate-400 italic">Sin foto</span>
+                      </td>
+                      <td class="py-2.5 px-3 text-center">
+                        <div v-if="ins.foto_despues" class="inline-block relative w-12 h-10 rounded-lg overflow-hidden border border-emerald-300 dark:border-emerald-700/60 cursor-pointer group" @click="abrirZoom(ins.foto_despues, 'Insumo (Después)')">
+                          <img :src="ins.foto_despues" alt="Insumo Después" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white">
+                            <IconEye class="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <span v-else class="text-[10px] text-slate-400 italic">Sin foto</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="text-center py-6 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-xl">
+                <p class="text-xs text-slate-500">No se utilizaron insumos menores en esta actividad</p>
+              </div>
+            </div>
+
+            <!-- 5. REGISTRO DE TRANSPORTE ESPECIAL (LPU) -->
+            <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconTruck class="w-4 h-4 text-blue-600 dark:text-blue-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    5. Registro de Transporte Especial (LPU)
+                  </span>
+                </div>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
+                  {{ parsedFormData.transportes_especiales?.length || 0 }} Registros
+                </span>
+              </div>
+
+              <div v-if="parsedFormData.transportes_especiales && parsedFormData.transportes_especiales.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                <table class="w-full text-xs text-left">
+                  <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                    <tr>
+                      <th class="py-2.5 px-3">#</th>
+                      <th class="py-2.5 px-3">Tipo de Transporte</th>
+                      <th class="py-2.5 px-3">Observaciones / Ruta</th>
+                      <th class="py-2.5 px-3 text-right">Tarifa / Valor</th>
+                      <th class="py-2.5 px-3 text-center">Soporte Fotográfico</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                    <tr v-for="(trans, idx) in parsedFormData.transportes_especiales" :key="idx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                      <td class="py-2.5 px-3 font-mono text-slate-400">{{ idx + 1 }}</td>
+                      <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-200 capitalize">
+                        {{ trans.tipo ? trans.tipo.replace(/_/g, ' ') : 'Transporte Especial' }}
+                      </td>
+                      <td class="py-2.5 px-3 text-slate-600 dark:text-slate-400">
+                        {{ trans.observaciones || 'Sin observaciones' }}
+                      </td>
+                      <td class="py-2.5 px-3 text-right font-mono font-black text-slate-800 dark:text-slate-200">
+                        {{ trans.valor ? `$${Number(trans.valor).toLocaleString('es-CO')}` : 'Tarifa Estándar' }}
+                      </td>
+                      <td class="py-2.5 px-3 text-center">
+                        <div v-if="trans.foto" class="inline-block relative w-12 h-10 rounded-lg overflow-hidden border border-slate-200 dark:border-white/10 cursor-pointer group" @click="abrirZoom(trans.foto, 'Transporte Especial')">
+                          <img :src="trans.foto" alt="Soporte Transporte" class="w-full h-full object-cover group-hover:scale-110 transition-transform" />
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white">
+                            <IconEye class="w-3.5 h-3.5" />
+                          </div>
+                        </div>
+                        <span v-else class="text-[10px] text-slate-400 italic">Sin foto</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div v-else class="text-center py-6 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-xl">
+                <p class="text-xs text-slate-500">No se registraron transportes especiales para esta orden</p>
+              </div>
+            </div>
+
+            <!-- 6. NOVEDADES Y HALLAZGOS EN ESTACIÓN -->
+            <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+              <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                <div class="flex items-center gap-2">
+                  <IconAlertTriangle class="w-4 h-4 text-rose-600 dark:text-rose-400 stroke-[2]" />
+                  <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                    6. Novedades y Hallazgos en Estación
+                  </span>
+                </div>
+                <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300">
+                  {{ parsedFormData.hallazgos?.length || 0 }} Novedades
+                </span>
+              </div>
+
+              <div v-if="parsedFormData.hallazgos && parsedFormData.hallazgos.length > 0" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div 
+                  v-for="(hallazgo, idx) in parsedFormData.hallazgos" 
+                  :key="idx"
+                  class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 rounded-xl p-3 space-y-2 flex flex-col justify-between"
+                >
+                  <div class="space-y-1">
+                    <div class="flex items-center justify-between gap-2">
+                      <span class="font-bold text-xs text-slate-900 dark:text-white">{{ hallazgo.titulo || hallazgo.sistema || `Hallazgo #${idx + 1}` }}</span>
+                      <span 
+                        class="px-2 py-0.5 rounded text-[10px] font-black uppercase"
+                        :class="hallazgo.severidad === 'critica' || hallazgo.severidad === 'alta' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' : 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300'"
+                      >
+                        {{ hallazgo.severidad || 'Media' }}
+                      </span>
+                    </div>
+                    <p class="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">{{ hallazgo.descripcion }}</p>
+                  </div>
+
+                  <div v-if="hallazgo.foto" class="pt-2 border-t border-slate-200 dark:border-white/5 flex items-center justify-between">
+                    <span class="text-[10px] text-slate-400">Evidencia Fotográfica</span>
+                    <button
+                      type="button"
+                      @click="abrirZoom(hallazgo.foto, 'Novedad / Hallazgo')"
+                      class="px-2 py-1 bg-red-600/10 hover:bg-red-600/20 text-red-600 dark:text-red-400 rounded-lg text-[10px] font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                    >
+                      <IconEye class="w-3 h-3" />
+                      <span>Ver Foto</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div v-else class="text-center py-6 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-xl">
+                <p class="text-xs text-slate-500">Sin novedades o hallazgos reportados en la estación</p>
+              </div>
+            </div>
+          </div>
+
           <!-- PESTAÑA 2: EVIDENCIAS FOTOGRÁFICAS -->
           <div v-if="activeTab === 'evidencias'" class="space-y-4">
             <!-- Filtro rápido por tipo de evidencia -->
             <div class="flex items-center justify-between flex-wrap gap-2">
-              <div class="flex gap-1.5">
+              <div class="flex gap-1.5 flex-wrap">
                 <button
-                  v-for="tipo in ['todas', 'antes', 'durante', 'despues']"
+                  v-for="tipo in tiposEvidenciasDisponibles"
                   :key="tipo"
                   @click="filtroFoto = tipo"
-                  class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all"
+                  class="px-2.5 py-1 rounded-lg text-xs font-bold uppercase transition-all cursor-pointer"
                   :class="filtroFoto === tipo 
                     ? 'bg-red-600 text-white shadow-xs' 
                     : 'bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-white/10'"
                 >
-                  {{ tipo }} ({{ countFotos(tipo) }})
+                  {{ formatTipoEvidencia(tipo) }} ({{ countFotos(tipo) }})
                 </button>
               </div>
               <span class="text-xs font-mono font-bold text-slate-400">
@@ -249,9 +844,9 @@
                   <div class="absolute top-2 left-2">
                     <span 
                       class="px-2 py-0.5 rounded-md text-[10px] font-black uppercase text-white shadow-md tracking-wider"
-                      :class="foto.tipo === 'antes' ? 'bg-amber-600' : foto.tipo === 'durante' ? 'bg-blue-600' : 'bg-emerald-600'"
+                      :class="badgeTipoEvidenciaClass(foto.tipo)"
                     >
-                      {{ foto.tipo }}
+                      {{ formatTipoEvidencia(foto.tipo) }}
                     </span>
                   </div>
                   <div class="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity text-white font-bold text-xs gap-1">
@@ -824,15 +1419,17 @@
     <!-- Visor de Zoom de Fotografía -->
     <div v-if="fotoZoom" class="fixed inset-0 z-[60] bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4 select-none" @click="fotoZoom = null">
       <div class="relative max-w-4xl max-h-[85vh] w-full flex flex-col items-center" @click.stop>
-        <img :src="fotoZoom.url_imagen" @error="onFotoError($event, fotoZoom.tipo)" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
+        <img :src="fotoZoom?.url_imagen" @error="onFotoError($event, fotoZoom?.tipo)" class="max-w-full max-h-[75vh] object-contain rounded-xl shadow-2xl border border-white/10" />
         <div class="mt-3 flex items-center justify-between w-full text-white text-xs px-2">
-          <div class="space-x-2">
-            <span class="px-2 py-0.5 rounded uppercase font-black" :class="fotoZoom.tipo === 'antes' ? 'bg-amber-600' : fotoZoom.tipo === 'durante' ? 'bg-blue-600' : 'bg-emerald-600'">
-              {{ fotoZoom.tipo }}
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded text-[10px] uppercase font-black tracking-wider text-white shadow-sm" :class="badgeTipoEvidenciaClass(fotoZoom?.tipo)">
+              {{ formatTipoEvidencia(fotoZoom?.tipo) }}
             </span>
-            <span class="font-mono text-slate-300">{{ formatDate(fotoZoom.fecha_hora_captura || fotoZoom.created_at) }}</span>
+            <span v-if="fotoZoom?.fecha_hora_captura || fotoZoom?.created_at" class="font-mono text-slate-300">
+              {{ formatDate(fotoZoom.fecha_hora_captura || fotoZoom.created_at) }}
+            </span>
           </div>
-          <button @click="fotoZoom = null" class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-bold">
+          <button @click="fotoZoom = null" class="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-lg text-xs font-bold cursor-pointer transition-colors">
             Cerrar Zoom
           </button>
         </div>
@@ -870,7 +1467,17 @@ import {
   IconBatteryCharging,
   IconAlertTriangle,
   IconChevronLeft,
-  IconChevronRight
+  IconChevronRight,
+  IconTruck,
+  IconTools,
+  IconExchange,
+  IconEye,
+  IconCheck,
+  IconTool,
+  IconWind,
+  IconDroplet,
+  IconGauge,
+  IconShieldCheck
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -890,6 +1497,55 @@ const activeTab = ref('resumen');
 const filtroFoto = ref('todas');
 const fotoZoom = ref(null);
 const loadingAction = ref(false);
+
+const parsedFormData = computed(() => {
+  if (!props.ot?.datos_formulario) return {};
+  if (typeof props.ot.datos_formulario === 'object') return props.ot.datos_formulario;
+  try {
+    return JSON.parse(props.ot.datos_formulario);
+  } catch (e) {
+    return {};
+  }
+});
+
+const isFormatoWo = computed(() => {
+  const tMant = (props.ot?.tipo_mantenimiento || '').toLowerCase();
+  const tAct = (props.ot?.tipo_actividad || '').toLowerCase();
+  const d = parsedFormData.value;
+  return tMant === 'correctivo' || tMant === 'emergencia' || tAct.includes('correctivo') || tAct.includes('emergencia') || tAct.includes('obra') || Boolean(d?.tipo_equipo_falla || d?.descripcion_falla);
+});
+
+const isFormatoMpAire = computed(() => {
+  if (isFormatoWo.value) return false;
+  const tAct = (props.ot?.tipo_actividad || '').toLowerCase();
+  const sub = (props.ot?.subsistema || '').toLowerCase();
+  const d = parsedFormData.value;
+  return tAct.includes('aire') || sub.includes('aire') || d?.rutina_tipo === 'aire' || Boolean(d?.marca_aa || d?.compresor_marca);
+});
+
+const isFormatoMpPlanta = computed(() => {
+  return !isFormatoWo.value && !isFormatoMpAire.value;
+});
+
+const tituloFormatoCampo = computed(() => {
+  if (isFormatoWo.value) return 'Formato Técnico Claro: Mantenimiento Correctivo y Emergencias (WO0000005558781)';
+  if (isFormatoMpAire.value) return 'Planilla Oficial Claro: Mantenimiento Preventivo Climatización (MP AIRE - WO0000005520436)';
+  return 'Planilla Oficial Claro: Mantenimiento Preventivo Planta Eléctrica (MP PLANTA - OT5304019)';
+});
+
+const hasFormData = computed(() => {
+  const d = parsedFormData.value;
+  return Boolean(
+    d.llegada_foto || d.llegada_sitio ||
+    (Array.isArray(d.transportes_especiales) && d.transportes_especiales.length > 0) ||
+    (Array.isArray(d.insumos_menores) && d.insumos_menores.length > 0) ||
+    (Array.isArray(d.repuestos_cambios) && d.repuestos_cambios.length > 0) ||
+    (Array.isArray(d.hallazgos) && d.hallazgos.length > 0) ||
+    d.descripcion_falla || d.descripcion_solucion ||
+    d.marca_equipo || d.marca_aa || d.horometro_inicial !== undefined ||
+    (d.parametros && Object.keys(d.parametros).length > 0)
+  );
+});
 
 // Navegación y Desplazamiento Fluido de Pestañas
 const tabsNavRef = ref(null);
@@ -1080,6 +1736,12 @@ onMounted(() => {
 const tabs = computed(() => {
   const baseTabs = [
     { id: 'resumen', label: 'Ficha General', icon: IconFileText },
+    { 
+      id: 'formato_campo', 
+      label: 'Formato de Campo', 
+      icon: IconFileCheck, 
+      badge: hasFormData.value ? 'Diligenciado' : undefined 
+    },
     { id: 'evidencias', label: 'Evidencias', icon: IconCamera, badge: props.ot?.evidencias?.length || 0 },
     { id: 'bitacora', label: 'Bitácora PDT', icon: IconHistory, badge: props.ot?.avances?.length || 0 },
     { id: 'repuestos', label: 'Insumos LPU', icon: IconBox, badge: props.ot?.repuestos?.length || 0 },
@@ -1109,6 +1771,16 @@ watch(tabs, (newTabs) => {
   }
 }, { immediate: true });
 
+const tiposEvidenciasDisponibles = computed(() => {
+  const tipos = new Set(['todas']);
+  if (props.ot?.evidencias && Array.isArray(props.ot.evidencias)) {
+    props.ot.evidencias.forEach(e => {
+      if (e.tipo) tipos.add(e.tipo);
+    });
+  }
+  return Array.from(tipos);
+});
+
 const countFotos = (tipo) => {
   if (!props.ot?.evidencias) return 0;
   if (tipo === 'todas') return props.ot.evidencias.length;
@@ -1120,6 +1792,41 @@ const fotosFiltradas = computed(() => {
   if (filtroFoto.value === 'todas') return props.ot.evidencias;
   return props.ot.evidencias.filter(f => f.tipo === filtroFoto.value);
 });
+
+const formatTipoEvidencia = (tipo) => {
+  const map = {
+    todas: 'Todas',
+    llegada_sitio: 'Llegada a Sitio',
+    llegada: 'Llegada',
+    transporte: 'Transporte LPU',
+    insumo_antes: 'Insumo (Antes)',
+    insumo_despues: 'Insumo (Después)',
+    repuesto_retirado: 'Repuesto Retirado',
+    repuesto_instalado: 'Repuesto Instalado',
+    hallazgo: 'Novedad / Hallazgo',
+    antes: 'Antes',
+    durante: 'Durante',
+    despues: 'Después'
+  };
+  return map[tipo] || (tipo ? tipo.replace(/_/g, ' ').toUpperCase() : 'Evidencia');
+};
+
+const badgeTipoEvidenciaClass = (tipo) => {
+  const map = {
+    llegada_sitio: 'bg-indigo-600',
+    llegada: 'bg-indigo-600',
+    transporte: 'bg-blue-600',
+    insumo_antes: 'bg-amber-600',
+    insumo_despues: 'bg-teal-600',
+    repuesto_retirado: 'bg-rose-600',
+    repuesto_instalado: 'bg-emerald-600',
+    hallazgo: 'bg-purple-600',
+    antes: 'bg-amber-600',
+    durante: 'bg-blue-600',
+    despues: 'bg-emerald-600'
+  };
+  return map[tipo] || 'bg-slate-700';
+};
 
 const fallbackEvidencias = {
   antes: 'https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?w=800',
@@ -1133,8 +1840,22 @@ const onFotoError = (event, tipo) => {
   }
 };
 
-const abrirZoom = (foto) => {
-  fotoZoom.value = foto;
+const abrirZoom = (foto, tipo = 'Evidencia', fecha = null) => {
+  if (!foto) return;
+  if (typeof foto === 'string') {
+    fotoZoom.value = {
+      url_imagen: foto,
+      tipo: tipo,
+      fecha_hora_captura: fecha || null
+    };
+  } else {
+    fotoZoom.value = {
+      ...foto,
+      url_imagen: foto.url_imagen || foto.foto || foto.url || '',
+      tipo: foto.tipo || tipo,
+      fecha_hora_captura: foto.fecha_hora_captura || foto.created_at || fecha || null
+    };
+  }
 };
 
 const abrirMaps = (ubicacion) => {
@@ -1171,9 +1892,25 @@ const estadoBadgeClass = (st) => {
 };
 
 const tipoBadgeClass = (t) => {
-  if (t === 'emergencia') return 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400';
-  if (t === 'correctivo') return 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-400';
+  const str = (t || '').toLowerCase();
+  if (str === 'emergencia') return 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950/60 dark:text-rose-400';
+  if (str === 'correctivo') return 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-400';
+  if (str === 'obra_civil') return 'bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-950/60 dark:text-orange-400';
+  if (str === 'informe_360') return 'bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-400';
+  if (str === 'rutina_7x24' || str.includes('7x24')) return 'bg-indigo-100 text-indigo-800 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-400';
   return 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-400';
+};
+
+const formatTipoLabel = (t) => {
+  const str = (t || '').toLowerCase();
+  if (str === 'preventivo_planta') return 'Preventivo Planta';
+  if (str === 'preventivo_aire') return 'Preventivo Aire';
+  if (str === 'rutina_7x24' || str.includes('7x24')) return 'Rutina MP 7x24';
+  if (str === 'obra_civil') return 'Obra Civil';
+  if (str === 'informe_360') return 'Informe 360';
+  if (str === 'emergencia') return 'Emergencia';
+  if (str === 'correctivo') return 'Correctivo';
+  return (t || 'Preventivo').toUpperCase();
 };
 
 const aprobarOt = async () => {

@@ -38,9 +38,17 @@ const openEditModal = ref(false);
 const openAuditModal = ref(false);
 const auditingOt = ref(null);
 
-const openAuditOt = (ot) => {
+const openAuditOt = async (ot) => {
   auditingOt.value = ot;
   openAuditModal.value = true;
+  try {
+    const res = await client.get(`/ots/${ot.id}`);
+    if (res.data?.status === 'success' && res.data?.data) {
+      auditingOt.value = res.data.data;
+    }
+  } catch (err) {
+    console.warn('Error al obtener detalle actualizado para auditoría:', err);
+  }
 };
 
 const searchQuery = ref('');
@@ -148,6 +156,26 @@ const syncOtModel = (model) => {
     if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
       model.subsistema = 'Movil Aires Acondicionados';
     }
+  } else if (model.tipo_actividad === 'rutina_7x24_aire') {
+    model.tipo_mantenimiento = 'preventivo';
+    if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
+      model.subsistema = 'Movil Rutinas 7x24 - Aire Acondicionado';
+    }
+  } else if (model.tipo_actividad === 'rutina_7x24_planta' || model.tipo_actividad === 'rutina_7x24' || model.tipo_actividad === 'preventivo_rutina_7x24') {
+    model.tipo_mantenimiento = 'preventivo';
+    if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
+      model.subsistema = 'Movil Rutinas 7x24 - Planta Eléctrica';
+    }
+  } else if (model.tipo_actividad === 'obra_civil') {
+    model.tipo_mantenimiento = 'correctivo';
+    if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
+      model.subsistema = 'Infraestructura y Obra Civil';
+    }
+  } else if (model.tipo_actividad === 'informe_360') {
+    model.tipo_mantenimiento = 'preventivo';
+    if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
+      model.subsistema = 'Inspección y Relevamiento 360';
+    }
   } else if (model.tipo_actividad === 'correctivo') {
     model.tipo_mantenimiento = 'correctivo';
   } else if (model.tipo_actividad === 'emergencia') {
@@ -161,7 +189,7 @@ const syncOtModel = (model) => {
   }
 };
 
-// Manejo de Tipo de Actividad (Correctivo, Preventivo, Emergencia) y Planta/Aire
+// Manejo de Tipo de Actividad (Preventivo, Correctivo, Emergencia, Rutina 7x24, Informe 360, Obra Civil) y Subtipo (Aire / Planta)
 const newOtTipoPrincipal = ref('correctivo');
 const newOtSubtipoPreventivo = ref('planta');
 const editingOtTipoPrincipal = ref('correctivo');
@@ -177,6 +205,8 @@ const openCreateOtModal = () => {
 const onNewOtTipoPrincipalChange = () => {
   if (newOtTipoPrincipal.value === 'preventivo') {
     newOt.value.tipo_actividad = newOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+  } else if (newOtTipoPrincipal.value === 'rutina_7x24') {
+    newOt.value.tipo_actividad = newOtSubtipoPreventivo.value === 'aire' ? 'rutina_7x24_aire' : 'rutina_7x24_planta';
   } else {
     newOt.value.tipo_actividad = newOtTipoPrincipal.value;
   }
@@ -187,12 +217,17 @@ const onNewOtSubtipoChange = () => {
   if (newOtTipoPrincipal.value === 'preventivo') {
     newOt.value.tipo_actividad = newOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
     onTipoActividadChange('create');
+  } else if (newOtTipoPrincipal.value === 'rutina_7x24') {
+    newOt.value.tipo_actividad = newOtSubtipoPreventivo.value === 'aire' ? 'rutina_7x24_aire' : 'rutina_7x24_planta';
+    onTipoActividadChange('create');
   }
 };
 
 const onEditingOtTipoPrincipalChange = () => {
   if (editingOtTipoPrincipal.value === 'preventivo') {
     editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+  } else if (editingOtTipoPrincipal.value === 'rutina_7x24') {
+    editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'rutina_7x24_aire' : 'rutina_7x24_planta';
   } else {
     editingOt.value.tipo_actividad = editingOtTipoPrincipal.value;
   }
@@ -202,6 +237,9 @@ const onEditingOtTipoPrincipalChange = () => {
 const onEditingOtSubtipoChange = () => {
   if (editingOtTipoPrincipal.value === 'preventivo') {
     editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
+    onTipoActividadChange('edit');
+  } else if (editingOtTipoPrincipal.value === 'rutina_7x24') {
+    editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'rutina_7x24_aire' : 'rutina_7x24_planta';
     onTipoActividadChange('edit');
   }
 };
@@ -291,6 +329,18 @@ const openEditOt = (ot) => {
     editingOtSubtipoPreventivo.value = 'aire';
   } else if (tAct === 'preventivo_planta' || tAct === 'preventivo') {
     editingOtTipoPrincipal.value = 'preventivo';
+    editingOtSubtipoPreventivo.value = 'planta';
+  } else if (tAct === 'rutina_7x24_aire' || (tAct.includes('7x24') && ((ot.subsistema || '').toLowerCase().includes('aire') || tAct.includes('aire')))) {
+    editingOtTipoPrincipal.value = 'rutina_7x24';
+    editingOtSubtipoPreventivo.value = 'aire';
+  } else if (tAct.includes('7x24') || (ot.subsistema || '').toLowerCase().includes('7x24')) {
+    editingOtTipoPrincipal.value = 'rutina_7x24';
+    editingOtSubtipoPreventivo.value = 'planta';
+  } else if (tAct === 'obra_civil') {
+    editingOtTipoPrincipal.value = 'obra_civil';
+    editingOtSubtipoPreventivo.value = 'planta';
+  } else if (tAct === 'informe_360') {
+    editingOtTipoPrincipal.value = 'informe_360';
     editingOtSubtipoPreventivo.value = 'planta';
   } else if (tAct === 'emergencia') {
     editingOtTipoPrincipal.value = 'emergencia';
@@ -423,13 +473,15 @@ const filteredOts = computed(() => {
   return ots.value.filter(ot => {
     const searchLower = searchQuery.value.toLowerCase();
     
-    // Búsqueda por código, ID de actividad, descripción, ubicación, coordinador o por el nombre del encargado
+    // Búsqueda por código, ID de actividad, descripción, ubicación, tipo de actividad, coordinador o por el nombre del encargado
     const matchesSearch = (ot.codigo && ot.codigo.toLowerCase().includes(searchLower)) || 
                          (ot.id_actividad && ot.id_actividad.toLowerCase().includes(searchLower)) ||
                          (ot.descripcion && ot.descripcion.toLowerCase().includes(searchLower)) ||
                          (ot.ubicacion && ot.ubicacion.toLowerCase().includes(searchLower)) ||
                          (ot.coordinador && ot.coordinador.toLowerCase().includes(searchLower)) ||
                          (ot.departamento && ot.departamento.toLowerCase().includes(searchLower)) ||
+                         (ot.tipo_actividad && ot.tipo_actividad.toLowerCase().includes(searchLower)) ||
+                         (ot.tipo_mantenimiento && ot.tipo_mantenimiento.toLowerCase().includes(searchLower)) ||
                          (ot.assigned_user && ot.assigned_user.name.toLowerCase().includes(searchLower)) ||
                          (ot.cuadrilla && ot.cuadrilla.nombre.toLowerCase().includes(searchLower));
     
@@ -438,6 +490,25 @@ const filteredOts = computed(() => {
     return matchesSearch && matchesStatus;
   });
 });
+
+const formatTipoActividad = (ot) => {
+  const t = (ot.tipo_actividad || ot.tipo_mantenimiento || 'correctivo').toLowerCase();
+  if (t === 'preventivo_planta') return 'Preventivo - PLANTA';
+  if (t === 'preventivo_aire') return 'Preventivo - AIRE';
+  if (t === 'rutina_7x24_aire') return 'Rutina 7x24 - AIRE';
+  if (t === 'rutina_7x24_planta') return 'Rutina 7x24 - PLANTA';
+  if (t === 'rutina_7x24' || t === 'preventivo_rutina_7x24' || t.includes('7x24')) return 'Rutina MP 7x24';
+  if (t === 'obra_civil') return 'Obra Civil';
+  if (t === 'informe_360') return 'Informe 360';
+  if (t === 'emergencia') return 'Emergencia';
+  if (t === 'correctivo') return 'Correctivo';
+  return (ot.tipo_actividad || ot.tipo_mantenimiento || 'Correctivo').toUpperCase();
+};
+
+const isFormatoMp = (ot) => {
+  const t = (ot.tipo_actividad || ot.tipo_mantenimiento || '').toLowerCase();
+  return t === 'preventivo_planta' || t === 'preventivo_aire' || t === 'rutina_7x24' || t === 'preventivo_rutina_7x24' || t.includes('7x24') || ot.tipo_mantenimiento === 'preventivo';
+};
 
 const createOt = async () => {
   errorMsg.value = '';
@@ -643,9 +714,12 @@ const getStatusLabel = (status) => {
                       'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-400 dark:border-amber-500/30': ot.tipo_actividad === 'correctivo' || ot.tipo_mantenimiento === 'correctivo',
                       'bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-400 dark:border-emerald-500/30': ot.tipo_actividad === 'preventivo_planta',
                       'bg-cyan-100 text-cyan-800 border border-cyan-200 dark:bg-cyan-950/60 dark:text-cyan-400 dark:border-cyan-500/30': ot.tipo_actividad === 'preventivo_aire',
+                      'bg-indigo-100 text-indigo-800 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-400 dark:border-indigo-500/30': ot.tipo_actividad === 'rutina_7x24' || ot.tipo_actividad === 'preventivo_rutina_7x24' || (ot.tipo_actividad && ot.tipo_actividad.includes('7x24')),
+                      'bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-950/60 dark:text-orange-400 dark:border-orange-500/30': ot.tipo_actividad === 'obra_civil',
+                      'bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-500/30': ot.tipo_actividad === 'informe_360',
                       'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-500/30': !ot.tipo_actividad || ot.tipo_mantenimiento === 'preventivo'
                     }">
-                      {{ ot.tipo_actividad === 'preventivo_planta' ? 'Preventivo - PLANTA' : ot.tipo_actividad === 'preventivo_aire' ? 'Preventivo - AIRE' : (ot.tipo_actividad || ot.tipo_mantenimiento || 'Correctivo').toUpperCase() }}
+                      {{ formatTipoActividad(ot) }}
                     </span>
                     <div class="flex items-center gap-1 text-[10px] font-semibold text-neutral-600 dark:text-slate-400">
                       <span class="px-1.5 py-0.2 rounded bg-neutral-100 dark:bg-neutral-800 uppercase text-[9px]">{{ ot.categoria || 'normal' }}</span>
@@ -655,7 +729,7 @@ const getStatusLabel = (status) => {
                     </div>
                     <div class="text-[9px] font-mono text-neutral-400 dark:text-neutral-500 truncate max-w-[150px]">
                       <span class="font-bold text-neutral-600 dark:text-neutral-300">
-                        {{ (['correctivo', 'emergencia'].includes(ot.tipo_actividad || ot.tipo_mantenimiento)) ? 'Fmt WO' : 'Fmt MP' }}
+                        {{ isFormatoMp(ot) ? 'Fmt MP' : 'Fmt WO' }}
                       </span>
                       <span v-if="ot.datos_formulario?.tipo_equipo_falla || ot.datos_formulario?.marca_equipo">
                         : {{ ot.datos_formulario?.tipo_equipo_falla || ot.datos_formulario?.marca_equipo }}
@@ -767,34 +841,37 @@ const getStatusLabel = (status) => {
       <form @submit.prevent="createOt" class="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div class="space-y-3 sm:space-y-3.5 overflow-y-auto pr-1 sm:pr-2 flex-1 custom-scrollbar">
           <!-- Fila 1: Código OT & Tipo Actividad -->
-        <div class="grid grid-cols-1 gap-3" :class="newOtTipoPrincipal === 'preventivo' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
+        <div class="grid grid-cols-1 gap-3" :class="['preventivo', 'rutina_7x24'].includes(newOtTipoPrincipal) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="newOt.codigo" required placeholder="WO0000005558781 o OT5304019" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad *</label>
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad / Servicio *</label>
             <select 
               v-model="newOtTipoPrincipal" 
               @change="onNewOtTipoPrincipalChange"
               required
               class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
             >
-              <option value="correctivo">Correctivo</option>
               <option value="preventivo">Preventivo</option>
+              <option value="correctivo">Correctivo</option>
               <option value="emergencia">Emergencia</option>
+              <option value="rutina_7x24">Rutina MP 7x24</option>
+              <option value="informe_360">Informe 360</option>
+              <option value="obra_civil">Obra Civil</option>
             </select>
           </div>
-          <div v-if="newOtTipoPrincipal === 'preventivo'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-            <label class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Planta o Aire *</label>
+          <div v-if="['preventivo', 'rutina_7x24'].includes(newOtTipoPrincipal)" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+            <label class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Aire o Planta *</label>
             <select 
               v-model="newOtSubtipoPreventivo" 
               @change="onNewOtSubtipoChange"
               required
               class="flex h-9 w-full rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-semibold"
             >
-              <option value="planta">Planta</option>
               <option value="aire">Aire</option>
+              <option value="planta">Planta</option>
             </select>
           </div>
         </div>
@@ -906,19 +983,8 @@ const getStatusLabel = (status) => {
           />
         </div>
 
-        <!-- Fila 5: Parámetros Técnicos (Categoría, Regional, Tipo Estación, Prioridad) -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Categoría *</label>
-            <select 
-              v-model="newOt.categoria" 
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
-            >
-              <option value="normal">Normal</option>
-              <option value="rural">Rural (Difícil Acceso)</option>
-            </select>
-          </div>
+        <!-- Fila 5: Parámetros Técnicos (Regional, Tipo Estación, Prioridad) -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Regional *</label>
             <select 
@@ -1016,34 +1082,37 @@ const getStatusLabel = (status) => {
       <form @submit.prevent="updateOt" class="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div class="space-y-3 sm:space-y-3.5 overflow-y-auto pr-1 sm:pr-2 flex-1 custom-scrollbar">
           <!-- Fila 1: Código OT & Tipo Actividad -->
-        <div class="grid grid-cols-1 gap-3" :class="editingOtTipoPrincipal === 'preventivo' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
+        <div class="grid grid-cols-1 gap-3" :class="['preventivo', 'rutina_7x24'].includes(editingOtTipoPrincipal) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
           </div>
           <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad *</label>
+            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Tipo Actividad / Servicio *</label>
             <select 
               v-model="editingOtTipoPrincipal" 
               @change="onEditingOtTipoPrincipalChange"
               required
               class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
             >
-              <option value="correctivo">Correctivo</option>
               <option value="preventivo">Preventivo</option>
+              <option value="correctivo">Correctivo</option>
               <option value="emergencia">Emergencia</option>
+              <option value="rutina_7x24">Rutina MP 7x24</option>
+              <option value="informe_360">Informe 360</option>
+              <option value="obra_civil">Obra Civil</option>
             </select>
           </div>
-          <div v-if="editingOtTipoPrincipal === 'preventivo'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-            <label class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Planta o Aire *</label>
+          <div v-if="['preventivo', 'rutina_7x24'].includes(editingOtTipoPrincipal)" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
+            <label class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Aire o Planta *</label>
             <select 
               v-model="editingOtSubtipoPreventivo" 
               @change="onEditingOtSubtipoChange"
               required
               class="flex h-9 w-full rounded-md border border-emerald-300 dark:border-emerald-700 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-semibold"
             >
-              <option value="planta">Planta</option>
               <option value="aire">Aire</option>
+              <option value="planta">Planta</option>
             </select>
           </div>
         </div>
@@ -1155,19 +1224,8 @@ const getStatusLabel = (status) => {
           />
         </div>
 
-        <!-- Fila 5: Parámetros Técnicos (Categoría, Regional, Tipo Estación, Prioridad & Estado) -->
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div class="space-y-1.5">
-            <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Categoría *</label>
-            <select 
-              v-model="editingOt.categoria" 
-              required
-              class="flex h-9 w-full rounded-md border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-neutral-800 dark:text-neutral-300 focus:border-primary focus:ring-primary cursor-pointer font-medium"
-            >
-              <option value="normal">Normal</option>
-              <option value="rural">Rural (Difícil Acceso)</option>
-            </select>
-          </div>
+        <!-- Fila 5: Parámetros Técnicos (Regional, Tipo Estación, Prioridad & Estado) -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Regional *</label>
             <select 

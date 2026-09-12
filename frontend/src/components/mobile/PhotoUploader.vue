@@ -49,11 +49,7 @@
     <div v-if="previewUrl" class="relative rounded-xl overflow-hidden border-2 border-red-500 shadow-xl group space-y-2">
       <div class="relative">
         <img :src="previewUrl" alt="Vista Previa Evidencia" class="w-full h-56 object-cover" />
-        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-3 text-[10px] text-slate-200 space-y-0.5">
-          <div class="font-mono text-emerald-400 font-bold flex items-center gap-1">
-            <IconCheck class="w-3.5 h-3.5 stroke-[3]" />
-            <span>Marca de agua incrustada con éxito</span>
-          </div>
+        <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 via-black/70 to-transparent p-3 text-[10px] text-slate-200 space-y-0.5 font-mono">
           <div>GPS: {{ coordsText }}</div>
           <div>Fecha: {{ dateText }}</div>
         </div>
@@ -264,16 +260,14 @@ const drawWatermark = (img) => {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
   ctx.fillRect(0, img.height - barHeight, img.width, barHeight);
 
-  const fontSize = Math.max(16, Math.floor(barHeight * 0.28));
-  ctx.fillStyle = '#22c55e';
-  ctx.font = `bold ${fontSize}px sans-serif`;
-
-  const line1 = `SMU EVIDENCIA: ${props.tipo.toUpperCase()} | OT: ${props.codigoOt}`;
-  const line2 = `GPS: ${coordsText.value} | FECHA: ${dateStr}`;
-
-  ctx.fillText(line1, 20, img.height - barHeight + fontSize + 8);
+  const fontSize = Math.max(14, Math.floor(barHeight * 0.35));
   ctx.fillStyle = '#ffffff';
-  ctx.font = `${fontSize * 0.9}px monospace`;
+  ctx.font = `600 ${fontSize}px monospace, sans-serif`;
+
+  const line1 = `GPS: ${coordsText.value}`;
+  const line2 = `FECHA: ${dateStr}`;
+
+  ctx.fillText(line1, 20, img.height - barHeight + fontSize + 6);
   ctx.fillText(line2, 20, img.height - barHeight + (fontSize * 2) + 12);
 
   previewUrl.value = cvs.toDataURL('image/jpeg', 0.85);

@@ -180,8 +180,8 @@
               >
                 {{ ot.codigo }}
               </span>
-              <span :class="tipoMantenimientoClass(ot.tipo_mantenimiento)" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase">
-                {{ ot.tipo_mantenimiento || 'Preventivo' }}
+              <span :class="tipoMantenimientoClass(ot.tipo_actividad || ot.tipo_mantenimiento)" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-2xs">
+                {{ formatTipoNombre(ot.tipo_actividad || ot.tipo_mantenimiento) }}
               </span>
               <span v-if="ot.subsistema" class="bg-slate-100 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded text-[10px] font-mono font-bold">
                 {{ ot.subsistema }}
@@ -363,9 +363,25 @@ const goToDetail = (id) => {
   router.push(`/mobile/ot/${id}`);
 };
 
+const formatTipoNombre = (tipo) => {
+  const str = (tipo || '').toLowerCase();
+  if (str === 'obra_civil') return 'Obra Civil';
+  if (str === 'informe_360') return 'Informe 360';
+  if (str === 'rutina_7x24' || str.includes('7x24')) return 'Rutina MP 7x24';
+  if (str === 'preventivo_planta') return 'Planta GE';
+  if (str === 'preventivo_aire') return 'Aire AA';
+  if (str === 'emergencia') return 'Emergencia';
+  if (str === 'correctivo') return 'Correctivo';
+  return tipo || 'Preventivo';
+};
+
 const tipoMantenimientoClass = (tipo) => {
-  if (tipo === 'emergencia') return 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950 dark:text-rose-400 dark:border-rose-500/30';
-  if (tipo === 'correctivo') return 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-500/30';
-  return 'bg-red-50 text-red-700 border border-red-200 dark:bg-red-950/60 dark:text-red-400 dark:border-red-500/30';
+  const str = (tipo || '').toLowerCase();
+  if (str === 'emergencia') return 'bg-rose-100 text-rose-800 border border-rose-200 dark:bg-rose-950 dark:text-rose-400 dark:border-rose-500/30';
+  if (str === 'correctivo') return 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-950 dark:text-amber-400 dark:border-amber-500/30';
+  if (str === 'obra_civil') return 'bg-orange-100 text-orange-800 border border-orange-200 dark:bg-orange-950/60 dark:text-orange-400 dark:border-orange-500/30';
+  if (str === 'informe_360') return 'bg-purple-100 text-purple-800 border border-purple-200 dark:bg-purple-950/60 dark:text-purple-400 dark:border-purple-500/30';
+  if (str === 'rutina_7x24' || str.includes('7x24')) return 'bg-indigo-100 text-indigo-800 border border-indigo-200 dark:bg-indigo-950/60 dark:text-indigo-400 dark:border-indigo-500/30';
+  return 'bg-blue-100 text-blue-800 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-400 dark:border-blue-500/30';
 };
 </script>
