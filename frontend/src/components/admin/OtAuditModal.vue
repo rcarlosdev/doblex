@@ -560,6 +560,293 @@
               </div>
             </div>
 
+            <!-- D. CASO FORMATO 360: INSPECCIÓN TÉCNICA Y DIAGNÓSTICOS 360 (GE + SPT) -->
+            <div v-else-if="isFormato360" class="space-y-4">
+              <!-- D.1 Resumen y Ficha de Grupo Electrógeno con Vida Útil -->
+              <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <IconEngine class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+                    <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      2. Diagnóstico Técnico 360 - Grupo Electrógeno SMU (Plantilla Claro)
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">
+                      Vida Útil Estimada: {{ parsedFormData.vida_util_calculada_pct || 85 }}%
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Ficha Técnica GE 360 -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Marca GE / Generador</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.marca_equipo || 'CUMMINS / STAMFORD' }}</span>
+                  </div>
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Potencia / Capacidad</span>
+                    <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.capacidad_kva ? `${parsedFormData.capacidad_kva} kVA` : '60 kVA' }}</span>
+                  </div>
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Horómetro Actual</span>
+                    <span class="font-mono font-black text-red-600 dark:text-red-400">{{ parsedFormData.horometro_inicial !== undefined && parsedFormData.horometro_inicial !== null ? `${parsedFormData.horometro_inicial} hrs` : 'N/A' }}</span>
+                  </div>
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                    <span class="text-[10px] text-slate-400 font-bold block uppercase">Voltaje Batería</span>
+                    <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">{{ parsedFormData.voltaje_bateria ? `${parsedFormData.voltaje_bateria} Vdc` : '12.8 Vdc' }}</span>
+                  </div>
+                </div>
+
+                <!-- Matriz de Subsistemas Evaluados GE SMU -->
+                <div v-if="parsedFormData.diagnosticos_smu" class="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
+                  <span class="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                    Evaluación por Subsistemas de la Planta (Formato SMU Claro)
+                  </span>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-xs">
+                    <div 
+                      v-for="(subData, subKey) in parsedFormData.diagnosticos_smu" 
+                      :key="subKey"
+                      class="p-2.5 rounded-xl border bg-slate-50/70 dark:bg-white/[0.02]"
+                      :class="{
+                        'border-emerald-200 dark:border-emerald-800/30': subData.calificacion === 'Bueno',
+                        'border-amber-200 dark:border-amber-800/30': subData.calificacion === 'Regular',
+                        'border-rose-200 dark:border-rose-800/30': subData.calificacion === 'Malo',
+                        'border-slate-200 dark:border-white/10': !subData.calificacion
+                      }"
+                    >
+                      <div class="flex items-center justify-between gap-1 mb-1">
+                        <span class="font-bold uppercase text-[10px] text-slate-700 dark:text-slate-300">{{ subKey.replace('_', ' ') }}</span>
+                        <span 
+                          class="px-1.5 py-0.2 rounded text-[9px] font-black uppercase"
+                          :class="{
+                            'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300': subData.calificacion === 'Bueno',
+                            'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300': subData.calificacion === 'Regular',
+                            'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300': subData.calificacion === 'Malo',
+                            'bg-slate-200 text-slate-700': !subData.calificacion
+                          }"
+                        >
+                          {{ subData.calificacion || 'Evaluado' }}
+                        </span>
+                      </div>
+                      <p v-if="subData.hallazgo" class="text-[10px] text-slate-600 dark:text-slate-400 line-clamp-2">
+                        <strong class="text-slate-800 dark:text-slate-200">Hallazgo:</strong> {{ subData.hallazgo }}
+                      </p>
+                      <p v-if="subData.accion" class="text-[10px] text-indigo-600 dark:text-indigo-400 mt-0.5 line-clamp-2">
+                        <strong>Acción:</strong> {{ subData.accion }}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- D.2 Pruebas de Aislamiento Megger del Alternador -->
+              <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <IconBolt class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2]" />
+                    <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Resistencia de Aislamiento Alternador - Megger (500V / 1000V)
+                    </span>
+                  </div>
+                  <span 
+                    class="text-[10px] font-black px-2 py-0.5 rounded"
+                    :class="parsedFormData.megger_cumple_global !== false ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
+                  >
+                    {{ parsedFormData.megger_cumple_global !== false ? 'CONFORME (R ≥ 5 MΩ, PI ≥ 2)' : 'NO CONFORME' }}
+                  </span>
+                </div>
+
+                <div v-if="parsedFormData.megger_mediciones" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                  <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                      <tr>
+                        <th class="py-2 px-3">Punto / Fases</th>
+                        <th class="py-2 px-3 text-right">R @ 1 min (MΩ)</th>
+                        <th class="py-2 px-3 text-right">R @ 10 min (MΩ)</th>
+                        <th class="py-2 px-3 text-right">Índice Polarización (PI)</th>
+                        <th class="py-2 px-3 text-center">Evaluación Criterio</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                      <tr v-for="(med, k) in parsedFormData.megger_mediciones" :key="k" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                        <td class="py-2 px-3 font-mono font-bold text-slate-800 dark:text-slate-200 uppercase">{{ k.replace('_', ' - ') }}</td>
+                        <td class="py-2 px-3 font-mono text-right text-slate-700 dark:text-slate-300">{{ med.r1 !== undefined ? med.r1 : '-' }}</td>
+                        <td class="py-2 px-3 font-mono text-right text-slate-700 dark:text-slate-300">{{ med.r10 !== undefined ? med.r10 : '-' }}</td>
+                        <td class="py-2 px-3 font-mono text-right font-black" :class="(med.pi >= 2) ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">
+                          {{ med.pi || 'N/A' }}
+                        </td>
+                        <td class="py-2 px-3 text-center">
+                          <span 
+                            class="px-2 py-0.5 rounded text-[10px] font-bold"
+                            :class="med.cumple ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
+                          >
+                            {{ med.cumple ? 'Aceptado' : 'Observado' }}
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- D.3 Banco de Carga Resistivo - Registro de 60 Minutos -->
+              <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <IconGauge class="w-4 h-4 text-indigo-600 dark:text-indigo-400 stroke-[2]" />
+                    <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Protocolo de Banco de Carga Resistivo (Prueba de 1 Hora)
+                    </span>
+                  </div>
+                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
+                    {{ parsedFormData.banco_carga_lecturas?.length || 0 }} Lecturas Horarias
+                  </span>
+                </div>
+
+                <div v-if="parsedFormData.banco_carga_lecturas && parsedFormData.banco_carga_lecturas.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                  <table class="w-full text-xs text-left">
+                    <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                      <tr>
+                        <th class="py-2 px-2.5">Tiempo</th>
+                        <th class="py-2 px-2.5 text-right">Voltaje L-L (V)</th>
+                        <th class="py-2 px-2.5 text-right">Frecuencia (Hz)</th>
+                        <th class="py-2 px-2.5 text-right">Corriente Prom. (A)</th>
+                        <th class="py-2 px-2.5 text-right">Potencia (kW)</th>
+                        <th class="py-2 px-2.5 text-right">Temp. (°C)</th>
+                        <th class="py-2 px-2.5 text-right">Presión (PSI/Bar)</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 dark:divide-white/5 font-mono">
+                      <tr v-for="(lec, idx) in parsedFormData.banco_carga_lecturas" :key="idx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                        <td class="py-2 px-2.5 font-bold text-slate-900 dark:text-white">{{ lec.tiempo }}</td>
+                        <td class="py-2 px-2.5 text-right">{{ lec.u_v || 215 }} V</td>
+                        <td class="py-2 px-2.5 text-right text-emerald-600 dark:text-emerald-400 font-bold">{{ lec.hz || 60.0 }} Hz</td>
+                        <td class="py-2 px-2.5 text-right">{{ lec.i_u || '-' }} A</td>
+                        <td class="py-2 px-2.5 text-right font-black text-indigo-600 dark:text-indigo-400">{{ lec.kw || '-' }} kW</td>
+                        <td class="py-2 px-2.5 text-right">{{ lec.temp_c ? `${lec.temp_c} °C` : '-' }}</td>
+                        <td class="py-2 px-2.5 text-right">{{ lec.presion_psi ? `${lec.presion_psi}` : '-' }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- D.4 Sistema de Puesta a Tierra (SPT) -->
+              <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <IconShieldCheck class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2]" />
+                    <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Inspección Técnica Sistema de Puesta a Tierra (SPT Claro)
+                    </span>
+                  </div>
+                  <span 
+                    class="text-[10px] font-black px-2 py-0.5 rounded"
+                    :class="(parsedFormData.spt_caida_potencial_r <= 5) ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
+                  >
+                    {{ (parsedFormData.spt_caida_potencial_r <= 5) ? 'CONFORME (R < 5 Ω)' : 'OBSERVADO (R ≥ 5 Ω)' }}
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                      <span class="text-[10px] text-slate-400 font-bold block uppercase">Resistividad Terreno (Wenner)</span>
+                      <span class="font-mono font-black text-sm text-slate-900 dark:text-white">
+                        {{ parsedFormData.spt_wenner_resistividad ? `${parsedFormData.spt_wenner_resistividad} Ω·m` : '112.5 Ω·m' }}
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-200 dark:bg-white/10 text-slate-700 dark:text-slate-300">
+                      4 Electrodos
+                    </span>
+                  </div>
+
+                  <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-3 flex items-center justify-between">
+                    <div>
+                      <span class="text-[10px] text-slate-400 font-bold block uppercase">Resistencia Malla (Caída Potencial 62%)</span>
+                      <span class="font-mono font-black text-sm" :class="(parsedFormData.spt_caida_potencial_r <= 5) ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'">
+                        {{ parsedFormData.spt_caida_potencial_r !== undefined ? `${parsedFormData.spt_caida_potencial_r} Ω` : '2.4 Ω' }}
+                      </span>
+                    </div>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded" :class="(parsedFormData.spt_caida_potencial_r <= 5) ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'">
+                      Norma &lt; 5.0 Ω
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Matriz de 11 Puntos de Equipotencialidad -->
+                <div v-if="parsedFormData.spt_puntos_equipotencial" class="space-y-2 pt-2 border-t border-slate-100 dark:border-white/5">
+                  <span class="text-[11px] font-black text-slate-700 dark:text-slate-300 uppercase tracking-wider block">
+                    Continuidad y Equipotencialidad vs Barra BEP (Criterio ≤ 0.2 Ω)
+                  </span>
+                  <div class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                    <table class="w-full text-xs text-left">
+                      <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                        <tr>
+                          <th class="py-2 px-2.5">#</th>
+                          <th class="py-2 px-2.5">Elemento / Masa Conectada</th>
+                          <th class="py-2 px-2.5 text-right">R Medida (Ω)</th>
+                          <th class="py-2 px-2.5 text-center">Estado</th>
+                        </tr>
+                      </thead>
+                      <tbody class="divide-y divide-slate-100 dark:divide-white/5 font-mono">
+                        <tr v-for="(p, pIdx) in parsedFormData.spt_puntos_equipotencial" :key="pIdx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                          <td class="py-2 px-2.5 text-slate-400 font-sans">{{ p.id }}</td>
+                          <td class="py-2 px-2.5 font-sans font-medium text-slate-800 dark:text-slate-200">{{ p.elemento }}</td>
+                          <td class="py-2 px-2.5 text-right font-bold">{{ p.r_medida !== undefined ? `${p.r_medida} Ω` : '-' }}</td>
+                          <td class="py-2 px-2.5 text-center">
+                            <span 
+                              class="px-1.5 py-0.2 rounded text-[10px] font-bold"
+                              :class="p.cumple ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
+                            >
+                              {{ p.cumple ? 'Conforme' : 'Revisar' }}
+                            </span>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- D.5 Certificados de Calibración de Equipos de Medición -->
+              <div v-if="parsedFormData.instrumentos_calibracion && parsedFormData.instrumentos_calibracion.length > 0" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
+                  <div class="flex items-center gap-2">
+                    <IconTools class="w-4 h-4 text-cyan-600 dark:text-cyan-400 stroke-[2]" />
+                    <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
+                      Certificados de Calibración de Instrumentos de Medición
+                    </span>
+                  </div>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-100 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300">
+                    Vigentes en Campo
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 text-xs">
+                  <div 
+                    v-for="(inst, iIdx) in parsedFormData.instrumentos_calibracion" 
+                    :key="iIdx"
+                    class="p-2.5 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/70 dark:bg-white/[0.02] space-y-1"
+                  >
+                    <div class="flex items-center justify-between">
+                      <span class="font-bold text-slate-800 dark:text-slate-200 uppercase text-[10px]">{{ inst.tipo }}</span>
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+                        Calibrado
+                      </span>
+                    </div>
+                    <div class="text-[11px] text-slate-600 dark:text-slate-400 font-mono">
+                      {{ inst.marca || 'Metrel / Fluke' }} {{ inst.modelo || '' }} (S/N: {{ inst.serial || 'N/A' }})
+                    </div>
+                    <div class="text-[10px] text-slate-500">
+                      Fecha Calibración: <span class="font-bold text-slate-700 dark:text-slate-300">{{ inst.fecha_calibracion || '2026-03-15' }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <!-- 3. REPUESTOS RETIRADOS E INSTALADOS (FOTOS DE SUSTITUCIÓN) -->
             <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
               <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
@@ -1508,7 +1795,15 @@ const parsedFormData = computed(() => {
   }
 });
 
+const isFormato360 = computed(() => {
+  const tAct = (props.ot?.tipo_actividad || '').toLowerCase();
+  const sub = (props.ot?.subsistema || '').toLowerCase();
+  const d = parsedFormData.value;
+  return tAct.includes('360') || sub.includes('360') || d?.rutina_tipo === '360_informe' || Boolean(d?.banco_carga_lecturas || d?.diagnosticos_smu || d?.megger_mediciones);
+});
+
 const isFormatoWo = computed(() => {
+  if (isFormato360.value) return false;
   const tMant = (props.ot?.tipo_mantenimiento || '').toLowerCase();
   const tAct = (props.ot?.tipo_actividad || '').toLowerCase();
   const d = parsedFormData.value;
@@ -1516,7 +1811,7 @@ const isFormatoWo = computed(() => {
 });
 
 const isFormatoMpAire = computed(() => {
-  if (isFormatoWo.value) return false;
+  if (isFormato360.value || isFormatoWo.value) return false;
   const tAct = (props.ot?.tipo_actividad || '').toLowerCase();
   const sub = (props.ot?.subsistema || '').toLowerCase();
   const d = parsedFormData.value;
@@ -1524,10 +1819,11 @@ const isFormatoMpAire = computed(() => {
 });
 
 const isFormatoMpPlanta = computed(() => {
-  return !isFormatoWo.value && !isFormatoMpAire.value;
+  return !isFormato360.value && !isFormatoWo.value && !isFormatoMpAire.value;
 });
 
 const tituloFormatoCampo = computed(() => {
+  if (isFormato360.value) return 'Planilla Oficial Claro: Inspección Técnica y Diagnósticos 360 (GE + SPT)';
   if (isFormatoWo.value) return 'Formato Técnico Claro: Mantenimiento Correctivo y Emergencias (WO0000005558781)';
   if (isFormatoMpAire.value) return 'Planilla Oficial Claro: Mantenimiento Preventivo Climatización (MP AIRE - WO0000005520436)';
   return 'Planilla Oficial Claro: Mantenimiento Preventivo Planta Eléctrica (MP PLANTA - OT5304019)';
@@ -1543,7 +1839,8 @@ const hasFormData = computed(() => {
     (Array.isArray(d.hallazgos) && d.hallazgos.length > 0) ||
     d.descripcion_falla || d.descripcion_solucion ||
     d.marca_equipo || d.marca_aa || d.horometro_inicial !== undefined ||
-    (d.parametros && Object.keys(d.parametros).length > 0)
+    (d.parametros && Object.keys(d.parametros).length > 0) ||
+    d.rutina_tipo === '360_informe' || d.banco_carga_lecturas || d.diagnosticos_smu || d.megger_mediciones
   );
 });
 

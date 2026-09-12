@@ -623,7 +623,11 @@ class OtService:
 
         tipos_existentes = [ev.tipo for ev in ot.evidencias]
         faltantes = []
-        is_preventivo = (
+        is_informe_360 = (
+            (ot.tipo_actividad and "360" in ot.tipo_actividad.lower()) or
+            (ot.subsistema and "360" in ot.subsistema.lower())
+        )
+        is_preventivo = not is_informe_360 and (
             ot.tipo_mantenimiento == "preventivo" or 
             (ot.tipo_actividad and any(k in ot.tipo_actividad.lower() for k in ["preventivo", "rutina", "7x24"]))
         )
@@ -697,7 +701,17 @@ class OtService:
         # -------------------------------------------------------------
         # REQUISITOS ESPECÍFICOS SEGÚN TIPO DE TRABAJO
         # -------------------------------------------------------------
-        if is_preventivo:
+        if is_informe_360:
+            # Requisitos oficiales para formatos 360 (Inspección Técnica GE + SPT Claro)
+            tiene_360_evidencia = (
+                any(t in tipos_existentes for t in ["diagnostico_360", "spt", "pruebas", "placas", "antes", "durante", "despues"]) or
+                bool(form_data.get("banco_carga_lecturas")) or
+                bool(form_data.get("diagnosticos_smu")) or
+                bool(form_data.get("megger_mediciones"))
+            )
+            if not tiene_360_evidencia:
+                faltantes.append("Registros técnicos de Inspección 360 (Megger, Banco de Carga o Diagnósticos SMU)")
+        elif is_preventivo:
             # Requisitos oficiales para formatos MP (Preventivo Planta / Aire)
             tiene_placas = any(t in tipos_existentes for t in ["placas", "antes", "inicial"])
             tiene_mantenimiento = any(t in tipos_existentes for t in ["mantenimiento", "filtracion", "durante"])

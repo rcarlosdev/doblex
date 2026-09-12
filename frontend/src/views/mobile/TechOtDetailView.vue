@@ -1333,8 +1333,12 @@
         </div>
 
         <!-- 2. Formulario Técnico Específico según tipo de trabajo -->
+        <FormularioTecnico360
+          v-if="isInforme360"
+          v-model="otFormularioData"
+        />
         <FormularioTecnicoWO
-          v-if="isCorrectivo"
+          v-else-if="isCorrectivo"
           v-model="otFormularioData"
         />
         <FormularioTecnicoMP
@@ -1469,6 +1473,7 @@ import SlaBadge from '@/components/common/SlaBadge.vue';
 import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
 import FormularioTecnicoWO from '@/components/mobile/FormularioTecnicoWO.vue';
 import FormularioTecnicoMP from '@/components/mobile/FormularioTecnicoMP.vue';
+import FormularioTecnico360 from '@/components/mobile/FormularioTecnico360.vue';
 import CloseOtModal from '@/components/mobile/CloseOtModal.vue';
 import ManageRepuestosModal from '@/components/mobile/ManageRepuestosModal.vue';
 import ConfirmDialogModal from '@/components/common/ConfirmDialogModal.vue';
@@ -1605,13 +1610,21 @@ const tabs = [
 const otFormularioData = ref({});
 const guardandoFormulario = ref(false);
 
+const isInforme360 = computed(() => {
+  const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
+  const sub = (ot.value?.subsistema || '').toLowerCase();
+  const d = otFormularioData.value;
+  return tAct.includes('360') || sub.includes('360') || d?.rutina_tipo === '360_informe';
+});
+
 const isPreventivo = computed(() => {
+  if (isInforme360.value) return false;
   const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
   const tMant = (ot.value?.tipo_mantenimiento || '').toLowerCase();
   return tMant === 'preventivo' || tAct.includes('preventivo') || tAct.includes('rutina') || tAct.includes('7x24');
 });
 
-const isCorrectivo = computed(() => !isPreventivo.value);
+const isCorrectivo = computed(() => !isInforme360.value && !isPreventivo.value);
 
 const isPreventivoAire = computed(() => {
   const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
@@ -1894,7 +1907,22 @@ const requisitosFaltantes = computed(() => {
   }
 
   // Requisitos específicos según tipo de trabajo
-  if (isCorrectivo.value) {
+  if (isInforme360.value) {
+    const tieneEvidencias360 = countEvidencias('diagnostico_360') > 0 || 
+      countEvidencias('spt') > 0 || 
+      countEvidencias('pruebas') > 0 || 
+      countEvidencias('antes') > 0 || 
+      countEvidencias('durante') > 0 ||
+      countEvidencias('despues') > 0;
+    const tieneDatos360 = Boolean(
+      (otFormularioData.value?.banco_carga_lecturas && otFormularioData.value.banco_carga_lecturas.length > 0) || 
+      (otFormularioData.value?.diagnosticos_smu && Object.keys(otFormularioData.value.diagnosticos_smu).length > 0) || 
+      otFormularioData.value?.megger_mediciones
+    );
+    if (!tieneEvidencias360 && !tieneDatos360) {
+      faltantes.push('Falta Registro Técnico del Informe 360 (Megger, Banco de Carga o Diagnóstico SMU)');
+    }
+  } else if (isCorrectivo.value) {
     if (countEvidencias('antes') < 1) {
       faltantes.push('Falta Evidencia Fotográfica de ANTES (Falla encontrada)');
     }
