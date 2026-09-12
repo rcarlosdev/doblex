@@ -292,10 +292,10 @@ const eliminarHallazgoGe = (index) => {
         </div>
         <div>
           <h4 class="font-extrabold text-neutral-900 dark:text-white text-xs">
-            Formato Técnico 360: Diagnóstico Integral GE & Sistema SPT
+            Informe 360
           </h4>
           <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
-            Plantillas Oficiales Claro (Diagnósticos GE SMU • SPT Wenner/Equipotencialidad • Megger & Banco 360)
+            Diagnóstico Integral GE & Sistema SPT • Plantillas Oficiales Claro
           </p>
         </div>
       </div>

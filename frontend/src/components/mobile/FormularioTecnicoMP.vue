@@ -317,10 +317,10 @@ watch(() => props.modelValue, (newVal) => {
           </div>
           <div>
             <h4 class="font-black text-xs text-sky-950 dark:text-sky-200 uppercase tracking-wide">
-              Mantenimiento Preventivo Climatización (MP-AIRE)
+              Preventivo
             </h4>
             <p class="text-[11px] text-sky-700 dark:text-sky-400 font-medium">
-              Protocolo oficial de evaluación técnica, unidades y parámetros frigoríficos
+              Climatización (MP-AIRE) • Protocolo oficial de evaluación técnica y frigorífica
             </p>
           </div>
         </div>
@@ -813,10 +813,10 @@ watch(() => props.modelValue, (newVal) => {
           </div>
           <div>
             <h4 class="font-black text-xs text-red-950 dark:text-red-200 uppercase tracking-wide">
-              Plan de Mantenimiento Sistema Grupo Electrógeno (MP-PLANTA)
+              Preventivo
             </h4>
             <p class="text-[11px] text-red-700 dark:text-red-400 font-medium">
-              Protocolo oficial de evaluación técnica de planta diésel, motor, generador y ATS
+              Planta Eléctrica (MP-PLANTA) • Protocolo oficial Claro de planta diésel y ATS
             </p>
           </div>
         </div>

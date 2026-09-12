@@ -1340,6 +1340,9 @@
         <FormularioTecnicoWO
           v-else-if="isCorrectivo"
           v-model="otFormularioData"
+          :tipo-actividad="ot?.tipo_actividad || ot?.tipo_mantenimiento"
+          :codigo-ot="ot?.codigo"
+          :read-only="['solucionada', 'finalizada'].includes(ot?.estado)"
         />
         <FormularioTecnicoMP
           v-else

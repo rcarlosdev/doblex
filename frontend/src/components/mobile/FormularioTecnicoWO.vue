@@ -1,5 +1,5 @@
 <script setup>
-import { reactive, watch, nextTick } from 'vue';
+import { reactive, watch, computed, nextTick } from 'vue';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -22,6 +22,14 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  tipoActividad: {
+    type: String,
+    default: ''
+  },
+  codigoOt: {
+    type: String,
+    default: ''
   }
 });
 
@@ -30,7 +38,7 @@ const emit = defineEmits(['update:modelValue']);
 const form = reactive({
   // 1. Información General y Estación
   tipo_sitio: 'Urbano',
-  subsistema: 'Planta eléctrica',
+  subsistema: 'PE - GRUPO ELECTROGENO',
   presenta_afectacion: 'No',
 
   // 2. Equipo en Falla y Diagnóstico
@@ -92,6 +100,38 @@ if (!Array.isArray(form.materiales)) {
   form.materiales = [];
 }
 
+const OPCIONES_SUBSISTEMA = [
+  'SPT - SISTEMA PUESTA A TIERRA',
+  'PE - GRUPO ELECTROGENO',
+  'AA - AIRES ACONDICIONADOS',
+  'PW - POWER',
+  'MT-BT - MEDIA Y BAJA TENSION'
+];
+
+const normalizarSubsistema = (val) => {
+  if (!val) return 'PE - GRUPO ELECTROGENO';
+  const str = String(val).trim();
+  const lower = str.toLowerCase();
+  if (lower.startsWith('spt') || lower.includes('puesta a tierra') || lower.includes('tierra')) {
+    return 'SPT - SISTEMA PUESTA A TIERRA';
+  }
+  if (lower.startsWith('pe') || lower.includes('planta') || lower.includes('electrogeno') || lower.includes('ge')) {
+    return 'PE - GRUPO ELECTROGENO';
+  }
+  if (lower.startsWith('aa') || lower.includes('aire') || lower.includes('climatiz') || lower.includes('hvac')) {
+    return 'AA - AIRES ACONDICIONADOS';
+  }
+  if (lower.startsWith('pw') || lower.includes('power') || lower.includes('fuerza') || lower.includes('dc') || lower.includes('rectificador')) {
+    return 'PW - POWER';
+  }
+  if (lower.includes('mt') || lower.includes('bt') || lower.includes('media') || lower.includes('baja') || lower.includes('subestacion') || lower.includes('acometida')) {
+    return 'MT-BT - MEDIA Y BAJA TENSION';
+  }
+  return str.toUpperCase();
+};
+
+form.subsistema = normalizarSubsistema(form.subsistema);
+
 let isInternalSync = false;
 
 watch(form, (val) => {
@@ -105,6 +145,7 @@ watch(() => props.modelValue, (newVal) => {
     if (JSON.stringify(newVal) !== JSON.stringify(form)) {
       isInternalSync = true;
       Object.assign(form, newVal);
+      form.subsistema = normalizarSubsistema(form.subsistema);
       if (!form.repuesto_retirado) form.repuesto_retirado = { descripcion: '', marca: '', modelo: '', serial: '' };
       if (!form.repuesto_instalado) form.repuesto_instalado = { descripcion: '', marca: '', modelo: '', serial: '' };
       if (!Array.isArray(form.materiales)) form.materiales = [];
@@ -124,27 +165,62 @@ const addMaterial = () => {
 const removeMaterial = (index) => {
   form.materiales.splice(index, 1);
 };
+
+const tituloActividad = computed(() => {
+  const raw = (props.tipoActividad || form.tipo_actividad || '').toLowerCase().trim();
+  if (!raw) return 'Correctivo';
+  if (raw === 'correctivo') return 'Correctivo';
+  if (raw === 'emergencia') return 'Emergencia';
+  if (raw.startsWith('preventivo') || raw.includes('rutina') || raw.includes('7x24')) return 'Preventivo';
+  if (raw === 'obra_civil') return 'Obra Civil';
+  if (raw === 'informe_360' || raw.includes('360')) return 'Informe 360';
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+});
+
+const bannerTheme = computed(() => {
+  const t = tituloActividad.value.toLowerCase();
+  if (t === 'emergencia') {
+    return {
+      wrapper: 'bg-rose-500/10 border-rose-500/20',
+      iconBox: 'bg-rose-500/20 text-rose-600 dark:text-rose-400',
+      badge: 'border-rose-500/30 text-rose-600 dark:text-rose-400'
+    };
+  }
+  if (t === 'preventivo') {
+    return {
+      wrapper: 'bg-blue-500/10 border-blue-500/20',
+      iconBox: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+      badge: 'border-blue-500/30 text-blue-600 dark:text-blue-400'
+    };
+  }
+  return {
+    wrapper: 'bg-amber-500/10 border-amber-500/20',
+    iconBox: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+    badge: 'border-amber-500/30 text-amber-600 dark:text-amber-400'
+  };
+});
 </script>
 
 <template>
   <div class="space-y-5 text-xs select-text">
     <!-- Header de Identificación del Formato Oficial WO -->
-    <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between flex-wrap gap-2">
+    <div :class="['p-3.5 border rounded-2xl flex items-center justify-between flex-wrap gap-2 transition-colors', bannerTheme.wrapper]">
       <div class="flex items-center gap-2.5">
-        <div class="p-2 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl">
-          <IconTool class="w-5 h-5 stroke-[2]" />
+        <div :class="['p-2 rounded-xl transition-colors', bannerTheme.iconBox]">
+          <IconAlertTriangle v-if="tituloActividad === 'Emergencia'" class="w-5 h-5 stroke-[2]" />
+          <IconTool v-else class="w-5 h-5 stroke-[2]" />
         </div>
         <div>
           <h4 class="font-extrabold text-neutral-900 dark:text-white text-xs">
-            Formato Técnico: Mantenimiento Correctivo y Emergencias (WO)
+            {{ tituloActividad }}
           </h4>
           <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
-            Formato oficial Claro (Ref. WO0000005558781 - Móvil / Urbano-Rural)
+            Formato oficial Claro (Ref. {{ codigoOt || 'WO0000005558781' }} - Móvil / Urbano-Rural)
           </p>
         </div>
       </div>
-      <Badge variant="outline" class="border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-[10px]">
-        Correctivo & Emergencia
+      <Badge variant="outline" :class="['font-bold text-[10px] transition-colors', bannerTheme.badge]">
+        {{ tituloActividad }}
       </Badge>
     </div>
 
@@ -181,13 +257,12 @@ const removeMaterial = (index) => {
             :disabled="readOnly"
             class="h-9 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#0a0b10] px-3 font-medium text-xs focus:ring-1 focus:ring-amber-500 outline-none"
           >
-            <option value="Planta eléctrica">Planta eléctrica (GE)</option>
-            <option value="Aire acondicionado">Aire acondicionado (HVAC)</option>
-            <option value="Fuerza DC / Rectificadores">Fuerza DC / Rectificadores</option>
-            <option value="Sistemas Híbridos SFV">Sistemas Híbridos SFV</option>
-            <option value="Subestación / Acometida">Subestación / Acometida</option>
-            <option value="Torre y Balizamiento">Torre y Balizamiento</option>
-            <option value="Infraestructura / Cerramiento">Infraestructura / Cerramiento</option>
+            <option v-for="opc in OPCIONES_SUBSISTEMA" :key="opc" :value="opc">
+              {{ opc }}
+            </option>
+            <option v-if="form.subsistema && !OPCIONES_SUBSISTEMA.includes(form.subsistema)" :value="form.subsistema">
+              {{ form.subsistema }}
+            </option>
           </select>
         </div>
 

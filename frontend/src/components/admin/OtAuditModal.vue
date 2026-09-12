@@ -226,7 +226,7 @@
                   {{ hasFormData ? 'Diligenciado en Sitio' : 'Pendiente de Diligenciar' }}
                 </span>
                 <span class="px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 text-[10px] font-black uppercase">
-                  {{ isFormatoWo ? 'WO Correctivo' : (isFormatoMpAire ? 'MP Climatización' : 'MP Planta Eléctrica') }}
+                  {{ tituloFormatoCampo }}
                 </span>
               </div>
             </div>
@@ -1823,10 +1823,13 @@ const isFormatoMpPlanta = computed(() => {
 });
 
 const tituloFormatoCampo = computed(() => {
-  if (isFormato360.value) return 'Planilla Oficial Claro: Inspección Técnica y Diagnósticos 360 (GE + SPT)';
-  if (isFormatoWo.value) return 'Formato Técnico Claro: Mantenimiento Correctivo y Emergencias (WO0000005558781)';
-  if (isFormatoMpAire.value) return 'Planilla Oficial Claro: Mantenimiento Preventivo Climatización (MP AIRE - WO0000005520436)';
-  return 'Planilla Oficial Claro: Mantenimiento Preventivo Planta Eléctrica (MP PLANTA - OT5304019)';
+  if (isFormato360.value) return 'Informe 360';
+  if (isFormatoWo.value) {
+    const act = (props.ot?.tipo_actividad || props.ot?.tipo_mantenimiento || '').toLowerCase();
+    return act === 'emergencia' ? 'Emergencia' : 'Correctivo';
+  }
+  if (isFormatoMpAire.value) return 'Preventivo Climatización';
+  return 'Preventivo Planta Eléctrica';
 });
 
 const hasFormData = computed(() => {
