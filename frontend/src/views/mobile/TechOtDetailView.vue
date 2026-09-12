@@ -38,9 +38,9 @@
 
     <div v-else-if="ot" class="space-y-4">
       
-      <!-- Navegación por Pestañas Segmentadas Móviles (5 Pestañas) -->
+      <!-- Navegación por Pestañas Segmentadas Móviles (3 Pestañas Limpias) -->
       <div class="bg-slate-200/80 dark:bg-[#121215] p-1 rounded-2xl border border-slate-200/80 dark:border-white/10 select-none">
-        <div class="grid grid-cols-5 gap-1 text-center">
+        <div class="grid grid-cols-3 gap-1 text-center">
           <button
             v-for="t in tabs"
             :key="t.id"
@@ -306,7 +306,7 @@
               <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
                 Reglas Transversales Obligatorias
               </span>
-              <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 <!-- 1. Llegada Sitio (Carnet y Estación) -->
                 <div 
                   class="border rounded-xl p-3 space-y-1 transition-all"
@@ -355,31 +355,7 @@
                   </button>
                 </div>
 
-                <!-- 3. Insumos Menores (Antes & Después) -->
-                <div 
-                  class="border rounded-xl p-3 space-y-1 transition-all"
-                  :class="tieneInsumosOk
-                    ? 'bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-300' 
-                    : 'bg-slate-50 dark:bg-[#0a0b10] border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300'"
-                >
-                  <div class="flex items-center justify-between text-xs">
-                    <span class="font-bold text-[11px]">Insumos Menores</span>
-                    <IconCircleCheck v-if="tieneInsumosOk" class="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
-                    <IconCircleX v-else class="w-4 h-4 text-rose-500 stroke-[2]" />
-                  </div>
-                  <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                    {{ tieneInsumosOk ? 'Antes & Después OK' : 'Faltan fotos' }}
-                  </div>
-                  <button 
-                    v-if="!tieneInsumosOk" 
-                    @click="activeTab = 'repuestos'"
-                    class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
-                  >
-                    + Ver Insumos
-                  </button>
-                </div>
-
-                <!-- 4. Repuestos Cambiados -->
+                <!-- 3. Repuestos Cambiados -->
                 <div 
                   class="border rounded-xl p-3 space-y-1 transition-all"
                   :class="tieneRepuestosOk
@@ -396,7 +372,7 @@
                   </div>
                   <button 
                     v-if="!tieneRepuestosOk" 
-                    @click="activeTab = 'repuestos'"
+                    @click="activeTab = 'checklist'"
                     class="text-[10px] text-amber-600 dark:text-amber-400 font-extrabold hover:underline block pt-0.5"
                   >
                     + Ver Repuestos
@@ -1040,229 +1016,9 @@
         </div>
       </div>
 
-      <!-- CONTENIDO PESTAÑA 3: EVIDENCIAS FOTOGRÁFICAS SEGÚN TIPO DE TRABAJO -->
-      <div v-if="activeTab === 'evidencias'" class="space-y-5">
-        <div class="p-3 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-              Protocolo de Evidencias: {{ isCorrectivo ? 'Correctivos & Obras (WO)' : (isPreventivoAire ? 'Preventivo Climatización (MP AA)' : (isPreventivo7x24 ? 'Preventivo Rutina 7x24 (MP)' : 'Preventivo Planta Eléctrica (MP GE)')) }}
-            </h3>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              Formato de captura fotográfica con geolocalización GPS y fecha incrustada
-            </p>
-          </div>
-          <span class="text-red-600 dark:text-red-400 font-mono text-xs font-black bg-red-50 dark:bg-red-950/60 border border-red-200 dark:border-red-900/60 px-2.5 py-1 rounded-xl">
-            {{ ot.evidencias?.length || 0 }} fotos registradas
-          </span>
-        </div>
 
-        <!-- 1. CASO FORMATO WO: CORRECTIVO Y EMERGENCIA -->
-        <template v-if="isCorrectivo">
-          <PhotoUploader
-            tipo="antes"
-            titulo="1. Diagnóstico Inicial & Falla Encontrada"
-            descripcion="Fotografía legible del estado del equipo averiado, daño físico o alarma activa en tablero antes de iniciar labores."
-            badge-label="Antes (Falla)"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('antes')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
 
-          <PhotoUploader
-            tipo="durante"
-            titulo="2. Intervención Técnica & Repuestos"
-            descripcion="Registro del proceso de reparación, piezas retiradas vs repuestos nuevos instalados con serial y marca legibles."
-            badge-label="Durante (Reparación)"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('durante')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="despues"
-            titulo="3. Equipo Operativo en Servicio & Cierre"
-            descripcion="Equipo solucionado operando en condiciones normales, tablero sin alarmas y caseta cerrada y limpia."
-            badge-label="Después (Solucionado)"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('despues')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="transporte"
-            titulo="4. Soporte Transporte Especial (Si Aplica)"
-            descripcion="Registro fotográfico si se utilizó transporte en lancha fluvial, mula o vehículo de trocha difícil para acceder al sitio."
-            badge-label="Transporte Especial (Opcional)"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('transporte')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-        </template>
-
-        <!-- 2. CASO FORMATO MP: PREVENTIVO PLANTA ELÉCTRICA (GE) -->
-        <template v-else-if="!isPreventivoAire">
-          <PhotoUploader
-            tipo="placas"
-            titulo="1. Placas Técnicas de Equipos"
-            descripcion="Fotos nítidas de la placa de datos de la Planta Eléctrica, placa del Motor Diesel y placa del Generador."
-            badge-label="Placas Técnicas"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="[...getEvidenciasPorTipo('placas'), ...getEvidenciasPorTipo('antes')]"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="inicial"
-            titulo="2. Horómetro Inicial & Estado de Caseta"
-            descripcion="Foto legible del horómetro del tablero antes de la rutina y panorámica del grupo electrógeno en su caseta/cabina."
-            badge-label="Horómetro Inicial"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('inicial')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="mantenimiento"
-            titulo="3. Servicio de Filtración & Mantenimiento"
-            descripcion="Evidencias fotográficas del cambio de filtro de aceite, combustible, aire, lubricante nuevo y refrigerante."
-            badge-label="Filtración & Rutina"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="[...getEvidenciasPorTipo('mantenimiento'), ...getEvidenciasPorTipo('durante'), ...getEvidenciasPorTipo('filtracion')]"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="pruebas"
-            titulo="4. Pruebas Operativas ATS con Carga (15 Min)"
-            descripcion="Prueba con carga simulando falla de energía (15 min), horómetro final de prueba y tablero en modo automático sin alarmas."
-            badge-label="Pruebas con Carga"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="[...getEvidenciasPorTipo('pruebas'), ...getEvidenciasPorTipo('despues')]"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="transporte"
-            titulo="5. Soporte Transporte Especial (Si Aplica)"
-            descripcion="Fotografía de movilización especial fluvial (lancha) o bestia/mula requerida para el mantenimiento del sitio."
-            badge-label="Transporte Especial (Opcional)"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('transporte')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-        </template>
-
-        <!-- 3. CASO FORMATO MP: PREVENTIVO CLIMATIZACIÓN (AIRE ACONDICIONADO) -->
-        <template v-else>
-          <PhotoUploader
-            tipo="placas"
-            titulo="1. Placa Técnica & Estado Previo AA"
-            descripcion="Placa de características técnicas del equipo (evaporador/condensador) y estado de suciedad antes del lavado."
-            badge-label="Placa & Previo"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="[...getEvidenciasPorTipo('placas'), ...getEvidenciasPorTipo('antes')]"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="mantenimiento"
-            titulo="2. Lavado & Mantenimiento de Serpentines"
-            descripcion="Lavado a presión de serpentín condensador/evaporador, limpieza profunda de filtros y bandeja de desagüe."
-            badge-label="Lavado & Mantenimiento"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="[...getEvidenciasPorTipo('mantenimiento'), ...getEvidenciasPorTipo('durante')]"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="pruebas"
-            titulo="3. Mediciones Operativas y Frigoríficas"
-            descripcion="Lectura manométrica (presión de baja/alta PSI), pinza amperimétrica (corriente compresor) y termómetro de inyección/retorno."
-            badge-label="Mediciones & Cierre"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="[...getEvidenciasPorTipo('pruebas'), ...getEvidenciasPorTipo('despues')]"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-
-          <PhotoUploader
-            tipo="transporte"
-            titulo="4. Soporte Transporte Especial (Si Aplica)"
-            descripcion="Fotografía de movilización especial si aplicó para acceder a la estación de climatización."
-            badge-label="Transporte Especial (Opcional)"
-            :codigo-ot="ot.codigo"
-            :evidencias-list="getEvidenciasPorTipo('transporte')"
-            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-            @photo-uploaded="pedirConfirmacionFoto"
-            @delete-photo="pedirConfirmacionBorrarFoto"
-          />
-        </template>
-      </div>
-
-      <!-- CONTENIDO PESTAÑA 4: REPUESTOS LPU -->
-      <!-- CONTENIDO PESTAÑA 4: REPUESTOS E INSUMOS -->
-      <div v-if="activeTab === 'repuestos'" class="space-y-4">
-        <!-- 1. Materiales e Insumos Menores Utilizados (Buscador + Foto Antes y Después) -->
-        <InsumosMenoresManager
-          v-model="otFormularioData.insumos_menores"
-          :codigo-ot="ot.codigo"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-        />
-
-        <!-- 2. Repuestos Retirados e Instalados con Foto -->
-        <RepuestosCambiosManager
-          v-model="otFormularioData.repuestos_cambios"
-          :codigo-ot="ot.codigo"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-        />
-
-        <!-- Botón para Guardar Insumos y Repuestos de Campo -->
-        <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
-          <div>
-            <div class="text-xs font-black text-slate-900 dark:text-white flex items-center gap-1.5">
-              <IconBox class="w-4 h-4 text-red-600 stroke-[2.2]" />
-              <span>Guardar Insumos Menores & Repuestos Cambiados</span>
-            </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-              Guarda tus consumibles menores y piezas reemplazadas con sus fotografías de respaldo.
-            </p>
-          </div>
-          <button
-            type="button"
-            @click="guardarFormularioTecnico"
-            :disabled="guardandoFormulario"
-            class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black bg-red-600 hover:bg-red-500 text-white shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-          >
-            <IconDeviceFloppy class="w-4 h-4 stroke-[2.2]" />
-            <span>{{ guardandoFormulario ? 'Guardando...' : 'Guardar Insumos & Repuestos' }}</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- CONTENIDO PESTAÑA 5: FORMULARIO TÉCNICO DE CAMPO & CHECKLIST -->
+      <!-- CONTENIDO PESTAÑA 3: FORMULARIO TÉCNICO DE CAMPO (FORMATO INTEGRAL) -->
       <div v-if="activeTab === 'checklist'" class="space-y-4">
         <!-- Barra de Estado de Sincronización del Formulario -->
         <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl px-4 py-2.5 flex items-center justify-between shadow-xs">
@@ -1307,6 +1063,41 @@
           </div>
         </div>
 
+        <!-- TIPO DE FORMATO OFICIAL CLARO (COLOCADO ARRIBA) -->
+        <div 
+          class="p-3.5 border rounded-2xl flex items-center justify-between flex-wrap gap-2.5 transition-all shadow-xs"
+          :class="tipoFormatoTheme.wrapper"
+        >
+          <div class="flex items-center gap-2.5">
+            <div :class="['p-2 rounded-xl shrink-0', tipoFormatoTheme.iconBox]">
+              <component :is="tipoFormatoTheme.icon" class="w-5 h-5 stroke-[2.2]" />
+            </div>
+            <div>
+              <div class="flex items-center gap-2">
+                <h4 class="font-black text-xs text-neutral-900 dark:text-white uppercase tracking-wider">
+                  {{ tipoFormatoTheme.titulo }}
+                </h4>
+                <span 
+                  v-if="tipoFormatoTheme.badge"
+                  class="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full"
+                  :class="tipoFormatoTheme.badgeClass"
+                >
+                  {{ tipoFormatoTheme.badge }}
+                </span>
+              </div>
+              <p class="text-[11px] text-neutral-600 dark:text-neutral-400 font-medium mt-0.5">
+                {{ tipoFormatoTheme.subtitulo }}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1.5 self-start sm:self-center">
+            <span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-xl bg-white/60 dark:bg-black/40 border border-neutral-200/60 dark:border-white/10 text-neutral-700 dark:text-neutral-300">
+              Ref. {{ ot.codigo || 'WO' }}
+            </span>
+          </div>
+        </div>
+
         <!-- 1. Control de Llegada a Sitio (Técnico con Carnet y Sitio al Fondo) -->
         <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
           <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
@@ -1336,18 +1127,31 @@
         <FormularioTecnico360
           v-if="isInforme360"
           v-model="otFormularioData"
+          :codigo-ot="ot?.codigo"
+          :evidencias="ot?.evidencias || []"
+          :read-only="['solucionada', 'finalizada'].includes(ot?.estado)"
+          @photo-uploaded="pedirConfirmacionFoto"
+          @delete-photo="pedirConfirmacionBorrarFoto"
         />
         <FormularioTecnicoWO
           v-else-if="isCorrectivo"
           v-model="otFormularioData"
           :tipo-actividad="ot?.tipo_actividad || ot?.tipo_mantenimiento"
           :codigo-ot="ot?.codigo"
+          :evidencias="ot?.evidencias || []"
           :read-only="['solucionada', 'finalizada'].includes(ot?.estado)"
+          @photo-uploaded="pedirConfirmacionFoto"
+          @delete-photo="pedirConfirmacionBorrarFoto"
         />
         <FormularioTecnicoMP
           v-else
           v-model="otFormularioData"
           :tipo-preventivo="isPreventivoAire ? 'aire' : (isPreventivo7x24 ? 'rutina_7x24' : 'planta')"
+          :codigo-ot="ot?.codigo"
+          :evidencias="ot?.evidencias || []"
+          :read-only="['solucionada', 'finalizada'].includes(ot?.estado)"
+          @photo-uploaded="pedirConfirmacionFoto"
+          @delete-photo="pedirConfirmacionBorrarFoto"
         />
 
         <!-- 3. Repuestos Retirados e Instalados (con Fotos de Sustitución) -->
@@ -1357,21 +1161,14 @@
           :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
         />
 
-        <!-- 4. Materiales e Insumos Menores Utilizados (con Fotos Antes y Después) -->
-        <InsumosMenoresManager
-          v-model="otFormularioData.insumos_menores"
-          :codigo-ot="ot.codigo"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-        />
-
-        <!-- 5. Registro de Transporte Especial (LPU) - OBLIGATORIO -->
+        <!-- 4. Registro de Transporte Especial (LPU) - OBLIGATORIO -->
         <TransporteEspecialManager
           v-model="otFormularioData.transportes_especiales"
           :codigo-ot="ot.codigo"
           :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
         />
 
-        <!-- 6. Novedades y Hallazgos en Estación (con Fotos de Respaldo) -->
+        <!-- 5. Novedades y Hallazgos en Estación (con Fotos de Respaldo) -->
         <NovedadesHallazgosManager
           v-model="otFormularioData.hallazgos"
           :codigo-ot="ot.codigo"
@@ -1484,7 +1281,6 @@ import LlegadaSitioModal from '@/components/mobile/LlegadaSitioModal.vue';
 import TransporteEspecialManager from '@/components/mobile/TransporteEspecialManager.vue';
 import NovedadesHallazgosManager from '@/components/mobile/NovedadesHallazgosManager.vue';
 import RepuestosCambiosManager from '@/components/mobile/RepuestosCambiosManager.vue';
-import InsumosMenoresManager from '@/components/mobile/InsumosMenoresManager.vue';
 import SinglePhotoCapture from '@/components/mobile/SinglePhotoCapture.vue';
 import { 
   IconArrowLeft, 
@@ -1522,7 +1318,10 @@ import {
   IconTruck,
   IconTools,
   IconExchange,
-  IconIdBadge2
+  IconIdBadge2,
+  IconShieldCheck,
+  IconSnowflake,
+  IconEngine
 } from '@tabler/icons-vue';
 
 const route = useRoute();
@@ -1605,9 +1404,7 @@ const handleConfirmAction = async () => {
 const tabs = [
   { id: 'flujo', label: 'Flujo & Acción', shortLabel: 'Flujo', icon: IconSteeringWheel },
   { id: 'avances', label: 'Minutograma PDT', shortLabel: 'Bitácora', icon: IconActivity },
-  { id: 'evidencias', label: 'Evidencias', shortLabel: 'Fotos', icon: IconCamera },
   { id: 'checklist', label: 'Formulario de Campo', shortLabel: 'Formato', icon: IconFileCheck },
-  { id: 'repuestos', label: 'Repuestos LPU', shortLabel: 'Insumos', icon: IconBox },
 ];
 
 const otFormularioData = ref({});
@@ -1638,6 +1435,64 @@ const isPreventivoAire = computed(() => {
 const isPreventivo7x24 = computed(() => {
   const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
   return tAct.includes('7x24') || tAct.includes('rutina');
+});
+
+const tipoFormatoTheme = computed(() => {
+  if (isInforme360.value) {
+    return {
+      titulo: 'Informe 360',
+      subtitulo: `Diagnóstico Integral GE & Sistema SPT • Plantillas Oficiales Claro (Ref. ${ot.value?.codigo || ''})`,
+      badge: 'INFORME 360',
+      icon: IconShieldCheck,
+      wrapper: 'bg-purple-500/10 border-purple-500/20',
+      iconBox: 'bg-purple-500/20 text-purple-600 dark:text-purple-400',
+      badgeClass: 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 border border-purple-300 dark:border-purple-800'
+    };
+  }
+  if (isCorrectivo.value) {
+    const isEmergencia = (ot.value?.tipo_actividad || '').toLowerCase().includes('emergencia') || (ot.value?.tipo_mantenimiento || '').toLowerCase().includes('emergencia');
+    if (isEmergencia) {
+      return {
+        titulo: 'Mantenimiento Correctivo de Emergencia',
+        subtitulo: `Formato oficial Claro (Ref. ${ot.value?.codigo || ''} • ${ot.value?.tipo_estacion || 'Móvil'} / ${ot.value?.tipo_ubicacion || 'Urbano-Rural'})`,
+        badge: 'Emergencia',
+        icon: IconAlertTriangle,
+        wrapper: 'bg-rose-500/10 border-rose-500/20',
+        iconBox: 'bg-rose-500/20 text-rose-600 dark:text-rose-400',
+        badgeClass: 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border border-rose-300 dark:border-rose-800'
+      };
+    }
+    return {
+      titulo: 'Correctivo',
+      subtitulo: `Formato oficial Claro (Ref. ${ot.value?.codigo || ''} - ${ot.value?.tipo_estacion || 'Móvil'} / ${ot.value?.tipo_ubicacion || 'Urbano-Rural'})`,
+      badge: 'Correctivo',
+      icon: IconTool,
+      wrapper: 'bg-amber-500/10 border-amber-500/20',
+      iconBox: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+      badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+    };
+  }
+  if (isPreventivoAire.value) {
+    return {
+      titulo: 'Preventivo Climatización (MP-AIRE)',
+      subtitulo: `Protocolo oficial Claro de evaluación técnica y frigorífica (Ref. ${ot.value?.codigo || ''})`,
+      badge: 'MP-AIRE',
+      icon: IconSnowflake,
+      wrapper: 'bg-sky-500/10 border-sky-500/20',
+      iconBox: 'bg-sky-500/20 text-sky-600 dark:text-sky-400',
+      badgeClass: 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border border-sky-300 dark:border-sky-800'
+    };
+  }
+  // Preventivo Planta
+  return {
+    titulo: 'Preventivo Planta Eléctrica (MP-PLANTA)',
+    subtitulo: `Protocolo oficial Claro de planta diésel y ATS (Ref. ${ot.value?.codigo || ''})`,
+    badge: 'MP-PLANTA',
+    icon: IconEngine,
+    wrapper: 'bg-red-500/10 border-red-500/20',
+    iconBox: 'bg-red-500/20 text-red-600 dark:text-red-400',
+    badgeClass: 'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300 border border-red-300 dark:border-red-800'
+  };
 });
 
 const autoSaveStatus = ref('saved'); // 'saved', 'saving', 'unsaved'
@@ -1868,12 +1723,6 @@ const tieneRepuestosOk = computed(() => {
   return rc.every(r => (!r.item_retirado && !r.item_instalado) || (Boolean(r.foto_retirado) && Boolean(r.foto_instalado)));
 });
 
-const tieneInsumosOk = computed(() => {
-  const ins = otFormularioData.value?.insumos_menores || [];
-  if (!Array.isArray(ins) || ins.length === 0) return true;
-  return ins.every(i => !i.nombre_item || (Boolean(i.foto_antes) && Boolean(i.foto_despues)));
-});
-
 const tieneHallazgosOk = computed(() => {
   const h = otFormularioData.value?.hallazgos || [];
   if (!Array.isArray(h) || h.length === 0) return true;
@@ -1899,12 +1748,7 @@ const requisitosFaltantes = computed(() => {
     faltantes.push('Hay repuestos cambiados pendientes de foto retirada o instalada');
   }
 
-  // 4. REGLA: Fotos antes y después en insumos menores si existen
-  if (!tieneInsumosOk.value) {
-    faltantes.push('Hay insumos menores pendientes de foto ANTES o DESPUÉS');
-  }
-
-  // 5. REGLA: Foto en novedades y hallazgos si existen
+  // 4. REGLA: Foto en novedades y hallazgos si existen
   if (!tieneHallazgosOk.value) {
     faltantes.push('Hay novedades o hallazgos pendientes de fotografía soporte');
   }

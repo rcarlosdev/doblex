@@ -2,6 +2,8 @@
 import { reactive, watch, computed, nextTick } from 'vue';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
+import MaterialesTipologiaSelector from '@/components/mobile/MaterialesTipologiaSelector.vue';
 import { 
   IconAlertTriangle, 
   IconTool, 
@@ -11,7 +13,8 @@ import {
   IconPlus,
   IconTrash,
   IconBox,
-  IconBuildingBroadcastTower
+  IconBuildingBroadcastTower,
+  IconCamera
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -30,10 +33,14 @@ const props = defineProps({
   codigoOt: {
     type: String,
     default: ''
+  },
+  evidencias: {
+    type: Array,
+    default: () => []
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'photo-uploaded', 'delete-photo']);
 
 const form = reactive({
   // 1. Información General y Estación
@@ -51,51 +58,16 @@ const form = reactive({
   descripcion_falla: '',
   descripcion_solucion: '',
 
-  // 3. Repuestos retirados e instalados
-  repuesto_retirado: {
-    descripcion: '',
-    marca: '',
-    modelo: '',
-    serial: ''
-  },
-  repuesto_instalado: {
-    descripcion: '',
-    marca: '',
-    modelo: '',
-    serial: ''
-  },
-
-  // 4. Materiales LPU utilizados
+  // 3. Materiales & Actividades LPU utilizados (Estándar de Tipologías)
   materiales: [],
 
-  // 5. Transporte Especial
-  desea_transporte_especial: 'No',
-  tipo_transporte: 'Vehículo 4x4',
-  distancia_km: null,
-  tiempo_desplazamiento: '',
-  observacion_transporte: '',
-
-  // 6. Novedades en estación
-  se_encontraron_novedades: 'No',
-  sistema_novedad: 'Planta eléctrica',
-  prioridad_novedad: 'Media',
-  descripcion_novedad: '',
-  resuelto_en_visita: 'Si',
-
-  // 7. Cierre y Supervisión
+  // 4. Cierre y Supervisión Claro
   falla_resuelta: 'Si',
   observaciones_actividad: '',
   nombre_supervisor: '',
   ...props.modelValue
 });
 
-// Inicializar al menos los sub-objetos si vienen vacíos
-if (!form.repuesto_retirado) {
-  form.repuesto_retirado = { descripcion: '', marca: '', modelo: '', serial: '' };
-}
-if (!form.repuesto_instalado) {
-  form.repuesto_instalado = { descripcion: '', marca: '', modelo: '', serial: '' };
-}
 if (!Array.isArray(form.materiales)) {
   form.materiales = [];
 }
@@ -154,17 +126,7 @@ watch(() => props.modelValue, (newVal) => {
   }
 }, { deep: true });
 
-const addMaterial = () => {
-  form.materiales.push({
-    descripcion: '',
-    unidad: 'Unidad',
-    cantidad: 1
-  });
-};
 
-const removeMaterial = (index) => {
-  form.materiales.splice(index, 1);
-};
 
 const tituloActividad = computed(() => {
   const raw = (props.tipoActividad || form.tipo_actividad || '').toLowerCase().trim();
@@ -199,31 +161,14 @@ const bannerTheme = computed(() => {
     badge: 'border-amber-500/30 text-amber-600 dark:text-amber-400'
   };
 });
+
+const getEvidenciasPorTipo = (tipo) => {
+  return (props.evidencias || []).filter(e => e.tipo === tipo);
+};
 </script>
 
 <template>
   <div class="space-y-5 text-xs select-text">
-    <!-- Header de Identificación del Formato Oficial WO -->
-    <div :class="['p-3.5 border rounded-2xl flex items-center justify-between flex-wrap gap-2 transition-colors', bannerTheme.wrapper]">
-      <div class="flex items-center gap-2.5">
-        <div :class="['p-2 rounded-xl transition-colors', bannerTheme.iconBox]">
-          <IconAlertTriangle v-if="tituloActividad === 'Emergencia'" class="w-5 h-5 stroke-[2]" />
-          <IconTool v-else class="w-5 h-5 stroke-[2]" />
-        </div>
-        <div>
-          <h4 class="font-extrabold text-neutral-900 dark:text-white text-xs">
-            {{ tituloActividad }}
-          </h4>
-          <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
-            Formato oficial Claro (Ref. {{ codigoOt || 'WO0000005558781' }} - Móvil / Urbano-Rural)
-          </p>
-        </div>
-      </div>
-      <Badge variant="outline" :class="['font-bold text-[10px] transition-colors', bannerTheme.badge]">
-        {{ tituloActividad }}
-      </Badge>
-    </div>
-
     <!-- 1. INFORMACIÓN GENERAL Y AFECTACIÓN DE SERVICIOS -->
     <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xs">
       <div class="flex items-center gap-2 border-b border-neutral-100 dark:border-white/5 pb-2.5">
@@ -360,14 +305,76 @@ const bannerTheme = computed(() => {
           ></textarea>
         </div>
       </div>
+
+      <!-- Evidencias Fotográficas Obligatorias del Formato WO (Antes, Durante y Después) -->
+      <div class="pt-3 border-t border-neutral-100 dark:border-white/5 space-y-3">
+        <div class="flex items-center gap-1.5 text-neutral-800 dark:text-neutral-200">
+          <IconCamera class="w-4 h-4 text-amber-500 stroke-[2]" />
+          <span class="font-extrabold text-[11px] uppercase tracking-wider">
+            Soportes Fotográficos de la Intervención (Claro WO)
+          </span>
+        </div>
+
+        <PhotoUploader
+          tipo="antes"
+          titulo="1. Diagnóstico Inicial & Falla Encontrada"
+          descripcion="Fotografía legible del estado del equipo averiado, daño físico o alarma activa en tablero antes de iniciar labores."
+          badge-label="Antes (Falla)"
+          :codigo-ot="codigoOt"
+          :evidencias-list="getEvidenciasPorTipo('antes')"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+
+        <PhotoUploader
+          tipo="durante"
+          titulo="2. Intervención Técnica & Reparación"
+          descripcion="Registro del proceso técnico: desmonte, piezas sustituidas vs repuestos nuevos instalados."
+          badge-label="Durante (Reparación)"
+          :codigo-ot="codigoOt"
+          :evidencias-list="getEvidenciasPorTipo('durante')"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+
+        <PhotoUploader
+          tipo="despues"
+          titulo="3. Equipo Operativo en Servicio & Cierre"
+          descripcion="Equipo solucionado operando en condiciones normales, tablero sin alarmas y pruebas con carga avaladas."
+          badge-label="Después (Solucionado)"
+          :codigo-ot="codigoOt"
+          :evidencias-list="getEvidenciasPorTipo('despues')"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+      </div>
     </div>
 
-    <!-- 3. CIERRE TÉCNICO Y SUPERVISIÓN -->
+    <!-- 3. MATERIALES E INSUMOS LPU UTILIZADOS (ESTÁNDAR TIPOLOGÍAS) -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 px-1">
+        <IconBox class="w-4 h-4 text-amber-500 stroke-[2.2]" />
+        <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
+          3. Materiales & Actividades LPU Reportados en Campo
+        </span>
+      </div>
+
+      <MaterialesTipologiaSelector
+        v-model="form.materiales"
+        :subsistema="form.subsistema"
+        :read-only="readOnly"
+      />
+    </div>
+
+    <!-- 4. CIERRE TÉCNICO Y SUPERVISIÓN -->
     <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
       <div class="flex items-center gap-2 border-b border-neutral-100 dark:border-white/5 pb-2.5">
         <IconCheck class="w-4 h-4 text-emerald-500 stroke-[2.5]" />
         <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
-          3. Cierre Técnico & Supervisión Claro
+          4. Cierre Técnico & Supervisión Claro
         </span>
       </div>
 

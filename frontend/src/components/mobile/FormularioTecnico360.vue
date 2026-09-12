@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, watch, computed, ref, nextTick } from 'vue';
+import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
 import { 
   IconEngine, 
   IconGauge, 
@@ -15,7 +16,8 @@ import {
   IconClipboardCheck,
   IconAward,
   IconPlus,
-  IconTrash
+  IconTrash,
+  IconCamera
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -26,10 +28,22 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  codigoOt: {
+    type: String,
+    default: ''
+  },
+  evidencias: {
+    type: Array,
+    default: () => []
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'photo-uploaded', 'delete-photo']);
+
+const getEvidenciasPorTipo = (tipo) => {
+  return (props.evidencias || []).filter(e => e.tipo === tipo);
+};
 
 // Pestaña activa interna para navegar cómodamente en móvil
 const activeSubtab = ref('ge_diagnostico'); // 'ge_diagnostico', 'megger_banco', 'spt_sistema', 'instrumentos'
@@ -284,26 +298,6 @@ const eliminarHallazgoGe = (index) => {
 
 <template>
   <div class="space-y-4 text-xs select-text">
-    <!-- Header Oficial Claro: Diagnóstico 360 -->
-    <div class="p-3.5 bg-purple-500/10 border border-purple-500/20 rounded-2xl flex items-center justify-between flex-wrap gap-2">
-      <div class="flex items-center gap-2.5">
-        <div class="p-2 bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-xl">
-          <IconShieldCheck class="w-5 h-5 stroke-[2]" />
-        </div>
-        <div>
-          <h4 class="font-extrabold text-neutral-900 dark:text-white text-xs">
-            Informe 360
-          </h4>
-          <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
-            Diagnóstico Integral GE & Sistema SPT • Plantillas Oficiales Claro
-          </p>
-        </div>
-      </div>
-      <span class="px-2.5 py-0.5 rounded-full bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-mono font-black text-[10px] border border-purple-300 dark:border-purple-800">
-        INFORME 360
-      </span>
-    </div>
-
     <!-- Navegación por Subpestañas del Formato 360 -->
     <div class="bg-slate-100 dark:bg-[#121215] p-1 rounded-2xl border border-slate-200 dark:border-white/10 select-none">
       <div class="grid grid-cols-2 sm:grid-cols-4 gap-1 text-center">
@@ -706,6 +700,27 @@ const eliminarHallazgoGe = (index) => {
           </div>
         </div>
       </div>
+
+      <!-- Soporte Fotográfico: Inspección Visual y Diagnóstico GE -->
+      <div class="space-y-2">
+        <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+          <IconCamera class="w-4 h-4 text-purple-600 dark:text-purple-400 stroke-[2]" />
+          <span class="font-extrabold text-[11px] uppercase tracking-wider">
+            Anexo Fotográfico: Inspección Visual y Diagnóstico GE
+          </span>
+        </div>
+        <PhotoUploader
+          tipo="diagnostico_ge"
+          titulo="Evidencias Fotográficas Diagnóstico GE"
+          descripcion="Fotografías de placa del equipo, panorámica general, estado de devanados, fugas y componentes inspeccionados."
+          badge-label="Diagnóstico GE"
+          :codigo-ot="codigoOt"
+          :evidencias-list="[...getEvidenciasPorTipo('diagnostico_ge'), ...getEvidenciasPorTipo('antes')]"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+      </div>
     </div>
 
     <!-- ========================================================================= -->
@@ -919,6 +934,27 @@ const eliminarHallazgoGe = (index) => {
           </div>
         </div>
       </div>
+
+      <!-- Soporte Fotográfico: Prueba Megger y Banco de Carga -->
+      <div class="space-y-2">
+        <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+          <IconCamera class="w-4 h-4 text-purple-600 dark:text-purple-400 stroke-[2]" />
+          <span class="font-extrabold text-[11px] uppercase tracking-wider">
+            Anexo Fotográfico: Prueba Megger & Banco Resistivo
+          </span>
+        </div>
+        <PhotoUploader
+          tipo="megger_banco"
+          titulo="Prueba Megger & Banco Resistivo"
+          descripcion="Fotografías de pantalla del equipo Megger (resistencia de aislamiento MΩ / PI) y pruebas con banco de carga."
+          badge-label="Megger & Banco"
+          :codigo-ot="codigoOt"
+          :evidencias-list="[...getEvidenciasPorTipo('megger_banco'), ...getEvidenciasPorTipo('pruebas')]"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+      </div>
     </div>
 
     <!-- ========================================================================= -->
@@ -1063,6 +1099,27 @@ const eliminarHallazgoGe = (index) => {
           </div>
         </div>
       </div>
+
+      <!-- Soporte Fotográfico: Sistema Puesta a Tierra (SPT) -->
+      <div class="space-y-2">
+        <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+          <IconCamera class="w-4 h-4 text-purple-600 dark:text-purple-400 stroke-[2]" />
+          <span class="font-extrabold text-[11px] uppercase tracking-wider">
+            Anexo Fotográfico: Mediciones de Puesta a Tierra (SPT)
+          </span>
+        </div>
+        <PhotoUploader
+          tipo="spt"
+          titulo="Medición de Puesta a Tierra (SPT)"
+          descripcion="Fotografías de medición de resistividad Wenner (4 electrodos), resistencia Caída 62% y equipotencialidad."
+          badge-label="Medición SPT"
+          :codigo-ot="codigoOt"
+          :evidencias-list="[...getEvidenciasPorTipo('spt'), ...getEvidenciasPorTipo('pruebas')]"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+      </div>
     </div>
 
     <!-- ========================================================================= -->
@@ -1161,6 +1218,27 @@ const eliminarHallazgoGe = (index) => {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Soporte Fotográfico: Certificados de Calibración de Equipos -->
+        <div class="pt-3 border-t border-slate-100 dark:border-white/5 space-y-2">
+          <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+            <IconCamera class="w-4 h-4 text-purple-600 dark:text-purple-400 stroke-[2]" />
+            <span class="font-extrabold text-[11px] uppercase tracking-wider">
+              Anexo Fotográfico: Certificados de Calibración Vigentes
+            </span>
+          </div>
+          <PhotoUploader
+            tipo="instrumentos"
+            titulo="Certificados & Calibración de Equipos"
+            descripcion="Fotografías legibles de los certificados vigentes o sellos de calibración de los instrumentos utilizados en campo."
+            badge-label="Certificados Calibración"
+            :codigo-ot="codigoOt"
+            :evidencias-list="getEvidenciasPorTipo('instrumentos')"
+            :read-only="readOnly"
+            @photo-uploaded="emit('photo-uploaded', $event)"
+            @delete-photo="emit('delete-photo', $event)"
+          />
         </div>
       </div>
     </div>

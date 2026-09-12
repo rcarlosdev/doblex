@@ -374,12 +374,18 @@ const hasExactMatch = computed(() => {
 watch(() => props.modelValue, (newVal) => {
   if (Array.isArray(newVal)) {
     // Clonar para mutación local controlada
-    items.value = newVal.map(it => ({
-      nombre_item: it.nombre_item || it.nombre || '',
-      cantidad: Number(it.cantidad) > 0 ? Number(it.cantidad) : 1,
-      unidad_medida: it.unidad_medida || it.unidad || detectUnit(it.nombre_item || it.nombre || ''),
-      categoria: it.categoria || ''
-    }));
+    items.value = newVal.map(it => {
+      const rawName = it.nombre_item || it.nombre || it.descripcion || '';
+      const rawUnit = it.unidad_medida || it.unidad || detectUnit(rawName);
+      return {
+        nombre_item: rawName,
+        descripcion: rawName,
+        cantidad: Number(it.cantidad) > 0 ? Number(it.cantidad) : 1,
+        unidad_medida: rawUnit,
+        unidad: rawUnit,
+        categoria: it.categoria || ''
+      };
+    });
   } else {
     items.value = [];
   }
@@ -389,8 +395,10 @@ const triggerUpdate = () => {
   touched.value = true;
   emit('update:modelValue', items.value.map(it => ({
     nombre_item: it.nombre_item,
+    descripcion: it.nombre_item,
     cantidad: Number(it.cantidad) || 1,
-    unidad_medida: it.unidad_medida || 'unidad'
+    unidad_medida: it.unidad_medida || 'unidad',
+    unidad: it.unidad_medida || 'unidad'
   })));
 };
 

@@ -916,21 +916,67 @@
               </div>
             </div>
 
-            <!-- 4. MATERIALES E INSUMOS MENORES UTILIZADOS (FOTOS ANTES & DESPUÉS) -->
+            <!-- 4. MATERIALES Y ACTIVIDADES LPU REPORTADOS EN CAMPO (ESTÁNDAR TIPOLOGÍAS) -->
             <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3 shadow-xs">
               <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
                 <div class="flex items-center gap-2">
                   <IconTools class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2]" />
                   <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    4. Materiales e Insumos Menores Utilizados (Fotos Antes & Después)
+                    4. Materiales & Actividades LPU Reportados (Estándar Tipologías)
                   </span>
                 </div>
                 <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300">
-                  {{ parsedFormData.insumos_menores?.length || 0 }} Insumos
+                  {{ (parsedFormData.materiales?.length || parsedFormData.insumos_menores?.length || 0) }} Ítems
                 </span>
               </div>
 
-              <div v-if="parsedFormData.insumos_menores && parsedFormData.insumos_menores.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+              <!-- Si se reportaron materiales con el nuevo estándar de tipologías -->
+              <div v-if="parsedFormData.materiales && parsedFormData.materiales.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
+                <table class="w-full text-xs text-left">
+                  <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
+                    <tr>
+                      <th class="py-2.5 px-3">#</th>
+                      <th class="py-2.5 px-3">Código SAP</th>
+                      <th class="py-2.5 px-3">Descripción / Alcance LPU</th>
+                      <th class="py-2.5 px-3 text-center">Tipo</th>
+                      <th class="py-2.5 px-3 text-center">Unidad</th>
+                      <th class="py-2.5 px-3 text-right">Cantidad</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-white/5">
+                    <tr v-for="(mat, idx) in parsedFormData.materiales" :key="idx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
+                      <td class="py-2.5 px-3 font-mono text-slate-400">{{ idx + 1 }}</td>
+                      <td class="py-2.5 px-3">
+                        <span v-if="mat.codigo_sap" class="font-mono text-[11px] font-bold px-1.5 py-0.5 rounded bg-neutral-100 dark:bg-white/10 text-neutral-800 dark:text-neutral-200">
+                          {{ mat.codigo_sap }}
+                        </span>
+                        <span v-else class="text-slate-400 italic text-[10px]">-</span>
+                      </td>
+                      <td class="py-2.5 px-3">
+                        <div class="font-bold text-slate-800 dark:text-slate-200">{{ mat.nombre_item || mat.descripcion || mat.texto_sap }}</div>
+                        <div v-if="mat.alcance && mat.alcance !== mat.nombre_item" class="text-[10px] text-slate-400 mt-0.5 line-clamp-2">
+                          {{ mat.alcance }}
+                        </div>
+                      </td>
+                      <td class="py-2.5 px-3 text-center">
+                        <span 
+                          class="text-[9px] uppercase font-black px-1.5 py-0.5 rounded"
+                          :class="mat.tipo === 'Material' 
+                            ? 'bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300' 
+                            : 'bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300'"
+                        >
+                          {{ mat.tipo || 'Material' }}
+                        </span>
+                      </td>
+                      <td class="py-2.5 px-3 text-center font-mono text-slate-500 font-bold">{{ mat.unidad_medida || mat.unidad || 'UNIDAD' }}</td>
+                      <td class="py-2.5 px-3 text-right font-mono font-black text-amber-600 dark:text-amber-400 text-sm">{{ mat.cantidad }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Fallback para órdenes históricas con insumos menores -->
+              <div v-else-if="parsedFormData.insumos_menores && parsedFormData.insumos_menores.length > 0" class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
                 <table class="w-full text-xs text-left">
                   <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b border-slate-200 dark:border-white/10">
                     <tr>
@@ -974,7 +1020,7 @@
                 </table>
               </div>
               <div v-else class="text-center py-6 bg-slate-50 dark:bg-[#0a0b10] border border-dashed border-slate-200 dark:border-white/10 rounded-xl">
-                <p class="text-xs text-slate-500">No se utilizaron insumos menores en esta actividad</p>
+                <p class="text-xs text-slate-500">No se registraron materiales ni insumos LPU en esta actividad</p>
               </div>
             </div>
 

@@ -1,5 +1,6 @@
 <script setup>
 import { reactive, watch, computed, nextTick } from 'vue';
+import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
 import { 
   IconEngine, 
   IconGauge, 
@@ -13,7 +14,8 @@ import {
   IconAlertTriangle,
   IconShieldCheck,
   IconClipboardCheck,
-  IconTools
+  IconTools,
+  IconCamera
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -28,10 +30,22 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  codigoOt: {
+    type: String,
+    default: ''
+  },
+  evidencias: {
+    type: Array,
+    default: () => []
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'photo-uploaded', 'delete-photo']);
+
+const getEvidenciasPorTipo = (tipo) => {
+  return (props.evidencias || []).filter(e => e.tipo === tipo);
+};
 
 const form = reactive({
   // ==========================================
@@ -309,26 +323,6 @@ watch(() => props.modelValue, (newVal) => {
     <!-- CASO A: FORMATO MP AIRE ACONDICIONADO (Ref: WO0000005520436)   -->
     <!-- ============================================================== -->
     <template v-if="tipoPreventivo === 'aire'">
-      <!-- Banner Identificador del Formato -->
-      <div class="p-3.5 bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/60 rounded-2xl flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-sky-600 text-white flex items-center justify-center shrink-0 shadow-md">
-            <IconSnowflake class="w-5 h-5 stroke-[2]" />
-          </div>
-          <div>
-            <h4 class="font-black text-xs text-sky-950 dark:text-sky-200 uppercase tracking-wide">
-              Preventivo
-            </h4>
-            <p class="text-[11px] text-sky-700 dark:text-sky-400 font-medium">
-              Climatización (MP-AIRE) • Protocolo oficial de evaluación técnica y frigorífica
-            </p>
-          </div>
-        </div>
-        <span class="text-[10px] font-mono font-bold bg-sky-200/80 dark:bg-sky-900/60 text-sky-900 dark:text-sky-300 px-2 py-0.5 rounded-md shrink-0">
-          Ref. WO0000005520436
-        </span>
-      </div>
-
       <!-- SECCIÓN 1: DATOS GENERALES DEL EQUIPO DE AIRE -->
       <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
         <div class="flex items-center gap-2 border-b border-slate-100 dark:border-white/10 pb-2.5">
@@ -448,6 +442,27 @@ watch(() => props.modelValue, (newVal) => {
             />
           </div>
         </div>
+
+        <!-- Soporte Fotográfico: Placas y Estado Previo AA -->
+        <div class="pt-3 border-t border-slate-100 dark:border-white/5 space-y-2">
+          <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+            <IconCamera class="w-4 h-4 text-sky-600 dark:text-sky-400 stroke-[2]" />
+            <span class="font-extrabold text-[11px] uppercase tracking-wider">
+              Anexo Fotográfico: Placa Técnica & Estado Previo AA
+            </span>
+          </div>
+          <PhotoUploader
+            tipo="placas"
+            titulo="Placa Técnica & Estado Previo AA"
+            descripcion="Placa de características técnicas del equipo (evaporador/condensador) y estado físico antes del lavado."
+            badge-label="Placa & Previo"
+            :codigo-ot="codigoOt"
+            :evidencias-list="[...getEvidenciasPorTipo('placas'), ...getEvidenciasPorTipo('antes')]"
+            :read-only="readOnly"
+            @photo-uploaded="emit('photo-uploaded', $event)"
+            @delete-photo="emit('delete-photo', $event)"
+          />
+        </div>
       </div>
 
       <!-- SECCIÓN 2: TEMPERATURAS Y TERMOSTATO -->
@@ -544,6 +559,27 @@ watch(() => props.modelValue, (newVal) => {
               class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs font-bold text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
             />
           </div>
+        </div>
+
+        <!-- Soporte Fotográfico: Mediciones Frigoríficas y Termostato -->
+        <div class="pt-3 border-t border-slate-100 dark:border-white/5 space-y-2">
+          <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+            <IconCamera class="w-4 h-4 text-sky-600 dark:text-sky-400 stroke-[2]" />
+            <span class="font-extrabold text-[11px] uppercase tracking-wider">
+              Anexo Fotográfico: Mediciones Operativas y Frigoríficas
+            </span>
+          </div>
+          <PhotoUploader
+            tipo="pruebas"
+            titulo="Mediciones Operativas y Frigoríficas"
+            descripcion="Lectura manométrica (presión de baja/alta PSI), pinza amperimétrica (corriente compresor) y termómetro inyección/retorno."
+            badge-label="Mediciones & Cierre"
+            :codigo-ot="codigoOt"
+            :evidencias-list="[...getEvidenciasPorTipo('pruebas'), ...getEvidenciasPorTipo('despues')]"
+            :read-only="readOnly"
+            @photo-uploaded="emit('photo-uploaded', $event)"
+            @delete-photo="emit('delete-photo', $event)"
+          />
         </div>
       </div>
 
@@ -798,6 +834,223 @@ watch(() => props.modelValue, (newVal) => {
             </div>
           </div>
         </div>
+
+        <!-- SECCIÓN 4 DEL EXCEL OFICIAL: SOPORTES MANTENIMIENTO (ANEXOS FOTOGRÁFICOS) -->
+        <div class="pt-5 border-t border-slate-100 dark:border-white/5 space-y-4">
+          <div class="flex items-center gap-2">
+            <IconCamera class="w-5 h-5 text-sky-600 dark:text-sky-400 stroke-[2.5]" />
+            <div>
+              <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                4. Soportes Mantenimiento (Anexos Fotográficos Oficiales Claro)
+              </h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Registro fotográfico estructurado según cuadrícula oficial del formato de aire (WO0000005520436)
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <!-- Fila 1: Pos Mantenimiento -->
+            <PhotoUploader
+              tipo="condensadora_pos"
+              titulo="Condensadora Pos Mantenimiento"
+              descripcion="Unidad condensadora lavada a presión y desincrustada."
+              badge-label="Condensadora Pos"
+              badge-class="bg-sky-100 text-sky-900 border border-sky-300 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('condensadora_pos'), ...getEvidenciasPorTipo('mantenimiento')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="evaporadora_pos"
+              titulo="Evaporadora Pos Mantenimiento"
+              descripcion="Unidad manejadora/evaporadora limpia y bandeja despejada."
+              badge-label="Evaporadora Pos"
+              badge-class="bg-sky-100 text-sky-900 border border-sky-300 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('evaporadora_pos')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="filtros_pos"
+              titulo="Filtros Pos Mantenimiento"
+              descripcion="Mallas y filtros limpios, lavados y secos."
+              badge-label="Filtros Pos"
+              badge-class="bg-sky-100 text-sky-900 border border-sky-300 dark:bg-sky-950 dark:text-sky-300 dark:border-sky-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('filtros_pos')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <!-- Fila 2: Panorámicas -->
+            <PhotoUploader
+              tipo="panoramica_condensadora"
+              titulo="Panorámica Unidad Condensadora"
+              descripcion="Vista general panorámica de la unidad condensadora exterior."
+              badge-label="Panorámica Condensadora"
+              badge-class="bg-slate-100 text-slate-900 border border-slate-300 dark:bg-neutral-800 dark:text-slate-200 dark:border-white/10"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_condensadora')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="panoramica_manejadora"
+              titulo="Panorámica Unidad Manejadora"
+              descripcion="Vista panorámica de la manejadora/split montada en salón."
+              badge-label="Panorámica Manejadora"
+              badge-class="bg-slate-100 text-slate-900 border border-slate-300 dark:bg-neutral-800 dark:text-slate-200 dark:border-white/10"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_manejadora')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="panoramica_compresor"
+              titulo="Panorámica Compresor"
+              descripcion="Vista del compresor dentro de la condensadora (o N/A)."
+              badge-label="Panorámica Compresor"
+              badge-class="bg-slate-100 text-slate-900 border border-slate-300 dark:bg-neutral-800 dark:text-slate-200 dark:border-white/10"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_compresor')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <!-- Fila 3: Operativa y Motor -->
+            <PhotoUploader
+              tipo="panoramica_aa"
+              titulo="Panorámica Aire Acondicionado"
+              descripcion="Vista panorámica completa del sistema y entorno del sitio."
+              badge-label="Panorámica General"
+              badge-class="bg-slate-100 text-slate-900 border border-slate-300 dark:bg-neutral-800 dark:text-slate-200 dark:border-white/10"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_aa')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="motor_aspa"
+              titulo="Motor y Aspa Condensadora"
+              descripcion="Inspección de las aspas del ventilador y motor condensador."
+              badge-label="Motor & Aspa"
+              badge-class="bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('motor_aspa')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="temp_entrada"
+              titulo="Temperatura Aire de Entrada"
+              descripcion="Medición con pirómetro/termómetro en el retorno de aire (°C)."
+              badge-label="Temp. Entrada"
+              badge-class="bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('temp_entrada')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <!-- Fila 4: Temperaturas y Termostato -->
+            <PhotoUploader
+              tipo="temp_salida"
+              titulo="Temperatura Aire de Salida"
+              descripcion="Medición con pirómetro en la inyección de aire frío (°C)."
+              badge-label="Temp. Salida"
+              badge-class="bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('temp_salida')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="temp_salon"
+              titulo="Temperatura Salón"
+              descripcion="Medición de la temperatura ambiente general de la sala."
+              badge-label="Temp. Salón"
+              badge-class="bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('temp_salon')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="termostato"
+              titulo="Termostato / Display"
+              descripcion="Display digital del termostato mostrando el setpoint (ej. 18°C/22°C)."
+              badge-label="Termostato"
+              badge-class="bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('termostato'), ...getEvidenciasPorTipo('pruebas')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <!-- Fila 5: Ajustes y Serial -->
+            <PhotoUploader
+              tipo="ajustes_mecanicos"
+              titulo="Ajustes Mecánicos y Eléctricos (Unidad 1)"
+              descripcion="Revisión de cableado, borneras, anclaje y componentes eléctricos."
+              badge-label="Ajustes Eléctricos"
+              badge-class="bg-indigo-100 text-indigo-900 border border-indigo-300 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('ajustes_mecanicos')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="ajustes_mecanicos_2"
+              titulo="Ajustes Mecánicos y Eléctricos (Unidad 2)"
+              descripcion="Fijaciones mecánicas, ductos y tuberías frigoríficas."
+              badge-label="Ajustes Mecánicos"
+              badge-class="bg-indigo-100 text-indigo-900 border border-indigo-300 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('ajustes_mecanicos_2')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="serial_elemento"
+              titulo="Serial del Elemento / Placa"
+              descripcion="Foto nítida del serial y modelo del aire o compresor."
+              badge-label="Serial Elemento"
+              badge-class="bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('serial_elemento'), ...getEvidenciasPorTipo('placas')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+          </div>
+        </div>
       </div>
     </template>
 
@@ -805,26 +1058,6 @@ watch(() => props.modelValue, (newVal) => {
     <!-- CASO B: FORMATO MP PLANTA ELÉCTRICA (Ref: OT5304019)           -->
     <!-- ============================================================== -->
     <template v-else>
-      <!-- Banner Identificador del Formato -->
-      <div class="p-3.5 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-800/60 rounded-2xl flex items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 rounded-xl bg-red-600 text-white flex items-center justify-center shrink-0 shadow-md">
-            <IconEngine class="w-5 h-5 stroke-[2]" />
-          </div>
-          <div>
-            <h4 class="font-black text-xs text-red-950 dark:text-red-200 uppercase tracking-wide">
-              Preventivo
-            </h4>
-            <p class="text-[11px] text-red-700 dark:text-red-400 font-medium">
-              Planta Eléctrica (MP-PLANTA) • Protocolo oficial Claro de planta diésel y ATS
-            </p>
-          </div>
-        </div>
-        <span class="text-[10px] font-mono font-bold bg-red-200/80 dark:bg-red-900/60 text-red-900 dark:text-red-300 px-2 py-0.5 rounded-md shrink-0">
-          Ref. OT5304019
-        </span>
-      </div>
-
       <!-- SECCIÓN 1: DATOS PRINCIPALES DE PLANTAS -->
       <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
         <div class="flex items-center gap-2 border-b border-slate-100 dark:border-white/10 pb-2.5">
@@ -936,6 +1169,57 @@ watch(() => props.modelValue, (newVal) => {
             />
           </div>
         </div>
+
+        <!-- Soporte Fotográfico: Placas Técnicas de Planta, Motor y Generador (Excel Claro) -->
+        <div class="pt-4 border-t border-slate-100 dark:border-white/5 space-y-3">
+          <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+            <IconCamera class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+            <span class="font-extrabold text-[11px] uppercase tracking-wider">
+              Anexo Fotográfico: Placas Técnicas de Equipos (Excel Claro)
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <PhotoUploader
+              tipo="placa_planta"
+              titulo="Placa Planta Eléctrica"
+              descripcion="Placa del grupo electrógeno (KVA, KW, modelo y serial)."
+              badge-label="Placa Planta"
+              badge-class="bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('placa_planta'), ...getEvidenciasPorTipo('placas')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="placa_motor"
+              titulo="Placa Motor Diésel"
+              descripcion="Placa del motor térmico (Cummins, Perkins, etc.)."
+              badge-label="Placa Motor"
+              badge-class="bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('placa_motor')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="placa_generador"
+              titulo="Placa Generador / Alternador"
+              descripcion="Placa técnica del alternador eléctrico (Stamford, Leroy Somer)."
+              badge-label="Placa Generador"
+              badge-class="bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('placa_generador')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- SECCIÓN 2: GENERADOR, BATERÍAS Y TRANSFERENCIA ATS -->
@@ -1018,6 +1302,70 @@ watch(() => props.modelValue, (newVal) => {
             />
           </div>
         </div>
+
+        <!-- Soporte Fotográfico: Horómetro Inicial, Cabina, Baterías y ATS (Excel Claro) -->
+        <div class="pt-4 border-t border-slate-100 dark:border-white/5 space-y-3">
+          <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+            <IconCamera class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+            <span class="font-extrabold text-[11px] uppercase tracking-wider">
+              Anexo Fotográfico: Estado Inicial, Cabina, Batería & Transferencia ATS
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <PhotoUploader
+              tipo="horometro_inicial"
+              titulo="Lectura Horómetro Inicial"
+              descripcion="Foto nítida del contador de horas antes de arrancar la rutina."
+              badge-label="Horómetro Inicial"
+              badge-class="bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('horometro_inicial'), ...getEvidenciasPorTipo('inicial')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="panoramica_cabina"
+              titulo="Panorámica Cabina / Caseta"
+              descripcion="Estado físico de la insonorización, cerraduras e intemperie."
+              badge-label="Cabina / Caseta"
+              badge-class="bg-slate-100 text-slate-900 border border-slate-300 dark:bg-neutral-800 dark:text-slate-200 dark:border-white/10"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_cabina')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="panoramica_bateria"
+              titulo="Panorámica Batería de Arranque"
+              descripcion="Bornes, sulfatación, nivel de electrolito y cableado."
+              badge-label="Batería Arranque"
+              badge-class="bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_bateria')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="panoramica_ats"
+              titulo="Panorámica Transferencia (ATS)"
+              descripcion="Gabinete ATS, contactores de red/planta y cableado de potencia."
+              badge-label="Gabinete ATS"
+              badge-class="bg-indigo-100 text-indigo-900 border border-indigo-300 dark:bg-indigo-950 dark:text-indigo-300 dark:border-indigo-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('panoramica_ats')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+          </div>
+        </div>
       </div>
 
       <!-- SECCIÓN 3: SERVICIO DE FILTRACIÓN (LISTA DE MP) -->
@@ -1064,6 +1412,101 @@ watch(() => props.modelValue, (newVal) => {
                 NO
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- SECCIÓN DE SOPORTES FOTOGRÁFICOS DE PLANTA (SEGÚN EXCEL OFICIAL OT5304019) -->
+        <div class="pt-5 border-t border-slate-100 dark:border-white/5 space-y-4">
+          <div class="flex items-center gap-2">
+            <IconCamera class="w-5 h-5 text-red-600 dark:text-red-400 stroke-[2.5]" />
+            <div>
+              <h4 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Soportes Mantenimiento: Rutina de Filtración y Fluidos (Excel Claro OT5304019)
+              </h4>
+              <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Evidencias fotográficas durante la ejecución de cambio de consumibles y fluidos
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            <PhotoUploader
+              tipo="filtro_aceite"
+              titulo="Cambio de Filtro de Aceite"
+              descripcion="Filtro nuevo instalado y retiro del filtro usado."
+              badge-label="Filtro Aceite"
+              badge-class="bg-blue-100 text-blue-900 border border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('filtro_aceite')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="filtro_combustible"
+              titulo="Cambio de Filtro de Combustible"
+              descripcion="Sustitución de filtro principal/separador trampa de agua."
+              badge-label="Filtro Combustible"
+              badge-class="bg-blue-100 text-blue-900 border border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('filtro_combustible')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="filtro_aire"
+              titulo="Cambio de Filtro de Aire"
+              descripcion="Limpieza de alojamiento y cartucho de aire nuevo colocado."
+              badge-label="Filtro Aire"
+              badge-class="bg-blue-100 text-blue-900 border border-blue-300 dark:bg-blue-950 dark:text-blue-300 dark:border-blue-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('filtro_aire')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="cambio_aceite"
+              titulo="Cambio de Aceite (Durante Ejecución)"
+              descripcion="Drenaje de lubricante usado y llenado con aceite nuevo 15W40."
+              badge-label="Cambio Aceite"
+              badge-class="bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('cambio_aceite'), ...getEvidenciasPorTipo('filtracion')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="cambio_refrigerante"
+              titulo="Cambio de Refrigerante / Inspección"
+              descripcion="Nivel y adición de refrigerante 50/50 en radiador/tanque."
+              badge-label="Refrigerante"
+              badge-class="bg-cyan-100 text-cyan-900 border border-cyan-300 dark:bg-cyan-950 dark:text-cyan-300 dark:border-cyan-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('cambio_refrigerante')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="nivel_aceite_final"
+              titulo="Nivel de Aceite Final (Varilla)"
+              descripcion="Foto de la varilla marcando nivel óptimo entre Min y Max."
+              badge-label="Nivel Aceite Final"
+              badge-class="bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('nivel_aceite_final')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
           </div>
         </div>
       </div>
@@ -1135,6 +1578,57 @@ watch(() => props.modelValue, (newVal) => {
               :disabled="readOnly"
               placeholder="Describa la alarma activa en el panel DSE / Deepsea / Cummins..."
               class="w-full h-9 rounded-lg border border-rose-300 dark:border-rose-800 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Soporte Fotográfico: Pruebas Operativas ATS con Carga (Excel Claro) -->
+        <div class="pt-4 border-t border-slate-100 dark:border-white/5 space-y-3">
+          <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
+            <IconCamera class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
+            <span class="font-extrabold text-[11px] uppercase tracking-wider">
+              Anexo Fotográfico: Pruebas Operativas ATS con Carga (15 Minutos)
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <PhotoUploader
+              tipo="prueba_carga"
+              titulo="Lectura Instrumentos con Carga"
+              descripcion="Voltímetro, frecuencímetro y amperímetro durante los 15 min de prueba activa."
+              badge-label="Lectura Instrumentos"
+              badge-class="bg-emerald-100 text-emerald-900 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('prueba_carga'), ...getEvidenciasPorTipo('pruebas')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="horometro_final"
+              titulo="Lectura Horómetro Final"
+              descripcion="Registro del horómetro al culminar exitosamente la prueba con carga."
+              badge-label="Horómetro Final"
+              badge-class="bg-amber-100 text-amber-900 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="getEvidenciasPorTipo('horometro_final')"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
+            />
+
+            <PhotoUploader
+              tipo="planta_automatico"
+              titulo="Tablero de Control en Automático"
+              descripcion="Selector en posición AUTO, sin alarmas ni fallas activas."
+              badge-label="Planta en AUTO"
+              badge-class="bg-purple-100 text-purple-900 border border-purple-300 dark:bg-purple-950 dark:text-purple-300 dark:border-purple-700"
+              :codigo-ot="codigoOt"
+              :evidencias-list="[...getEvidenciasPorTipo('planta_automatico'), ...getEvidenciasPorTipo('despues')]"
+              :read-only="readOnly"
+              @photo-uploaded="emit('photo-uploaded', $event)"
+              @delete-photo="emit('delete-photo', $event)"
             />
           </div>
         </div>
