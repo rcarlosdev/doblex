@@ -477,21 +477,21 @@ const eliminarHallazgoGe = (index) => {
           <div class="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#0a0b10] space-y-2">
             <span class="font-bold text-slate-900 dark:text-white block text-xs border-b border-slate-200/60 pb-1">1. Generación</span>
             <div class="space-y-1.5 text-[11px]">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Devanado:</span>
-                <select v-model="form.ge_estado_devanado" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Devanado:</span>
+                <select v-model="form.ge_estado_devanado" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Tarjeta AVR:</span>
-                <select v-model="form.ge_estado_tarjeta_avr" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Tarjeta AVR:</span>
+                <select v-model="form.ge_estado_tarjeta_avr" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Generador General:</span>
-                <select v-model="form.ge_estado_generador_general" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Generador Gral:</span>
+                <select v-model="form.ge_estado_generador_general" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
@@ -502,21 +502,21 @@ const eliminarHallazgoGe = (index) => {
           <div class="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#0a0b10] space-y-2">
             <span class="font-bold text-slate-900 dark:text-white block text-xs border-b border-slate-200/60 pb-1">2. Combustible & Motor</span>
             <div class="space-y-1.5 text-[11px]">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Pistones:</span>
-                <select v-model="form.ge_estado_pistones" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Pistones:</span>
+                <select v-model="form.ge_estado_pistones" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Bomba Inyección:</span>
-                <select v-model="form.ge_estado_bomba_inyeccion" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Bomba Inyección:</span>
+                <select v-model="form.ge_estado_bomba_inyeccion" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Motor General:</span>
-                <select v-model="form.ge_estado_motor_general" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Motor General:</span>
+                <select v-model="form.ge_estado_motor_general" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
@@ -527,21 +527,21 @@ const eliminarHallazgoGe = (index) => {
           <div class="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#0a0b10] space-y-2">
             <span class="font-bold text-slate-900 dark:text-white block text-xs border-b border-slate-200/60 pb-1">3. Sistema de Control</span>
             <div class="space-y-1.5 text-[11px]">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Tablero:</span>
-                <select v-model="form.ge_estado_tablero_control" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Tablero:</span>
+                <select v-model="form.ge_estado_tablero_control" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Medidores:</span>
-                <select v-model="form.ge_estado_medidores_analogos" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Medidores:</span>
+                <select v-model="form.ge_estado_medidores_analogos" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Cableado:</span>
-                <select v-model="form.ge_estado_cableado_control" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Cableado:</span>
+                <select v-model="form.ge_estado_cableado_control" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
@@ -552,21 +552,21 @@ const eliminarHallazgoGe = (index) => {
           <div class="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#0a0b10] space-y-2">
             <span class="font-bold text-slate-900 dark:text-white block text-xs border-b border-slate-200/60 pb-1">4. Refrigeración</span>
             <div class="space-y-1.5 text-[11px]">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Radiador:</span>
-                <select v-model="form.ge_estado_radiador" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Radiador:</span>
+                <select v-model="form.ge_estado_radiador" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Bomba Agua:</span>
-                <select v-model="form.ge_estado_bomba_agua" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Bomba Agua:</span>
+                <select v-model="form.ge_estado_bomba_agua" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Mangueras:</span>
-                <select v-model="form.ge_estado_mangueras" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Mangueras:</span>
+                <select v-model="form.ge_estado_mangueras" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
@@ -577,21 +577,21 @@ const eliminarHallazgoGe = (index) => {
           <div class="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#0a0b10] space-y-2">
             <span class="font-bold text-slate-900 dark:text-white block text-xs border-b border-slate-200/60 pb-1">5. Sistema Eléctrico</span>
             <div class="space-y-1.5 text-[11px]">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Alternador:</span>
-                <select v-model="form.ge_estado_alternador" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Alternador:</span>
+                <select v-model="form.ge_estado_alternador" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Batería Arranque:</span>
-                <select v-model="form.ge_estado_bateria_arranque" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Batería Arranque:</span>
+                <select v-model="form.ge_estado_bateria_arranque" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">ATS:</span>
-                <select v-model="form.ge_estado_ats_planta" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">ATS:</span>
+                <select v-model="form.ge_estado_ats_planta" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
@@ -602,21 +602,21 @@ const eliminarHallazgoGe = (index) => {
           <div class="p-3 rounded-xl border border-slate-200 dark:border-white/10 bg-slate-50/50 dark:bg-[#0a0b10] space-y-2">
             <span class="font-bold text-slate-900 dark:text-white block text-xs border-b border-slate-200/60 pb-1">6. Sistema de Escape</span>
             <div class="space-y-1.5 text-[11px]">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Múltiple Escape:</span>
-                <select v-model="form.ge_estado_multiple_escape" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Múltiple Escape:</span>
+                <select v-model="form.ge_estado_multiple_escape" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Silenciador:</span>
-                <select v-model="form.ge_estado_silenciador" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Silenciador:</span>
+                <select v-model="form.ge_estado_silenciador" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500">Aislantes / Lonas:</span>
-                <select v-model="form.ge_estado_aislantes_termicos" :disabled="readOnly" class="h-7 rounded border bg-white dark:bg-[#121215] px-1 text-[10px] font-bold">
+              <div class="flex items-center justify-between gap-2">
+                <span class="text-slate-600 dark:text-slate-400 font-medium">Aislantes / Lonas:</span>
+                <select v-model="form.ge_estado_aislantes_termicos" :disabled="readOnly" class="h-8 w-28 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-2 text-xs font-bold text-slate-800 dark:text-slate-200">
                   <option value="BUENO">Bueno</option><option value="REGULAR">Regular</option><option value="MALO">Malo</option>
                 </select>
               </div>
@@ -753,55 +753,74 @@ const eliminarHallazgoGe = (index) => {
           </div>
         </div>
 
-        <!-- Tabla de Puntos U-V-W vs Tierra -->
-        <div class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
-          <table class="w-full text-xs text-left">
-            <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b">
-              <tr>
-                <th class="py-2 px-3">Punto de Prueba</th>
-                <th class="py-2 px-3 text-right">R @ 1 min (MΩ)</th>
-                <th class="py-2 px-3 text-right">R @ 10 min (MΩ)</th>
-                <th class="py-2 px-3 text-center">PI (Calculado)</th>
-                <th class="py-2 px-3 text-center">Estado</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
-              <tr v-for="(p, pIdx) in meggerResultados.puntos" :key="pIdx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
-                <td class="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">{{ p.punto }}</td>
-                <td class="py-2 px-3 text-right">
+        <!-- Lista Responsiva Mobile-Friendly de Puntos de Aislamiento Megger -->
+        <div class="space-y-3">
+          <div 
+            v-for="(p, pIdx) in meggerResultados.puntos" 
+            :key="pIdx"
+            class="p-3 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#0a0b10] space-y-2.5 transition-colors"
+          >
+            <!-- Cabecera del Punto -->
+            <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-white/5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-purple-600/10 text-purple-700 dark:text-purple-300 font-black text-xs flex items-center justify-center">
+                  {{ pIdx + 1 }}
+                </span>
+                <span class="font-extrabold text-slate-800 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wide">
+                  {{ p.punto }}
+                </span>
+              </div>
+              <div class="flex items-center gap-2">
+                <div class="text-[11px] font-mono text-slate-600 dark:text-slate-400">
+                  PI: <strong :class="p.pi >= 2 ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-600 dark:text-amber-400'">{{ p.pi !== null ? p.pi : '-' }}</strong>
+                </div>
+                <span 
+                  v-if="p.cumple !== null"
+                  class="px-2 py-0.5 rounded-full text-[10px] font-black"
+                  :class="p.cumple ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
+                >
+                  {{ p.cumple ? 'CUMPLE' : 'NO CUMPLE' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Inputs Táctiles R 1min y R 10min -->
+            <div class="grid grid-cols-2 gap-3 text-xs">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  R @ 1 min (MΩ) *
+                </label>
+                <div class="relative flex items-center">
                   <input 
                     type="number" 
                     step="0.01"
                     v-model.number="form.megger_puntos[pIdx].r1min" 
                     :disabled="readOnly"
-                    class="w-20 text-right font-mono font-bold h-7 rounded border px-1.5 bg-white dark:bg-[#121215] outline-none" 
+                    placeholder="≥ 5.0"
+                    class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-3 pr-10 font-mono font-bold text-xs text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none" 
                   />
-                </td>
-                <td class="py-2 px-3 text-right">
+                  <span class="absolute right-3 text-[10px] font-bold text-slate-400 pointer-events-none">MΩ</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  R @ 10 min (MΩ) *
+                </label>
+                <div class="relative flex items-center">
                   <input 
                     type="number" 
                     step="0.01"
                     v-model.number="form.megger_puntos[pIdx].r10min" 
                     :disabled="readOnly"
-                    class="w-20 text-right font-mono font-bold h-7 rounded border px-1.5 bg-white dark:bg-[#121215] outline-none" 
+                    placeholder="≥ 10.0"
+                    class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-3 pr-10 font-mono font-bold text-xs text-slate-900 dark:text-white focus:border-purple-500 focus:outline-none" 
                   />
-                </td>
-                <td class="py-2 px-3 text-center font-mono font-black text-slate-800 dark:text-slate-200">
-                  {{ p.pi !== null ? p.pi : 'N/A' }}
-                </td>
-                <td class="py-2 px-3 text-center">
-                  <span 
-                    v-if="p.cumple !== null"
-                    class="px-2 py-0.5 rounded text-[10px] font-black"
-                    :class="p.cumple ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
-                  >
-                    {{ p.cumple ? 'CUMPLE' : 'NO CUMPLE' }}
-                  </span>
-                  <span v-else class="text-[10px] text-slate-400 italic">-</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  <span class="absolute right-3 text-[10px] font-bold text-slate-400 pointer-events-none">MΩ</span>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -819,49 +838,85 @@ const eliminarHallazgoGe = (index) => {
           </span>
         </div>
 
-        <div class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
-          <table class="w-full text-xs text-left">
-            <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b">
-              <tr>
-                <th class="py-2 px-2.5">Tiempo</th>
-                <th class="py-2 px-2 text-right">% Carga</th>
-                <th class="py-2 px-2 text-right">V L-L</th>
-                <th class="py-2 px-2 text-right">Hz</th>
-                <th class="py-2 px-2 text-right">I Prom (A)</th>
-                <th class="py-2 px-2 text-right">KW</th>
-                <th class="py-2 px-2 text-right">T° Ref</th>
-                <th class="py-2 px-2 text-right">P. Aceite</th>
-                <th class="py-2 px-2.5">Observación / Notas</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-white/5 font-mono">
-              <tr v-for="(b, bIdx) in form.banco_lecturas" :key="bIdx">
-                <td class="py-2 px-2.5 font-bold text-slate-800 dark:text-slate-200">{{ b.tiempo }}</td>
-                <td class="py-2 px-2 text-right">{{ b.carga_pct }}%</td>
-                <td class="py-2 px-2 text-right">
-                  <input type="number" v-model.number="b.v_ll" :disabled="readOnly" class="w-14 text-right h-6 rounded border px-1 bg-white dark:bg-[#121215]" />
-                </td>
-                <td class="py-2 px-2 text-right">
-                  <input type="number" v-model.number="b.hz" :disabled="readOnly" class="w-12 text-right h-6 rounded border px-1 bg-white dark:bg-[#121215]" />
-                </td>
-                <td class="py-2 px-2 text-right">
-                  <input type="number" v-model.number="b.i_prom" :disabled="readOnly" class="w-14 text-right h-6 rounded border px-1 bg-white dark:bg-[#121215]" />
-                </td>
-                <td class="py-2 px-2 text-right">
-                  <input type="number" v-model.number="b.kw" :disabled="readOnly" class="w-14 text-right h-6 rounded border px-1 bg-white dark:bg-[#121215]" />
-                </td>
-                <td class="py-2 px-2 text-right">
-                  <input type="number" v-model.number="b.temp_c" :disabled="readOnly" class="w-12 text-right h-6 rounded border px-1 bg-white dark:bg-[#121215]" />
-                </td>
-                <td class="py-2 px-2 text-right">
-                  <input type="number" step="0.1" v-model.number="b.presion_bar" :disabled="readOnly" class="w-14 text-right h-6 rounded border px-1 bg-white dark:bg-[#121215]" />
-                </td>
-                <td class="py-2 px-2.5 font-sans">
-                  <input type="text" v-model="b.notas" :disabled="readOnly" class="w-full text-xs h-6 rounded border px-1.5 bg-white dark:bg-[#121215]" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Lista Responsiva Mobile-Friendly de Lecturas del Banco de Carga -->
+        <div class="space-y-3">
+          <div 
+            v-for="(b, bIdx) in form.banco_lecturas" 
+            :key="bIdx"
+            class="p-3 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#0a0b10] space-y-3 transition-colors"
+          >
+            <!-- Cabecera del Intervalo -->
+            <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-white/5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-indigo-600 text-white font-mono font-black text-xs flex items-center justify-center shrink-0 shadow-xs">
+                  {{ bIdx + 1 }}
+                </span>
+                <span class="font-black text-slate-900 dark:text-white text-xs sm:text-sm uppercase tracking-wider">
+                  {{ b.tiempo }} de Operación
+                </span>
+              </div>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-black bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300">
+                {{ b.carga_pct }}% Carga
+              </span>
+            </div>
+
+            <!-- Parámetros Eléctricos y Mecánicos en Grid Adaptable -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2.5 text-xs">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Voltaje L-L (V)</label>
+                <div class="relative flex items-center">
+                  <input type="number" v-model.number="b.v_ll" :disabled="readOnly" placeholder="215" class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-2.5 pr-6 font-mono font-bold text-xs outline-none focus:border-indigo-500" />
+                  <span class="absolute right-2 text-[10px] font-bold text-slate-400 pointer-events-none">V</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Frecuencia (Hz)</label>
+                <div class="relative flex items-center">
+                  <input type="number" step="0.1" v-model.number="b.hz" :disabled="readOnly" placeholder="60.0" class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-2.5 pr-7 font-mono font-bold text-xs text-emerald-600 dark:text-emerald-400 outline-none focus:border-indigo-500" />
+                  <span class="absolute right-2 text-[10px] font-bold text-slate-400 pointer-events-none">Hz</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Corriente (A)</label>
+                <div class="relative flex items-center">
+                  <input type="number" step="0.1" v-model.number="b.i_prom" :disabled="readOnly" placeholder="80.0" class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-2.5 pr-6 font-mono font-bold text-xs outline-none focus:border-indigo-500" />
+                  <span class="absolute right-2 text-[10px] font-bold text-slate-400 pointer-events-none">A</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Potencia (KW)</label>
+                <div class="relative flex items-center">
+                  <input type="number" step="0.1" v-model.number="b.kw" :disabled="readOnly" placeholder="25.0" class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-2.5 pr-8 font-mono font-black text-xs text-indigo-600 dark:text-indigo-400 outline-none focus:border-indigo-500" />
+                  <span class="absolute right-2 text-[10px] font-bold text-slate-400 pointer-events-none">KW</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Temp. Motor (°C)</label>
+                <div class="relative flex items-center">
+                  <input type="number" v-model.number="b.temp_c" :disabled="readOnly" placeholder="80" class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-2.5 pr-7 font-mono font-bold text-xs outline-none focus:border-indigo-500" />
+                  <span class="absolute right-2 text-[10px] font-bold text-slate-400 pointer-events-none">°C</span>
+                </div>
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Presión Aceite (Bar)</label>
+                <div class="relative flex items-center">
+                  <input type="number" step="0.1" v-model.number="b.presion_bar" :disabled="readOnly" placeholder="4.2" class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] pl-2.5 pr-8 font-mono font-bold text-xs outline-none focus:border-indigo-500" />
+                  <span class="absolute right-2 text-[10px] font-bold text-slate-400 pointer-events-none">Bar</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notas del Intervalo -->
+            <div class="space-y-1">
+              <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">Observaciones del Intervalo</label>
+              <input type="text" v-model="b.notas" :disabled="readOnly" placeholder="Notas operativas del minuto..." class="h-8 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-3 text-xs outline-none focus:border-indigo-500" />
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -957,42 +1012,55 @@ const eliminarHallazgoGe = (index) => {
           </span>
         </div>
 
-        <div class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
-          <table class="w-full text-xs text-left">
-            <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b">
-              <tr>
-                <th class="py-2 px-3">#</th>
-                <th class="py-2 px-3">Elemento / Punto de Estación</th>
-                <th class="py-2 px-3 text-right">Medida (Ω)</th>
-                <th class="py-2 px-3 text-center">Estado</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
-              <tr v-for="(item, idx) in form.spt_equipotencialidad_puntos" :key="item.id" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
-                <td class="py-2 px-3 font-mono text-slate-400">{{ idx + 1 }}</td>
-                <td class="py-2 px-3 font-medium text-slate-800 dark:text-slate-200">{{ item.elemento }}</td>
-                <td class="py-2 px-3 text-right">
+        <!-- Lista Responsiva Mobile-Friendly de 11 Puntos de Continuidad -->
+        <div class="space-y-2">
+          <div 
+            v-for="(item, idx) in form.spt_equipotencialidad_puntos" 
+            :key="item.id" 
+            class="p-2.5 sm:p-3 rounded-xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#0a0b10] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 transition-colors"
+          >
+            <!-- Descripción del Punto -->
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="w-5 h-5 rounded-md bg-purple-600/10 text-purple-700 dark:text-purple-300 text-[10px] font-black flex items-center justify-center shrink-0">
+                {{ idx + 1 }}
+              </span>
+              <div class="min-w-0">
+                <span class="font-bold text-xs text-slate-800 dark:text-slate-200 block truncate">
+                  {{ item.elemento }}
+                </span>
+                <span class="text-[10px] text-slate-400 block">
+                  Criterio: ≤ {{ form.spt_umbral_continuidad_max }} Ω vs BEP
+                </span>
+              </div>
+            </div>
+
+            <!-- Input Táctil y Estado de Conformidad -->
+            <div class="flex items-center justify-between sm:justify-end gap-2 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-200/50 dark:border-white/5">
+              <div class="flex items-center gap-1.5">
+                <label class="text-[10px] font-bold text-slate-400 uppercase sm:hidden">Resistencia:</label>
+                <div class="relative flex items-center">
                   <input 
                     type="number" 
                     step="0.01"
                     v-model.number="item.r_ohm" 
                     :disabled="readOnly"
-                    class="w-20 text-right font-mono font-bold h-7 rounded border px-1.5 bg-white dark:bg-[#121215] outline-none" 
+                    placeholder="0.00"
+                    class="w-24 text-right font-mono font-black text-xs h-8 sm:h-9 rounded-lg border border-slate-200 dark:border-white/10 pr-6 pl-2 bg-white dark:bg-[#121215] text-slate-900 dark:text-white outline-none focus:border-purple-500" 
                   />
-                </td>
-                <td class="py-2 px-3 text-center">
-                  <span 
-                    v-if="item.r_ohm !== null && item.r_ohm !== undefined && item.r_ohm !== ''"
-                    class="px-2 py-0.5 rounded text-[10px] font-black"
-                    :class="Number(item.r_ohm) <= form.spt_umbral_continuidad_max ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
-                  >
-                    {{ Number(item.r_ohm) <= form.spt_umbral_continuidad_max ? 'CUMPLE' : 'NO CUMPLE' }}
-                  </span>
-                  <span v-else class="text-[10px] text-slate-400 italic">-</span>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                  <span class="absolute right-2 text-[11px] font-bold text-slate-400 pointer-events-none">Ω</span>
+                </div>
+              </div>
+
+              <span 
+                v-if="item.r_ohm !== null && item.r_ohm !== undefined && item.r_ohm !== ''"
+                class="px-2.5 py-1 rounded-lg text-[10px] font-black shrink-0"
+                :class="Number(item.r_ohm) <= form.spt_umbral_continuidad_max ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300'"
+              >
+                {{ Number(item.r_ohm) <= form.spt_umbral_continuidad_max ? 'CUMPLE' : 'NO CUMPLE' }}
+              </span>
+              <span v-else class="text-[10px] text-slate-400 italic px-2 py-1 shrink-0">Sin Medir</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1014,35 +1082,85 @@ const eliminarHallazgoGe = (index) => {
           </span>
         </div>
 
-        <div class="overflow-x-auto border border-slate-200 dark:border-white/10 rounded-xl">
-          <table class="w-full text-xs text-left">
-            <thead class="bg-slate-100 dark:bg-white/5 text-[10px] font-black uppercase text-slate-500 border-b">
-              <tr>
-                <th class="py-2.5 px-3">Instrumento</th>
-                <th class="py-2.5 px-3">Marca / Modelo</th>
-                <th class="py-2.5 px-3">Serial</th>
-                <th class="py-2.5 px-3">Fecha Calib.</th>
-                <th class="py-2.5 px-3 text-center">Código Certificado</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 dark:divide-white/5">
-              <tr v-for="(inst, iIdx) in form.instrumentos" :key="iIdx" class="hover:bg-slate-50 dark:hover:bg-white/[0.02]">
-                <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-200">{{ inst.tipo }}</td>
-                <td class="py-2.5 px-3">
-                  <input type="text" v-model="inst.marca_modelo" :disabled="readOnly" class="h-7 w-full rounded border px-1.5 bg-white dark:bg-[#121215] text-xs" />
-                </td>
-                <td class="py-2.5 px-3">
-                  <input type="text" v-model="inst.serial" :disabled="readOnly" class="h-7 w-full font-mono rounded border px-1.5 bg-white dark:bg-[#121215] text-xs" />
-                </td>
-                <td class="py-2.5 px-3">
-                  <input type="date" v-model="inst.fecha_calib" :disabled="readOnly" class="h-7 rounded border px-1.5 bg-white dark:bg-[#121215] text-xs font-mono" />
-                </td>
-                <td class="py-2.5 px-3 text-center font-mono font-bold text-purple-600">
-                  <input type="text" v-model="inst.certificado" :disabled="readOnly" class="h-7 w-24 text-center rounded border px-1.5 bg-white dark:bg-[#121215] text-xs font-mono font-bold" />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Lista de Tarjetas Adaptativas Mobile-Friendly para Instrumentos -->
+        <div class="space-y-3">
+          <div 
+            v-for="(inst, iIdx) in form.instrumentos" 
+            :key="iIdx"
+            class="p-3 sm:p-4 rounded-2xl border border-slate-200/90 dark:border-white/10 bg-slate-50/70 dark:bg-[#0a0b10] space-y-2.5 shadow-2xs transition-all"
+          >
+            <!-- Cabecera del Instrumento -->
+            <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-white/5 pb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-purple-600 text-white text-[11px] font-black flex items-center justify-center shrink-0 shadow-xs">
+                  {{ iIdx + 1 }}
+                </span>
+                <span class="font-extrabold text-slate-800 dark:text-slate-100 text-xs sm:text-sm uppercase tracking-wide">
+                  {{ inst.tipo }}
+                </span>
+              </div>
+              <span 
+                class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold"
+                :class="inst.certificado ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : 'bg-slate-200/70 dark:bg-white/10 text-slate-600 dark:text-slate-400'"
+              >
+                {{ inst.certificado || 'Pendiente Cert.' }}
+              </span>
+            </div>
+
+            <!-- Campos Táctiles Espaciosos y Claros -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-2.5 text-xs">
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  Marca / Modelo *
+                </label>
+                <input 
+                  type="text" 
+                  v-model="inst.marca_modelo" 
+                  :disabled="readOnly" 
+                  placeholder="Ej. KAIWEETS / FLUKE 179"
+                  class="h-9 w-full rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-3 text-xs font-semibold text-slate-800 dark:text-slate-200 focus:border-purple-500 focus:outline-none transition-colors" 
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  Serial / Placa *
+                </label>
+                <input 
+                  type="text" 
+                  v-model="inst.serial" 
+                  :disabled="readOnly" 
+                  placeholder="Ej. KW-2026-9812"
+                  class="h-9 w-full font-mono font-semibold rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-3 text-xs text-slate-800 dark:text-slate-200 focus:border-purple-500 focus:outline-none transition-colors" 
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  Fecha de Calibración *
+                </label>
+                <input 
+                  type="date" 
+                  v-model="inst.fecha_calib" 
+                  :disabled="readOnly" 
+                  class="h-9 w-full font-mono rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-3 text-xs text-slate-800 dark:text-slate-200 focus:border-purple-500 focus:outline-none cursor-pointer transition-colors" 
+                />
+              </div>
+
+              <div class="space-y-1">
+                <label class="block text-[10px] font-extrabold text-slate-500 uppercase tracking-wider">
+                  Código de Certificado *
+                </label>
+                <input 
+                  type="text" 
+                  v-model="inst.certificado" 
+                  :disabled="readOnly" 
+                  placeholder="Ej. CERT-CAL-8841"
+                  class="h-9 w-full font-mono font-black text-purple-600 dark:text-purple-400 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#121215] px-3 text-xs focus:border-purple-500 focus:outline-none transition-colors" 
+                />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
