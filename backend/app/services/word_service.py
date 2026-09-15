@@ -60,7 +60,7 @@ def generate_ot_word(ot: Ot) -> io.BytesIO:
 
     tipo_label = ot.tipo_actividad or ot.tipo_mantenimiento
     if ("7x24" in t_act or (ot.subsistema and "7x24" in ot.subsistema.lower())) and rutina_info:
-        tipo_label = f"{tipo_label} ({rutina_info} - Cada ~10d)"
+        tipo_label = f"{tipo_label} ({rutina_info})"
 
     info_rows = [
         ("Código de OT:", ot.codigo),

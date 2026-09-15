@@ -919,19 +919,16 @@ const getStatusLabel = (status) => {
             </select>
           </div>
           <div v-if="newOtTipoPrincipal === 'rutina_7x24'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-            <label class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Ciclo Rutina 7x24 *</span>
-              <span class="text-[9px] font-mono text-indigo-500 font-medium">~Cada 10d</span>
-            </label>
+            <label class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Ciclo Rutina 7x24 *</label>
             <select 
               v-model="newOtNumeroRutina7x24" 
               @change="onNewOtNumeroRutinaChange"
               required
               class="flex h-9 w-full rounded-md border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-indigo-900 dark:text-indigo-300 focus:border-indigo-500 focus:ring-indigo-500 cursor-pointer font-bold"
             >
-              <option value="Rutina 1">Rutina 1 (~Día 10)</option>
-              <option value="Rutina 2">Rutina 2 (~Día 20)</option>
-              <option value="Rutina 3">Rutina 3 (~Día 30)</option>
+              <option value="Rutina 1">Rutina 1</option>
+              <option value="Rutina 2">Rutina 2</option>
+              <option value="Rutina 3">Rutina 3</option>
             </select>
           </div>
         </div>
@@ -1176,19 +1173,16 @@ const getStatusLabel = (status) => {
             </select>
           </div>
           <div v-if="editingOtTipoPrincipal === 'rutina_7x24'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-            <label class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center justify-between">
-              <span>Ciclo Rutina 7x24 *</span>
-              <span class="text-[9px] font-mono text-indigo-500 font-medium">~Cada 10d</span>
-            </label>
+            <label class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Ciclo Rutina 7x24 *</label>
             <select 
               v-model="editingOtNumeroRutina7x24" 
               @change="onEditingOtNumeroRutinaChange"
               required
               class="flex h-9 w-full rounded-md border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-indigo-900 dark:text-indigo-300 focus:border-indigo-500 focus:ring-indigo-500 cursor-pointer font-bold"
             >
-              <option value="Rutina 1">Rutina 1 (~Día 10)</option>
-              <option value="Rutina 2">Rutina 2 (~Día 20)</option>
-              <option value="Rutina 3">Rutina 3 (~Día 30)</option>
+              <option value="Rutina 1">Rutina 1</option>
+              <option value="Rutina 2">Rutina 2</option>
+              <option value="Rutina 3">Rutina 3</option>
             </select>
           </div>
         </div>

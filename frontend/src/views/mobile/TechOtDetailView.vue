@@ -1479,7 +1479,7 @@ const tipoFormatoTheme = computed(() => {
     const esAire = isPreventivoAire.value || subStr.includes('aire');
     return {
       titulo: `Rutina MP 7x24 (${rutinaStr})`,
-      subtitulo: `Protocolo oficial Claro decenal (~Cada 10 días) • ${esAire ? 'Aire Acondicionado' : 'Grupo Electrógeno'} (Ref. ${ot.value?.codigo || ''})`,
+      subtitulo: `Protocolo oficial Claro • ${esAire ? 'Aire Acondicionado' : 'Grupo Electrógeno'} (Ref. ${ot.value?.codigo || ''})`,
       badge: `7x24 • ${rutinaStr.toUpperCase()}`,
       icon: IconClock,
       wrapper: 'bg-indigo-500/10 border-indigo-500/20',

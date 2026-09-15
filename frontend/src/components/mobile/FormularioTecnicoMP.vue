@@ -346,12 +346,9 @@ watch(() => props.modelValue, (newVal) => {
               <h4 class="text-xs font-black text-indigo-950 dark:text-indigo-200 uppercase tracking-wider">
                 Ciclo de Rutina 7x24
               </h4>
-              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                Frecuencia: Cada ~10 Días
-              </span>
             </div>
             <p class="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 mt-0.5">
-              Seleccione el ciclo decenal correspondiente al momento de ejecución en el mes:
+              Seleccione la rutina correspondiente al momento de ejecución:
             </p>
           </div>
         </div>
@@ -378,12 +375,7 @@ watch(() => props.modelValue, (newVal) => {
           >
             1
           </div>
-          <div>
-            <div class="font-black text-xs">Rutina 1</div>
-            <div class="text-[10px]" :class="form.numero_rutina_7x24 === 'Rutina 1' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'">
-              Día ~10 del mes (1er tercio)
-            </div>
-          </div>
+          <div class="font-black text-xs sm:text-sm">Rutina 1</div>
         </button>
 
         <button
@@ -401,12 +393,7 @@ watch(() => props.modelValue, (newVal) => {
           >
             2
           </div>
-          <div>
-            <div class="font-black text-xs">Rutina 2</div>
-            <div class="text-[10px]" :class="form.numero_rutina_7x24 === 'Rutina 2' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'">
-              Día ~20 del mes (2do tercio)
-            </div>
-          </div>
+          <div class="font-black text-xs sm:text-sm">Rutina 2</div>
         </button>
 
         <button
@@ -424,12 +411,7 @@ watch(() => props.modelValue, (newVal) => {
           >
             3
           </div>
-          <div>
-            <div class="font-black text-xs">Rutina 3</div>
-            <div class="text-[10px]" :class="form.numero_rutina_7x24 === 'Rutina 3' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'">
-              Día ~30 del mes (Cierre mensual)
-            </div>
-          </div>
+          <div class="font-black text-xs sm:text-sm">Rutina 3</div>
         </button>
       </div>
     </div>
