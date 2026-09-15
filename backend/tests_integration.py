@@ -262,5 +262,46 @@ class TestDoblexAPI(unittest.TestCase):
             self.assertEqual(data["tipo_mantenimiento"], tipo_mantenimiento)
             self.assertEqual(data["subsistema"], subsistema)
 
+    def test_12_rutinas_7x24_ciclos_decenales(self):
+        """Validar registro y persistencia de ciclos de rutina 7x24 (Rutina 1, 2 ó 3 - Cada ~10 días)"""
+        for num_rutina in ["Rutina 1", "Rutina 2", "Rutina 3"]:
+            codigo = "OT-7X24-" + uuid.uuid4().hex[:6].upper()
+            payload = {
+                "codigo": codigo,
+                "descripcion": f"Mantenimiento Preventivo Decenal {num_rutina}",
+                "sitio": "ANT.TEST-SITE",
+                "ubicacion": "Medellín, Antioquia",
+                "user_id": 3,
+                "cuadrilla_id": 1,
+                "prioridad": "P2",
+                "tipo_ubicacion": "urbana",
+                "tipo_mantenimiento": "preventivo",
+                "tipo_actividad": "rutina_7x24_planta",
+                "subsistema": f"Movil Rutinas 7x24 - Planta Eléctrica ({num_rutina})",
+                "fecha_inicio": "2026-09-11T10:00:00"
+            }
+            res = self.client.post("/api/ots", json=payload, headers=self.admin_headers)
+            self.assertEqual(res.status_code, 201)
+            ot_id = res.json()["data"]["id"]
+
+            # Guardar formulario técnico con numero_rutina_7x24
+            res_form = self.client.put(
+                f"/api/ots/{ot_id}/formulario",
+                json={"datos_formulario": {"numero_rutina_7x24": num_rutina, "marca_equipo": "AGG POWER"}},
+                headers=self.admin_headers
+            )
+            self.assertEqual(res_form.status_code, 200)
+            form_guardado = res_form.json()["data"]["datos_formulario"]
+            self.assertEqual(form_guardado.get("numero_rutina_7x24"), num_rutina)
+
+            # Validar exportación PDF con ciclo decenal
+            res_pdf = self.client.get(f"/api/ots/{ot_id}/export/pdf", headers=self.admin_headers)
+            self.assertEqual(res_pdf.status_code, 200)
+            self.assertEqual(res_pdf.headers["content-type"], "application/pdf")
+
+            # Validar exportación Word con ciclo decenal
+            res_word = self.client.get(f"/api/ots/{ot_id}/export/word", headers=self.admin_headers)
+            self.assertEqual(res_word.status_code, 200)
+
 if __name__ == "__main__":
     unittest.main()

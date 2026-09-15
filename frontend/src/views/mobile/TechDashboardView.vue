@@ -181,7 +181,7 @@
                 {{ ot.codigo }}
               </span>
               <span :class="tipoMantenimientoClass(ot.tipo_actividad || ot.tipo_mantenimiento)" class="px-2 py-0.5 rounded text-[10px] font-bold uppercase shadow-2xs">
-                {{ formatTipoNombre(ot.tipo_actividad || ot.tipo_mantenimiento) }}
+                {{ formatTipoNombre(ot.tipo_actividad || ot.tipo_mantenimiento, ot) }}
               </span>
               <span v-if="ot.subsistema" class="bg-slate-100 dark:bg-[#0a0b10] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded text-[10px] font-mono font-bold">
                 {{ ot.subsistema }}
@@ -363,11 +363,25 @@ const goToDetail = (id) => {
   router.push(`/mobile/ot/${id}`);
 };
 
-const formatTipoNombre = (tipo) => {
+const formatTipoNombre = (tipo, ot = null) => {
   const str = (tipo || '').toLowerCase();
+  let rutinaExt = '';
+  if (ot) {
+    let formObj = ot.datos_formulario;
+    if (typeof formObj === 'string') {
+      try { formObj = JSON.parse(formObj); } catch (e) {}
+    }
+    if (formObj?.numero_rutina_7x24) {
+      rutinaExt = ` (${formObj.numero_rutina_7x24})`;
+    } else if (ot.subsistema) {
+      if (ot.subsistema.includes('Rutina 1')) rutinaExt = ' (Rutina 1)';
+      else if (ot.subsistema.includes('Rutina 2')) rutinaExt = ' (Rutina 2)';
+      else if (ot.subsistema.includes('Rutina 3')) rutinaExt = ' (Rutina 3)';
+    }
+  }
   if (str === 'obra_civil') return 'Obra Civil';
   if (str === 'informe_360') return 'Informe 360';
-  if (str === 'rutina_7x24' || str.includes('7x24')) return 'Rutina MP 7x24';
+  if (str === 'rutina_7x24' || str.includes('7x24')) return `Rutina MP 7x24${rutinaExt}`;
   if (str === 'preventivo_planta') return 'Planta GE';
   if (str === 'preventivo_aire') return 'Aire AA';
   if (str === 'emergencia') return 'Emergencia';

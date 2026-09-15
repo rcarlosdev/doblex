@@ -2249,9 +2249,23 @@ const tipoBadgeClass = (t) => {
 
 const formatTipoLabel = (t) => {
   const str = (t || '').toLowerCase();
+  let rutinaExt = '';
+  if (props.ot) {
+    let formObj = props.ot.datos_formulario;
+    if (typeof formObj === 'string') {
+      try { formObj = JSON.parse(formObj); } catch (e) {}
+    }
+    if (formObj?.numero_rutina_7x24) {
+      rutinaExt = ` (${formObj.numero_rutina_7x24})`;
+    } else if (props.ot.subsistema) {
+      if (props.ot.subsistema.includes('Rutina 1')) rutinaExt = ' (Rutina 1)';
+      else if (props.ot.subsistema.includes('Rutina 2')) rutinaExt = ' (Rutina 2)';
+      else if (props.ot.subsistema.includes('Rutina 3')) rutinaExt = ' (Rutina 3)';
+    }
+  }
   if (str === 'preventivo_planta') return 'Preventivo Planta';
   if (str === 'preventivo_aire') return 'Preventivo Aire';
-  if (str === 'rutina_7x24' || str.includes('7x24')) return 'Rutina MP 7x24';
+  if (str === 'rutina_7x24' || str.includes('7x24')) return `Rutina MP 7x24${rutinaExt}`;
   if (str === 'obra_civil') return 'Obra Civil';
   if (str === 'informe_360') return 'Informe 360';
   if (str === 'emergencia') return 'Emergencia';

@@ -1434,7 +1434,8 @@ const isPreventivoAire = computed(() => {
 
 const isPreventivo7x24 = computed(() => {
   const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
-  return tAct.includes('7x24') || tAct.includes('rutina');
+  const sub = (ot.value?.subsistema || '').toLowerCase();
+  return tAct.includes('7x24') || tAct.includes('rutina') || sub.includes('7x24') || sub.includes('rutina') || Boolean(otFormularioData.value?.numero_rutina_7x24);
 });
 
 const tipoFormatoTheme = computed(() => {
@@ -1470,6 +1471,20 @@ const tipoFormatoTheme = computed(() => {
       wrapper: 'bg-amber-500/10 border-amber-500/20',
       iconBox: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
       badgeClass: 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-300 dark:border-amber-800'
+    };
+  }
+  if (isPreventivo7x24.value) {
+    const rutinaStr = otFormularioData.value?.numero_rutina_7x24 || 'Rutina 1';
+    const subStr = (ot.value?.subsistema || '').toLowerCase();
+    const esAire = isPreventivoAire.value || subStr.includes('aire');
+    return {
+      titulo: `Rutina MP 7x24 (${rutinaStr})`,
+      subtitulo: `Protocolo oficial Claro decenal (~Cada 10 días) • ${esAire ? 'Aire Acondicionado' : 'Grupo Electrógeno'} (Ref. ${ot.value?.codigo || ''})`,
+      badge: `7x24 • ${rutinaStr.toUpperCase()}`,
+      icon: IconClock,
+      wrapper: 'bg-indigo-500/10 border-indigo-500/20',
+      iconBox: 'bg-indigo-500/20 text-indigo-600 dark:text-indigo-400',
+      badgeClass: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-300 dark:border-indigo-800'
     };
   }
   if (isPreventivoAire.value) {

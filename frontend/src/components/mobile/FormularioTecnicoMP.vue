@@ -275,7 +275,19 @@ const form = reactive({
   responsable_tec_2: '',
   empresa_ejecuta: 'INMEL / DOBLEX',
   revisor_informe: '',
+  numero_rutina_7x24: 'Rutina 1',
   ...props.modelValue
+});
+
+// Detectar si la OT corresponde a Rutina 7x24 (frecuencia decenal cada ~10 días)
+const isRutina7x24 = computed(() => {
+  const tp = (props.tipoPreventivo || '').toLowerCase();
+  const otCode = (props.codigoOt || '').toLowerCase();
+  return tp.includes('7x24') || 
+         tp.includes('rutina') || 
+         otCode.includes('7x24') || 
+         Boolean(props.modelValue?.numero_rutina_7x24) ||
+         Boolean(form.numero_rutina_7x24 && form.numero_rutina_7x24 !== '');
 });
 
 // Salto térmico automático en Aire Acondicionado
@@ -318,6 +330,109 @@ watch(() => props.modelValue, (newVal) => {
 
 <template>
   <div class="space-y-5 text-xs select-text">
+
+    <!-- SELECTOR DE CICLO DE RUTINA 7x24 (RUTINA 1, 2 Ó 3 - CADA ~10 DÍAS) -->
+    <div 
+      v-if="isRutina7x24" 
+      class="p-4 sm:p-5 rounded-2xl border-2 border-indigo-200 dark:border-indigo-800/60 bg-gradient-to-br from-indigo-50/90 via-white to-indigo-50/40 dark:from-indigo-950/40 dark:via-[#121215] dark:to-indigo-950/20 shadow-sm space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-300"
+    >
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-indigo-100 dark:border-indigo-900/50 pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-600/20 shrink-0">
+            <IconClock class="w-5 h-5 stroke-[2.5]" />
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h4 class="text-xs font-black text-indigo-950 dark:text-indigo-200 uppercase tracking-wider">
+                Ciclo de Rutina 7x24
+              </h4>
+              <span class="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 dark:bg-indigo-900/60 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                Frecuencia: Cada ~10 Días
+              </span>
+            </div>
+            <p class="text-[11px] text-indigo-700/80 dark:text-indigo-300/80 mt-0.5">
+              Seleccione el ciclo decenal correspondiente al momento de ejecución en el mes:
+            </p>
+          </div>
+        </div>
+        
+        <div class="text-[11px] font-bold text-indigo-900 dark:text-indigo-300 bg-indigo-100/70 dark:bg-indigo-900/40 px-3 py-1 rounded-lg self-start sm:self-auto border border-indigo-200 dark:border-indigo-800/50">
+          Ciclo Activo: <span class="font-extrabold underline decoration-indigo-500">{{ form.numero_rutina_7x24 || 'Rutina 1' }}</span>
+        </div>
+      </div>
+
+      <!-- Selector Interactivo Pills / Cards: Rutina 1, Rutina 2, Rutina 3 -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+        <button
+          type="button"
+          :disabled="readOnly"
+          @click="form.numero_rutina_7x24 = 'Rutina 1'"
+          class="flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer"
+          :class="form.numero_rutina_7x24 === 'Rutina 1' 
+            ? 'border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-600/30' 
+            : 'border-indigo-100 dark:border-indigo-900/40 bg-white dark:bg-[#151722] hover:border-indigo-300 text-slate-700 dark:text-slate-300'"
+        >
+          <div 
+            class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0"
+            :class="form.numero_rutina_7x24 === 'Rutina 1' ? 'bg-white/20 text-white' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400'"
+          >
+            1
+          </div>
+          <div>
+            <div class="font-black text-xs">Rutina 1</div>
+            <div class="text-[10px]" :class="form.numero_rutina_7x24 === 'Rutina 1' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'">
+              Día ~10 del mes (1er tercio)
+            </div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          :disabled="readOnly"
+          @click="form.numero_rutina_7x24 = 'Rutina 2'"
+          class="flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer"
+          :class="form.numero_rutina_7x24 === 'Rutina 2' 
+            ? 'border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-600/30' 
+            : 'border-indigo-100 dark:border-indigo-900/40 bg-white dark:bg-[#151722] hover:border-indigo-300 text-slate-700 dark:text-slate-300'"
+        >
+          <div 
+            class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0"
+            :class="form.numero_rutina_7x24 === 'Rutina 2' ? 'bg-white/20 text-white' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400'"
+          >
+            2
+          </div>
+          <div>
+            <div class="font-black text-xs">Rutina 2</div>
+            <div class="text-[10px]" :class="form.numero_rutina_7x24 === 'Rutina 2' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'">
+              Día ~20 del mes (2do tercio)
+            </div>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          :disabled="readOnly"
+          @click="form.numero_rutina_7x24 = 'Rutina 3'"
+          class="flex items-center gap-3 p-3 rounded-xl border transition-all text-left cursor-pointer"
+          :class="form.numero_rutina_7x24 === 'Rutina 3' 
+            ? 'border-indigo-600 bg-indigo-600 text-white shadow-md shadow-indigo-600/25 ring-2 ring-indigo-600/30' 
+            : 'border-indigo-100 dark:border-indigo-900/40 bg-white dark:bg-[#151722] hover:border-indigo-300 text-slate-700 dark:text-slate-300'"
+        >
+          <div 
+            class="w-8 h-8 rounded-lg flex items-center justify-center font-black text-sm shrink-0"
+            :class="form.numero_rutina_7x24 === 'Rutina 3' ? 'bg-white/20 text-white' : 'bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400'"
+          >
+            3
+          </div>
+          <div>
+            <div class="font-black text-xs">Rutina 3</div>
+            <div class="text-[10px]" :class="form.numero_rutina_7x24 === 'Rutina 3' ? 'text-indigo-100' : 'text-slate-500 dark:text-slate-400'">
+              Día ~30 del mes (Cierre mensual)
+            </div>
+          </div>
+        </button>
+      </div>
+    </div>
 
     <!-- ============================================================== -->
     <!-- CASO A: FORMATO MP AIRE ACONDICIONADO (Ref: WO0000005520436)   -->
