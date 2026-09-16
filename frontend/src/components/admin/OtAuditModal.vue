@@ -453,28 +453,71 @@
               </div>
             </div>
 
-            <!-- C. CASO FORMATO WO: CORRECTIVOS Y EMERGENCIAS -->
-            <div v-else-if="isFormatoWo" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5 shadow-xs">
+            <!-- C. CASO FORMATO WO: CORRECTIVOS Y EMERGENCIAS (Ref: WO0000005553111 MC ATL.SUAN.xlsx) -->
+            <div v-else-if="isFormatoWo" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-4 shadow-xs">
               <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
                 <div class="flex items-center gap-2">
-                  <IconTool class="w-4 h-4 text-amber-600 dark:text-amber-400 stroke-[2]" />
+                  <IconTool class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
                   <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    2. Diagnóstico Técnico & Cierre Claro WO
+                    2. Protocolo Oficial Mantenimiento Correctivo & Emergencias
                   </span>
                 </div>
-                <span class="text-[10px] font-black px-2 py-0.5 rounded bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
-                  {{ ot?.codigo || 'WO' }}
-                </span>
+                <div class="flex items-center gap-1.5">
+                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">
+                    {{ parsedFormData.tipo_actividad_label || 'MC' }}
+                  </span>
+                  <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-300">
+                    OT: {{ ot?.codigo }}
+                  </span>
+                </div>
               </div>
 
+              <!-- 1. Ficha de Información General de la Estación (Hoja1 Rows 5-12) -->
+              <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-200/80 dark:border-white/10 rounded-xl p-3 space-y-2 text-xs">
+                <span class="text-[10px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider block">
+                  Información General de la Estación & Ticket Claro
+                </span>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Estación</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.sitio || ot?.sitio || 'N/A' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">No. INC (Ticket Claro)</span>
+                    <span class="font-mono font-black text-red-600 dark:text-red-400">{{ parsedFormData.no_inc || 'SMU008212' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Regional / Depto</span>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">{{ parsedFormData.regional || ot?.regional || 'COSTA' }} • {{ parsedFormData.departamento || ot?.departamento || 'Atlántico' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Site Owner (SO Claro)</span>
+                    <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.site_owner || ot?.site_owner || 'Supervisor Claro' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Tipo Estación / Sitio</span>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">{{ parsedFormData.tipo_estacion || 'Outdoor' }} / {{ parsedFormData.tipo_sitio || 'Urbano' }}</span>
+                  </div>
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Fecha Ejecución</span>
+                    <span class="font-mono text-slate-700 dark:text-slate-300">{{ parsedFormData.fecha_ejecucion || 'N/A' }}</span>
+                  </div>
+                  <div class="sm:col-span-2">
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Dirección</span>
+                    <span class="text-slate-700 dark:text-slate-300 truncate block">{{ parsedFormData.direccion || ot?.ubicacion || 'En sitio' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. Información de la Actividad & Flags de Intervención -->
               <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
                 <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Tipo de Sitio</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.tipo_sitio || 'Urbano' }}</span>
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Subsistema</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.subsistema || ot?.subsistema || 'SPT - PUESTA A TIERRA' }}</span>
                 </div>
                 <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Subsistema</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.subsistema || ot?.subsistema || 'Planta eléctrica' }}</span>
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Equipo en Falla</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.tipo_equipo_falla || 'SPT' }} {{ parsedFormData.modelo_equipo && parsedFormData.modelo_equipo !== 'N/A' ? `(${parsedFormData.modelo_equipo})` : '' }}</span>
                 </div>
                 <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
                   <span class="text-[10px] text-slate-400 font-bold block uppercase">¿Afectación de Servicios?</span>
@@ -484,27 +527,18 @@
                 </div>
               </div>
 
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Equipo en Falla</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.tipo_equipo_falla || 'Planta eléctrica' }}</span>
-                </div>
-                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Marca</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.marca_equipo || 'Selmec / Cummins' }}</span>
-                </div>
-                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Modelo / Ref.</span>
-                  <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.modelo_equipo || 'N/A' }}</span>
-                </div>
-              </div>
-
-              <!-- Intervenciones Realizadas -->
+              <!-- Flags Oficiales Claro (Si / No) -->
               <div class="flex flex-wrap gap-2 text-xs">
-                <span class="text-[10px] text-slate-400 font-bold uppercase self-center mr-1">Intervención:</span>
-                <span v-if="parsedFormData.reparacion" class="px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[10px]">✓ Reparación</span>
-                <span v-if="parsedFormData.reinstalacion" class="px-2 py-0.5 rounded-lg bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300 font-bold text-[10px]">✓ Reinstalación</span>
-                <span v-if="parsedFormData.cambio_equipo" class="px-2 py-0.5 rounded-lg bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300 font-bold text-[10px]">✓ Cambio de Equipo</span>
+                <span class="text-[10px] text-slate-400 font-bold uppercase self-center mr-1">Intervención Oficial:</span>
+                <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold" :class="parsedFormData.reparacion === 'Si' || parsedFormData.reparacion === true ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-slate-100 text-slate-500 dark:bg-white/5'">
+                  {{ (parsedFormData.reparacion === 'Si' || parsedFormData.reparacion === true) ? '✓ Reparación: Si' : 'Reparación: No' }}
+                </span>
+                <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold" :class="parsedFormData.reinstalacion === 'Si' || parsedFormData.reinstalacion === true ? 'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300' : 'bg-slate-100 text-slate-500 dark:bg-white/5'">
+                  {{ (parsedFormData.reinstalacion === 'Si' || parsedFormData.reinstalacion === true) ? '✓ Reinstalación: Si' : 'Reinstalación: No' }}
+                </span>
+                <span class="px-2 py-0.5 rounded-lg text-[10px] font-bold" :class="parsedFormData.cambio_equipo === 'Si' || parsedFormData.cambio_equipo === true ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300' : 'bg-slate-100 text-slate-500 dark:bg-white/5'">
+                  {{ (parsedFormData.cambio_equipo === 'Si' || parsedFormData.cambio_equipo === true) ? '✓ Cambio: Si' : 'Cambio: No' }}
+                </span>
               </div>
 
               <!-- Textos de Falla y Solución -->
@@ -519,17 +553,45 @@
                 </div>
               </div>
 
-              <!-- Cierre de Supervisión Claro -->
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs pt-1 border-t border-slate-100 dark:border-white/10">
+              <!-- Soportes Especiales (Telurómetro & Plano SPT) si existen -->
+              <div v-if="parsedFormData.medicion_telurometro_valor || parsedFormData.medicion_telurometro_foto || parsedFormData.plano_instalacion_foto" class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                <div v-if="parsedFormData.medicion_telurometro_valor || parsedFormData.medicion_telurometro_foto" class="p-2.5 bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl flex items-center justify-between">
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Medición de Telurómetro</span>
+                    <span class="font-mono font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.medicion_telurometro_valor || 'Registrada' }}</span>
+                  </div>
+                  <button v-if="parsedFormData.medicion_telurometro_foto" type="button" @click="abrirZoom(parsedFormData.medicion_telurometro_foto, 'Medición de Telurómetro')" class="text-[10px] font-bold text-red-600 hover:underline">
+                    Ver Foto
+                  </button>
+                </div>
+                <div v-if="parsedFormData.plano_instalacion_foto" class="p-2.5 bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl flex items-center justify-between">
+                  <div>
+                    <span class="text-[9px] text-slate-400 font-bold block uppercase">Plano de Instalación SPT</span>
+                    <span class="font-semibold text-slate-700 dark:text-slate-300">Esquema Cargado</span>
+                  </div>
+                  <button type="button" @click="abrirZoom(parsedFormData.plano_instalacion_foto, 'Plano de Instalación')" class="text-[10px] font-bold text-red-600 hover:underline">
+                    Ver Plano
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cierre de Supervisión Claro & Firmas con GPS -->
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs pt-1 border-t border-slate-100 dark:border-white/10">
                 <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">¿Falla Resuelta a Satisfacción?</span>
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">FALLA RESUELTA:</span>
                   <span class="font-black" :class="parsedFormData.falla_resuelta === 'No' ? 'text-rose-600' : 'text-emerald-600'">
-                    {{ parsedFormData.falla_resuelta === 'No' ? 'No (Requiere 2da intervención)' : 'Sí (Equipo en servicio normal)' }}
+                    {{ parsedFormData.falla_resuelta === 'No' ? 'No (Pendiente)' : 'Sí (Resuelta)' }}
                   </span>
                 </div>
                 <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
-                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Supervisor Claro Notificado</span>
-                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.nombre_supervisor || 'Ing. de Guardia Claro' }}</span>
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Supervisor Claro Revisor</span>
+                  <span class="font-bold text-slate-800 dark:text-slate-200">{{ parsedFormData.nombre_supervisor || parsedFormData.site_owner || 'Supervisor Operativo Claro' }}</span>
+                </div>
+                <div class="bg-slate-50 dark:bg-[#0a0b10] border border-slate-100 dark:border-white/5 rounded-xl p-2.5">
+                  <span class="text-[10px] text-slate-400 font-bold block uppercase">Firma Digital & GPS</span>
+                  <span class="font-mono text-[11px] font-bold text-purple-700 dark:text-purple-300 block">
+                    {{ parsedFormData.firma_tecnico_lat ? `(${parsedFormData.firma_tecnico_lat}, ${parsedFormData.firma_tecnico_lng})` : 'Registrada en sitio' }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -540,7 +602,7 @@
                 <div class="flex items-center gap-2">
                   <IconEngine class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
                   <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    2. Parámetros Técnicos Planta Eléctrica (Ref: OT5304019)
+                    2. Parámetros Técnicos Planta Eléctrica
                   </span>
                 </div>
                 <span class="text-[10px] font-black px-2 py-0.5 rounded bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300">
@@ -626,13 +688,13 @@
               </div>
             </div>
 
-            <!-- C. CASO FORMATO MP: PREVENTIVO CLIMATIZACIÓN (Ref: WO0000005520436) -->
+            <!-- C. CASO FORMATO MP: PREVENTIVO CLIMATIZACIÓN -->
             <div v-else-if="isFormatoMpAire" class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 space-y-3.5 shadow-xs">
               <div class="flex items-center justify-between border-b border-slate-100 dark:border-white/10 pb-2.5">
                 <div class="flex items-center gap-2">
                   <IconSnowflake class="w-4 h-4 text-cyan-600 dark:text-cyan-400 stroke-[2]" />
                   <span class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wider">
-                    2. Parámetros Técnicos Climatización (Ref: WO0000005520436)
+                    2. Parámetros Técnicos Climatización
                   </span>
                 </div>
                 <span class="text-[10px] font-black px-2 py-0.5 rounded bg-cyan-100 text-cyan-800 dark:bg-cyan-950 dark:text-cyan-300">
@@ -1601,12 +1663,7 @@ const isFormato7x24 = computed(() => {
   if (isFormato360.value || isFormatoObraCivil.value) return false;
   const tAct = (props.ot?.tipo_actividad || '').toLowerCase();
   const sub = (props.ot?.subsistema || '').toLowerCase();
-  const d = parsedFormData.value;
-  return tAct.includes('7x24') || 
-         tAct.includes('rutina') || 
-         sub.includes('7x24') || 
-         sub.includes('rutina') || 
-         Boolean(d?.numero_rutina_7x24);
+  return tAct.includes('7x24') || sub.includes('7x24');
 });
 
 const isFormatoWo = computed(() => {

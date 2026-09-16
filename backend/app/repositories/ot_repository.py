@@ -45,10 +45,8 @@ class OtRepository(BaseRepository[Ot]):
             joinedload(Ot.avances)
         ).order_by(Ot.created_at.desc())
 
-        if current_user.role == "admin":
+        if current_user.role in ["admin", "administrativo"]:
             pass
-        elif current_user.role == "administrativo":
-            query = query.filter(Ot.created_by == current_user.id)
         elif current_user.role == "operativo":
             user_cuadrilla_id = current_user.empleado.cuadrilla_id if current_user.empleado else None
             if user_cuadrilla_id:

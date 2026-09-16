@@ -1136,6 +1136,7 @@
         <FormularioTecnicoWO
           v-else-if="isCorrectivo"
           v-model="otFormularioData"
+          :ot="ot"
           :tipo-actividad="ot?.tipo_actividad || ot?.tipo_mantenimiento"
           :codigo-ot="ot?.codigo"
           :evidencias="ot?.evidencias || []"
@@ -1146,7 +1147,10 @@
         <FormularioTecnicoMP
           v-else
           v-model="otFormularioData"
-          :tipo-preventivo="isPreventivoAire ? 'aire' : (isPreventivo7x24 ? 'rutina_7x24' : 'planta')"
+          :tipo-preventivo="isPreventivoAire ? 'aire' : 'planta'"
+          :is-rutina-7x24="isPreventivo7x24"
+          :tipo-actividad="ot?.tipo_actividad"
+          :subsistema="ot?.subsistema"
           :codigo-ot="ot?.codigo"
           :evidencias="ot?.evidencias || []"
           :read-only="['solucionada', 'finalizada'].includes(ot?.estado)"
@@ -1154,26 +1158,28 @@
           @delete-photo="pedirConfirmacionBorrarFoto"
         />
 
-        <!-- 3. Repuestos Retirados e Instalados (con Fotos de Sustitución) -->
-        <RepuestosCambiosManager
-          v-model="otFormularioData.repuestos_cambios"
-          :codigo-ot="ot.codigo"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-        />
+        <template v-if="!isCorrectivo">
+          <!-- 3. Repuestos Retirados e Instalados (con Fotos de Sustitución) -->
+          <RepuestosCambiosManager
+            v-model="otFormularioData.repuestos_cambios"
+            :codigo-ot="ot.codigo"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+          />
 
-        <!-- 4. Registro de Transporte Especial (LPU) - OBLIGATORIO -->
-        <TransporteEspecialManager
-          v-model="otFormularioData.transportes_especiales"
-          :codigo-ot="ot.codigo"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-        />
+          <!-- 4. Registro de Transporte Especial (LPU) - OBLIGATORIO -->
+          <TransporteEspecialManager
+            v-model="otFormularioData.transportes_especiales"
+            :codigo-ot="ot.codigo"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+          />
 
-        <!-- 5. Novedades y Hallazgos en Estación (con Fotos de Respaldo) -->
-        <NovedadesHallazgosManager
-          v-model="otFormularioData.hallazgos"
-          :codigo-ot="ot.codigo"
-          :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
-        />
+          <!-- 5. Novedades y Hallazgos en Estación (con Fotos de Respaldo) -->
+          <NovedadesHallazgosManager
+            v-model="otFormularioData.hallazgos"
+            :codigo-ot="ot.codigo"
+            :read-only="['solucionada', 'finalizada'].includes(ot.estado)"
+          />
+        </template>
 
         <!-- Botón para Guardar Formulario Técnico en Cualquier Momento -->
         <div class="bg-white dark:bg-[#121215] border border-slate-200 dark:border-white/10 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-xs">
@@ -1435,14 +1441,14 @@ const isPreventivoAire = computed(() => {
 const isPreventivo7x24 = computed(() => {
   const tAct = (ot.value?.tipo_actividad || '').toLowerCase();
   const sub = (ot.value?.subsistema || '').toLowerCase();
-  return tAct.includes('7x24') || tAct.includes('rutina') || sub.includes('7x24') || sub.includes('rutina') || Boolean(otFormularioData.value?.numero_rutina_7x24);
+  return tAct.includes('7x24') || sub.includes('7x24');
 });
 
 const tipoFormatoTheme = computed(() => {
   if (isInforme360.value) {
     return {
       titulo: 'Informe 360',
-      subtitulo: `Diagnóstico Integral GE & Sistema SPT • Plantillas Oficiales Claro (Ref. ${ot.value?.codigo || ''})`,
+      subtitulo: `Diagnóstico Integral GE & Sistema SPT • Plantilla Oficial (OT: ${ot.value?.codigo || ''})`,
       badge: 'INFORME 360',
       icon: IconShieldCheck,
       wrapper: 'bg-purple-500/10 border-purple-500/20',
@@ -1455,7 +1461,7 @@ const tipoFormatoTheme = computed(() => {
     if (isEmergencia) {
       return {
         titulo: 'Mantenimiento Correctivo de Emergencia',
-        subtitulo: `Formato oficial Claro (Ref. ${ot.value?.codigo || ''} • ${ot.value?.tipo_estacion || 'Móvil'} / ${ot.value?.tipo_ubicacion || 'Urbano-Rural'})`,
+        subtitulo: `Protocolo oficial Claro (OT: ${ot.value?.codigo || ''} • ${ot.value?.tipo_estacion || 'Móvil'} / ${ot.value?.tipo_ubicacion || 'Urbano-Rural'})`,
         badge: 'Emergencia',
         icon: IconAlertTriangle,
         wrapper: 'bg-rose-500/10 border-rose-500/20',
@@ -1465,7 +1471,7 @@ const tipoFormatoTheme = computed(() => {
     }
     return {
       titulo: 'Correctivo',
-      subtitulo: `Formato oficial Claro (Ref. ${ot.value?.codigo || ''} - ${ot.value?.tipo_estacion || 'Móvil'} / ${ot.value?.tipo_ubicacion || 'Urbano-Rural'})`,
+      subtitulo: `Protocolo oficial Claro (OT: ${ot.value?.codigo || ''} • ${ot.value?.tipo_estacion || 'Móvil'} / ${ot.value?.tipo_ubicacion || 'Urbano-Rural'})`,
       badge: 'Correctivo',
       icon: IconTool,
       wrapper: 'bg-amber-500/10 border-amber-500/20',
@@ -1479,7 +1485,7 @@ const tipoFormatoTheme = computed(() => {
     const esAire = isPreventivoAire.value || subStr.includes('aire');
     return {
       titulo: `Rutina MP 7x24 (${rutinaStr})`,
-      subtitulo: `Protocolo oficial Claro • ${esAire ? 'Aire Acondicionado' : 'Grupo Electrógeno'} (Ref. ${ot.value?.codigo || ''})`,
+      subtitulo: `Protocolo oficial Claro • ${esAire ? 'Aire Acondicionado' : 'Grupo Electrógeno'} (OT: ${ot.value?.codigo || ''})`,
       badge: `7x24 • ${rutinaStr.toUpperCase()}`,
       icon: IconClock,
       wrapper: 'bg-indigo-500/10 border-indigo-500/20',
@@ -1490,7 +1496,7 @@ const tipoFormatoTheme = computed(() => {
   if (isPreventivoAire.value) {
     return {
       titulo: 'Preventivo Climatización (MP-AIRE)',
-      subtitulo: `Protocolo oficial Claro de evaluación técnica y frigorífica (Ref. ${ot.value?.codigo || ''})`,
+      subtitulo: `Protocolo oficial Claro de evaluación técnica y frigorífica (OT: ${ot.value?.codigo || ''})`,
       badge: 'MP-AIRE',
       icon: IconSnowflake,
       wrapper: 'bg-sky-500/10 border-sky-500/20',
@@ -1501,7 +1507,7 @@ const tipoFormatoTheme = computed(() => {
   // Preventivo Planta
   return {
     titulo: 'Preventivo Planta Eléctrica (MP-PLANTA)',
-    subtitulo: `Protocolo oficial Claro de planta diésel y ATS (Ref. ${ot.value?.codigo || ''})`,
+    subtitulo: `Protocolo oficial Claro de planta diésel y ATS (OT: ${ot.value?.codigo || ''})`,
     badge: 'MP-PLANTA',
     icon: IconEngine,
     wrapper: 'bg-red-500/10 border-red-500/20',

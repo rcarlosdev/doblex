@@ -38,6 +38,18 @@ const props = defineProps({
   evidencias: {
     type: Array,
     default: () => []
+  },
+  isRutina7x24: {
+    type: Boolean,
+    default: false
+  },
+  tipoActividad: {
+    type: String,
+    default: ''
+  },
+  subsistema: {
+    type: String,
+    default: ''
   }
 });
 
@@ -275,20 +287,27 @@ const form = reactive({
   responsable_tec_2: '',
   empresa_ejecuta: 'INMEL / DOBLEX',
   revisor_informe: '',
-  numero_rutina_7x24: 'Rutina 1',
+  numero_rutina_7x24: props.modelValue?.numero_rutina_7x24 || null,
   ...props.modelValue
 });
 
-// Detectar si la OT corresponde a Rutina 7x24 (frecuencia decenal cada ~10 días)
+// Detectar si la OT corresponde ESTRICTAMENTE a formato Rutina 7x24 (frecuencia decenal cada ~10 días)
 const isRutina7x24 = computed(() => {
+  if (props.isRutina7x24) return true;
   const tp = (props.tipoPreventivo || '').toLowerCase();
   const otCode = (props.codigoOt || '').toLowerCase();
-  return tp.includes('7x24') || 
-         tp.includes('rutina') || 
-         otCode.includes('7x24') || 
-         Boolean(props.modelValue?.numero_rutina_7x24) ||
-         Boolean(form.numero_rutina_7x24 && form.numero_rutina_7x24 !== '');
+  const act = (props.tipoActividad || '').toLowerCase();
+  const sub = (props.subsistema || '').toLowerCase();
+  return tp === 'rutina_7x24' || tp.includes('7x24') || otCode.includes('7x24') || act.includes('7x24') || sub.includes('7x24');
 });
+
+watch(isRutina7x24, (val) => {
+  if (val && !form.numero_rutina_7x24) {
+    form.numero_rutina_7x24 = 'Rutina 1';
+  } else if (!val) {
+    form.numero_rutina_7x24 = null;
+  }
+}, { immediate: true });
 
 // Salto térmico automático en Aire Acondicionado
 const saltoTermico = computed(() => {
@@ -437,7 +456,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.marca_aa"
               :disabled="readOnly"
               placeholder="Ej. MCQUAY, YORK, LG, CARRIER..."
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -448,7 +467,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.modelo_aa"
               :disabled="readOnly"
               placeholder="Ej. MQMI-17024-CWF216A"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -459,7 +478,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.serial_aa"
               :disabled="readOnly"
               placeholder="Ej. C200130208"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -468,7 +487,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.tipo_aire"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             >
               <option value="Mini Split">Mini Split</option>
               <option value="Paquete">Paquete</option>
@@ -497,7 +516,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.alimentacion_ac_aa"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             >
               <option value="Bifásica">Bifásica (220V)</option>
               <option value="Trifásica">Trifásica (208V / 220V)</option>
@@ -512,7 +531,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.voltaje_entrada_aa"
               :disabled="readOnly"
               placeholder="Ej. 220"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -524,7 +543,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.corriente_aa_amp"
               :disabled="readOnly"
               placeholder="Ej. 9.3"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -535,7 +554,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.capacidad_btu_aa"
               :disabled="readOnly"
               placeholder="Ej. 24 (24000 BTU)"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -587,7 +606,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temperatura_cuarto_equipo"
               :disabled="readOnly"
               placeholder="Ej. 30"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -598,7 +617,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temperatura_aa_entrada"
               :disabled="readOnly"
               placeholder="Ej. 28"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -609,7 +628,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temperatura_aa_salida"
               :disabled="readOnly"
               placeholder="Ej. 18"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -620,7 +639,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temp_display"
               :disabled="readOnly"
               placeholder="Ej. 18"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -631,7 +650,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temp_termostato"
               :disabled="readOnly"
               placeholder="Ej. 22"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -642,7 +661,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.ajuste_termostato"
               :disabled="readOnly"
               placeholder="Ej. 22"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -695,7 +714,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.compresor_tipo"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             >
               <option value="ROTATIVO">ROTATIVO</option>
               <option value="SCROLL">SCROLL</option>
@@ -725,7 +744,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.presion_succion_psi"
               :disabled="readOnly"
               placeholder="Ej. 100 - 120 PSI"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -736,7 +755,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.presion_descarga_psi"
               :disabled="readOnly"
               placeholder="Ej. 280 - 350 PSI"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
 
@@ -745,7 +764,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.nivel_aceite_compresor"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             >
               <option value="Ok">Ok (Normal)</option>
               <option value="Bajo">Bajo</option>
@@ -760,7 +779,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temperatura_entrada_cond"
               :disabled="readOnly"
               placeholder="Ej. 35"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -781,7 +800,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.manejadora_tipo"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             >
               <option value="VERTICAL">VERTICAL (Mural / Split)</option>
               <option value="HORIZONTAL">HORIZONTAL (Ducto / Cassette)</option>
@@ -794,7 +813,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.tipo_filtro_aa"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             >
               <option value="LAVABLE">LAVABLE</option>
               <option value="DESECHABLE">DESECHABLE</option>
@@ -809,7 +828,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.voltaje_motor_aa"
               :disabled="readOnly"
               placeholder="Ej. 220"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-sky-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -1172,7 +1191,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.marca_equipo"
               :disabled="readOnly"
               placeholder="Ej. AGG POWER SOLUTIONS, FG WILSON..."
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1183,7 +1202,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.modelo_equipo"
               :disabled="readOnly"
               placeholder="Ej. C27D6"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1194,7 +1213,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.serial_equipo"
               :disabled="readOnly"
               placeholder="Ej. A1904183"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1217,7 +1236,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.capacidad_kva"
               :disabled="readOnly"
               placeholder="Ej. 24"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1228,7 +1247,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.marca_motor"
               :disabled="readOnly"
               placeholder="Ej. CUMMINS, PERKINS, JOHN DEERE..."
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1239,7 +1258,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.modelo_motor"
               :disabled="readOnly"
               placeholder="Ej. 4B3.9-G2 | S/N 78934783"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1251,7 +1270,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.presion_aceite_bar"
               :disabled="readOnly"
               placeholder="Ej. 4.2 BAR"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1262,7 +1281,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.temperatura_refrigerante_c"
               :disabled="readOnly"
               placeholder="Ej. 79"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -1272,7 +1291,7 @@ watch(() => props.modelValue, (newVal) => {
           <div class="flex items-center gap-1.5 text-slate-800 dark:text-slate-200">
             <IconCamera class="w-4 h-4 text-red-600 dark:text-red-400 stroke-[2]" />
             <span class="font-extrabold text-[11px] uppercase tracking-wider">
-              Anexo Fotográfico: Placas Técnicas de Equipos (Excel Claro)
+              Anexo Fotográfico: Placas Técnicas de Equipos
             </span>
           </div>
 
@@ -1336,7 +1355,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model="form.marca_generador"
               :disabled="readOnly"
               placeholder="Ej. STAMFORD PI144D1"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1359,7 +1378,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.capacidad_bateria"
               :disabled="readOnly"
               placeholder="Ej. 1150"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 
@@ -1368,7 +1387,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.estado_bateria"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             >
               <option value="Bueno">Bueno (En servicio)</option>
               <option value="Regular">Regular</option>
@@ -1381,7 +1400,7 @@ watch(() => props.modelValue, (newVal) => {
             <select
               v-model="form.estado_cargador"
               :disabled="readOnly"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             >
               <option value="Bueno">Bueno (Operativo)</option>
               <option value="Averiado">Averiado / Desconectado</option>
@@ -1395,7 +1414,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.capacidad_ats_amp"
               :disabled="readOnly"
               placeholder="Ej. 100 Amp"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
         </div>
@@ -1639,7 +1658,7 @@ watch(() => props.modelValue, (newVal) => {
               v-model.number="form.horometro_final_prueba"
               :disabled="readOnly"
               placeholder="Ej. 3913.6"
-              class="w-full h-9 rounded-lg border border-slate-200 dark:border-white/10 bg-white dark:bg-neutral-950 px-2.5 text-xs text-slate-800 dark:text-slate-200 focus:border-red-500 focus:outline-none"
+              class="w-full h-10 rounded-xl border border-slate-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 text-xs text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-red-500/20 focus:border-red-500 outline-none transition-all"
             />
           </div>
 

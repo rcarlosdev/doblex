@@ -34,7 +34,9 @@ class OtService:
         if isinstance(dt_input, str):
             try:
                 parsed = date_parser.parse(dt_input)
-                return to_colombia_datetime(parsed) or now_utc()
+                if isinstance(parsed, datetime):
+                    return to_colombia_datetime(parsed) or now_utc()
+                return now_utc()
             except Exception:
                 return now_utc()
         return now_utc()

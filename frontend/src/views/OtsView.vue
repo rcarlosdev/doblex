@@ -151,27 +151,23 @@ const syncOtModel = (model) => {
     if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
       model.subsistema = 'Movil Plantas Eléctricas';
     }
+    if (model.datos_formulario && typeof model.datos_formulario === 'object') {
+      delete model.datos_formulario.numero_rutina_7x24;
+    }
   } else if (model.tipo_actividad === 'preventivo_aire') {
     model.tipo_mantenimiento = 'preventivo';
     if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
       model.subsistema = 'Movil Aires Acondicionados';
     }
+    if (model.datos_formulario && typeof model.datos_formulario === 'object') {
+      delete model.datos_formulario.numero_rutina_7x24;
+    }
   } else if (model.tipo_actividad === 'rutina_7x24_aire') {
     model.tipo_mantenimiento = 'preventivo';
-    const numRutina = (target === 'create' ? newOtNumeroRutina7x24.value : editingOtNumeroRutina7x24.value) || 'Rutina 1';
-    model.subsistema = `Movil Rutinas 7x24 - Aire Acondicionado (${numRutina})`;
-    if (!model.datos_formulario || typeof model.datos_formulario !== 'object') {
-      model.datos_formulario = {};
-    }
-    model.datos_formulario.numero_rutina_7x24 = numRutina;
+    model.subsistema = 'Movil Rutinas 7x24 - Aire Acondicionado';
   } else if (model.tipo_actividad === 'rutina_7x24_planta' || model.tipo_actividad === 'rutina_7x24' || model.tipo_actividad === 'preventivo_rutina_7x24') {
     model.tipo_mantenimiento = 'preventivo';
-    const numRutina = (target === 'create' ? newOtNumeroRutina7x24.value : editingOtNumeroRutina7x24.value) || 'Rutina 1';
-    model.subsistema = `Movil Rutinas 7x24 - Planta Eléctrica (${numRutina})`;
-    if (!model.datos_formulario || typeof model.datos_formulario !== 'object') {
-      model.datos_formulario = {};
-    }
-    model.datos_formulario.numero_rutina_7x24 = numRutina;
+    model.subsistema = 'Movil Rutinas 7x24 - Planta Eléctrica';
   } else if (model.tipo_actividad === 'obra_civil') {
     model.tipo_mantenimiento = 'correctivo';
     if (!model.subsistema || model.subsistema === 'Movil Sistema Eléctrico') {
@@ -195,18 +191,16 @@ const syncOtModel = (model) => {
   }
 };
 
-// Manejo de Tipo de Actividad (Preventivo, Correctivo, Emergencia, Rutina 7x24, Informe 360, Obra Civil), Subtipo (Aire / Planta) y Ciclo de Rutina 7x24
+// Manejo de Tipo de Actividad (Preventivo, Correctivo, Emergencia, Rutina 7x24, Informe 360, Obra Civil) y Subtipo (Aire / Planta)
+// Nota: El número de rutina (Rutina 1, 2 ó 3) lo selecciona el técnico directamente en campo en su app móvil.
 const newOtTipoPrincipal = ref('correctivo');
 const newOtSubtipoPreventivo = ref('planta');
-const newOtNumeroRutina7x24 = ref('Rutina 1');
 const editingOtTipoPrincipal = ref('correctivo');
 const editingOtSubtipoPreventivo = ref('planta');
-const editingOtNumeroRutina7x24 = ref('Rutina 1');
 
 const openCreateOtModal = () => {
   newOtTipoPrincipal.value = 'correctivo';
   newOtSubtipoPreventivo.value = 'planta';
-  newOtNumeroRutina7x24.value = 'Rutina 1';
   newOt.value.tipo_actividad = 'correctivo';
   openCreateModal.value = true;
 };
@@ -232,10 +226,6 @@ const onNewOtSubtipoChange = () => {
   }
 };
 
-const onNewOtNumeroRutinaChange = () => {
-  onTipoActividadChange('create');
-};
-
 const onEditingOtTipoPrincipalChange = () => {
   if (editingOtTipoPrincipal.value === 'preventivo') {
     editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'preventivo_aire' : 'preventivo_planta';
@@ -255,10 +245,6 @@ const onEditingOtSubtipoChange = () => {
     editingOt.value.tipo_actividad = editingOtSubtipoPreventivo.value === 'aire' ? 'rutina_7x24_aire' : 'rutina_7x24_planta';
     onTipoActividadChange('edit');
   }
-};
-
-const onEditingOtNumeroRutinaChange = () => {
-  onTipoActividadChange('edit');
 };
 
 const onTipoActividadChange = (target = 'create') => {
@@ -366,21 +352,6 @@ const openEditOt = (ot) => {
     editingOtTipoPrincipal.value = 'correctivo';
     editingOtSubtipoPreventivo.value = 'planta';
   }
-
-  // Extraer número de rutina 7x24 si aplica (Rutina 1, 2 ó 3)
-  let rutinaExt = 'Rutina 1';
-  let formObj = ot.datos_formulario;
-  if (typeof formObj === 'string') {
-    try { formObj = JSON.parse(formObj); } catch (e) { formObj = {}; }
-  }
-  if (formObj && formObj.numero_rutina_7x24) {
-    rutinaExt = formObj.numero_rutina_7x24;
-  } else if ((ot.subsistema || '').includes('Rutina 2')) {
-    rutinaExt = 'Rutina 2';
-  } else if ((ot.subsistema || '').includes('Rutina 3')) {
-    rutinaExt = 'Rutina 3';
-  }
-  editingOtNumeroRutina7x24.value = rutinaExt;
 
   editingOt.value = {
     id: ot.id,
@@ -885,7 +856,7 @@ const getStatusLabel = (status) => {
       <form @submit.prevent="createOt" class="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div class="space-y-3 sm:space-y-3.5 overflow-y-auto pr-1 sm:pr-2 flex-1 custom-scrollbar">
           <!-- Fila 1: Código OT & Tipo Actividad -->
-        <div class="grid grid-cols-1 gap-3" :class="newOtTipoPrincipal === 'rutina_7x24' ? 'sm:grid-cols-4' : (newOtTipoPrincipal === 'preventivo' ? 'sm:grid-cols-3' : 'sm:grid-cols-2')">
+        <div class="grid grid-cols-1 gap-3" :class="['preventivo', 'rutina_7x24'].includes(newOtTipoPrincipal) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="newOt.codigo" required placeholder="WO0000005558781 o OT5304019" class="bg-white dark:bg-neutral-950 border-neutral-200 dark:border-neutral-850 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
@@ -916,19 +887,6 @@ const getStatusLabel = (status) => {
             >
               <option value="aire">Aire</option>
               <option value="planta">Planta</option>
-            </select>
-          </div>
-          <div v-if="newOtTipoPrincipal === 'rutina_7x24'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-            <label class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Ciclo Rutina 7x24 *</label>
-            <select 
-              v-model="newOtNumeroRutina7x24" 
-              @change="onNewOtNumeroRutinaChange"
-              required
-              class="flex h-9 w-full rounded-md border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-neutral-950 px-3 py-1 text-xs text-indigo-900 dark:text-indigo-300 focus:border-indigo-500 focus:ring-indigo-500 cursor-pointer font-bold"
-            >
-              <option value="Rutina 1">Rutina 1</option>
-              <option value="Rutina 2">Rutina 2</option>
-              <option value="Rutina 3">Rutina 3</option>
             </select>
           </div>
         </div>
@@ -1139,7 +1097,7 @@ const getStatusLabel = (status) => {
       <form @submit.prevent="updateOt" class="flex flex-col flex-1 min-h-0 overflow-hidden">
         <div class="space-y-3 sm:space-y-3.5 overflow-y-auto pr-1 sm:pr-2 flex-1 custom-scrollbar">
           <!-- Fila 1: Código OT & Tipo Actividad -->
-        <div class="grid grid-cols-1 gap-3" :class="editingOtTipoPrincipal === 'rutina_7x24' ? 'sm:grid-cols-4' : (editingOtTipoPrincipal === 'preventivo' ? 'sm:grid-cols-3' : 'sm:grid-cols-2')">
+        <div class="grid grid-cols-1 gap-3" :class="['preventivo', 'rutina_7x24'].includes(editingOtTipoPrincipal) ? 'sm:grid-cols-3' : 'sm:grid-cols-2'">
           <div class="space-y-1.5">
             <label class="text-[10px] font-bold text-neutral-550 dark:text-neutral-400 uppercase tracking-wider">Código OT *</label>
             <Input type="text" v-model="editingOt.codigo" required class="bg-white dark:bg-[#0a0b10] border-neutral-200 dark:border-white/10 text-neutral-900 dark:text-white focus-visible:ring-primary focus-visible:border-primary uppercase" />
@@ -1170,19 +1128,6 @@ const getStatusLabel = (status) => {
             >
               <option value="aire">Aire</option>
               <option value="planta">Planta</option>
-            </select>
-          </div>
-          <div v-if="editingOtTipoPrincipal === 'rutina_7x24'" class="space-y-1.5 animate-in fade-in slide-in-from-left-2 duration-200">
-            <label class="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Ciclo Rutina 7x24 *</label>
-            <select 
-              v-model="editingOtNumeroRutina7x24" 
-              @change="onEditingOtNumeroRutinaChange"
-              required
-              class="flex h-9 w-full rounded-md border border-indigo-300 dark:border-indigo-700 bg-white dark:bg-[#0a0b10] px-3 py-1 text-xs text-indigo-900 dark:text-indigo-300 focus:border-indigo-500 focus:ring-indigo-500 cursor-pointer font-bold"
-            >
-              <option value="Rutina 1">Rutina 1</option>
-              <option value="Rutina 2">Rutina 2</option>
-              <option value="Rutina 3">Rutina 3</option>
             </select>
           </div>
         </div>

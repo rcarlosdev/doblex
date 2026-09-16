@@ -66,7 +66,7 @@ class SitioService:
             estado=estado
         )
         pages = math.ceil(total / limit) if total > 0 else 1
-        items = [self.serialize_sitio(s, ots_counts.get(s.id, 0)) for s in sitios]
+        items = [self.serialize_sitio(s, ots_counts.get(getattr(s, "id"), 0)) for s in sitios]
 
         return {
             "status": "success",
@@ -180,7 +180,7 @@ class SitioService:
         ots_count = sitio_repository.get_ots_count_for_sitio(db, sitio_id)
         if ots_count > 0:
             # Desactivación lógica si tiene órdenes de trabajo asociadas
-            sitio.estado = "inactivo"
+            setattr(sitio, "estado", "inactivo")
             db.commit()
             return {
                 "status": "success",

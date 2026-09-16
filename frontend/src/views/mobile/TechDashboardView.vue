@@ -382,8 +382,8 @@ const formatTipoNombre = (tipo, ot = null) => {
   if (str === 'obra_civil') return 'Obra Civil';
   if (str === 'informe_360') return 'Informe 360';
   if (str === 'rutina_7x24' || str.includes('7x24')) return `Rutina MP 7x24${rutinaExt}`;
-  if (str === 'preventivo_planta') return 'Planta GE';
-  if (str === 'preventivo_aire') return 'Aire AA';
+  if (str === 'preventivo_planta') return 'Preventivo Planta';
+  if (str === 'preventivo_aire') return 'Preventivo Aire';
   if (str === 'emergencia') return 'Emergencia';
   if (str === 'correctivo') return 'Correctivo';
   return tipo || 'Preventivo';

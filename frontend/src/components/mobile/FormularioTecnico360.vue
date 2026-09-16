@@ -733,7 +733,7 @@ const eliminarHallazgoGe = (index) => {
           <div class="flex items-center gap-2">
             <IconBolt class="w-4 h-4 text-purple-600 dark:text-purple-400 stroke-[2]" />
             <span class="font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider text-[11px]">
-              Prueba MEGGER: Aislamiento del Alternador (Ref: Plantilla 360 Simple)
+              Prueba MEGGER: Aislamiento del Alternador
             </span>
           </div>
           <span 

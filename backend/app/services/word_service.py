@@ -91,9 +91,10 @@ def generate_ot_word(ot: Ot) -> io.BytesIO:
         doc.add_paragraph()
 
     # 3. Repuestos e Insumos
-    if ot.repuestos:
+    repuestos = getattr(ot, "repuestos", None) or []
+    if repuestos:
         doc.add_heading("3. Insumos y Repuestos Utilizados", level=1)
-        rep_table = doc.add_table(rows=len(ot.repuestos) + 1, cols=3)
+        rep_table = doc.add_table(rows=len(repuestos) + 1, cols=3)
         rep_table.style = 'Table Grid'
 
         # Cabecera
@@ -102,7 +103,7 @@ def generate_ot_word(ot: Ot) -> io.BytesIO:
         h_row.cells[1].paragraphs[0].add_run("Cantidad").bold = True
         h_row.cells[2].paragraphs[0].add_run("Unidad").bold = True
 
-        for idx, rep in enumerate(ot.repuestos, start=1):
+        for idx, rep in enumerate(repuestos, start=1):
             r = rep_table.rows[idx]
             r.cells[0].paragraphs[0].add_run(rep.nombre_item)
             r.cells[1].paragraphs[0].add_run(str(rep.cantidad))
