@@ -76,3 +76,6 @@ docs/*.xls*
 docs/*.pdf
 docs/*.docx
 docs/*.doc*
+
+# Scratch y scripts temporales
+scratch/

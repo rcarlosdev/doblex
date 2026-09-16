@@ -147,13 +147,34 @@ class TestDoblexAPI(unittest.TestCase):
         self.assertEqual(res_cerrar_fail.status_code, 422)
         self.assertIn("evidencias obligatorias", res_cerrar_fail.json()["message"])
 
-        # Subir las 3 evidencias reales: antes, durante, después
+        # Subir primero solo antes, durante y después (sin llegada ni transporte) -> debe seguir fallando por reglas transversales
         ev_urls = {
             "antes": "https://images.unsplash.com/photo-1541888946425-d0fbb186f5f8?w=800",
             "durante": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=800",
             "despues": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=800"
         }
         for tipo, url in ev_urls.items():
+            res_ev = self.client.post(f"/api/ots/{ot['id']}/evidencia", json={
+                "tipo": tipo,
+                "imagen_url": url,
+                "latitud": 6.2442,
+                "longitud": -75.5812
+            }, headers=self.carlos_headers)
+            self.assertEqual(res_ev.status_code, 201)
+
+        # Falla aún porque falta llegada y transporte especial
+        res_cerrar_falta_trans = self.client.post(f"/api/ots/{ot['id']}/cerrar", json={
+            "causa_falla": "desgaste",
+            "observaciones_cierre": "Cierre previo"
+        }, headers=self.admin_headers)
+        self.assertEqual(res_cerrar_falta_trans.status_code, 422)
+
+        # Subir foto de llegada única (técnico con carnet y sitio de fondo) y transporte especial
+        transversal_evs = {
+            "llegada_sitio": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800",
+            "transporte": "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=800"
+        }
+        for tipo, url in transversal_evs.items():
             res_ev = self.client.post(f"/api/ots/{ot['id']}/evidencia", json={
                 "tipo": tipo,
                 "imagen_url": url,
@@ -209,6 +230,78 @@ class TestDoblexAPI(unittest.TestCase):
         res_ops = self.client.get("/api/operadores", headers=self.admin_headers)
         self.assertEqual(res_ops.status_code, 200)
         self.assertGreaterEqual(len(res_ops.json()["data"]), 4)
+
+    def test_11_creacion_nuevos_tipos_ot(self):
+        """Validar registro y serialización correcta de Obra Civil, Informe 360 y Rutina MP 7x24"""
+        tipos_a_probar = [
+            ("OT-CIVIL-" + uuid.uuid4().hex[:6].upper(), "obra_civil", "correctivo", "Infraestructura y Obra Civil"),
+            ("OT-360-" + uuid.uuid4().hex[:6].upper(), "informe_360", "preventivo", "Inspección y Relevamiento 360"),
+            ("OT-7X24-" + uuid.uuid4().hex[:6].upper(), "rutina_7x24", "preventivo", "Movil Rutinas 7x24"),
+        ]
+
+        for codigo, tipo_actividad, tipo_mantenimiento, subsistema in tipos_a_probar:
+            payload = {
+                "codigo": codigo,
+                "descripcion": f"Prueba de servicio {tipo_actividad}",
+                "sitio": "ANT.TEST-SITE",
+                "ubicacion": "Medellín, Antioquia",
+                "user_id": 3,
+                "cuadrilla_id": 1,
+                "prioridad": "P2",
+                "tipo_ubicacion": "urbana",
+                "tipo_mantenimiento": tipo_mantenimiento,
+                "tipo_actividad": tipo_actividad,
+                "subsistema": subsistema,
+                "fecha_inicio": "2026-09-11T10:00:00"
+            }
+            res = self.client.post("/api/ots", json=payload, headers=self.admin_headers)
+            self.assertEqual(res.status_code, 201, f"Error creando {tipo_actividad}: {res.text}")
+            data = res.json()["data"]
+            self.assertEqual(data["codigo"], codigo)
+            self.assertEqual(data["tipo_actividad"], tipo_actividad)
+            self.assertEqual(data["tipo_mantenimiento"], tipo_mantenimiento)
+            self.assertEqual(data["subsistema"], subsistema)
+
+    def test_12_rutinas_7x24_ciclos_decenales(self):
+        """Validar registro y persistencia de ciclos de rutina 7x24 (Rutina 1, 2 ó 3 - Cada ~10 días)"""
+        for num_rutina in ["Rutina 1", "Rutina 2", "Rutina 3"]:
+            codigo = "OT-7X24-" + uuid.uuid4().hex[:6].upper()
+            payload = {
+                "codigo": codigo,
+                "descripcion": f"Mantenimiento Preventivo Decenal {num_rutina}",
+                "sitio": "ANT.TEST-SITE",
+                "ubicacion": "Medellín, Antioquia",
+                "user_id": 3,
+                "cuadrilla_id": 1,
+                "prioridad": "P2",
+                "tipo_ubicacion": "urbana",
+                "tipo_mantenimiento": "preventivo",
+                "tipo_actividad": "rutina_7x24_planta",
+                "subsistema": f"Movil Rutinas 7x24 - Planta Eléctrica ({num_rutina})",
+                "fecha_inicio": "2026-09-11T10:00:00"
+            }
+            res = self.client.post("/api/ots", json=payload, headers=self.admin_headers)
+            self.assertEqual(res.status_code, 201)
+            ot_id = res.json()["data"]["id"]
+
+            # Guardar formulario técnico con numero_rutina_7x24
+            res_form = self.client.put(
+                f"/api/ots/{ot_id}/formulario",
+                json={"datos_formulario": {"numero_rutina_7x24": num_rutina, "marca_equipo": "AGG POWER"}},
+                headers=self.admin_headers
+            )
+            self.assertEqual(res_form.status_code, 200)
+            form_guardado = res_form.json()["data"]["datos_formulario"]
+            self.assertEqual(form_guardado.get("numero_rutina_7x24"), num_rutina)
+
+            # Validar exportación PDF con ciclo decenal
+            res_pdf = self.client.get(f"/api/ots/{ot_id}/export/pdf", headers=self.admin_headers)
+            self.assertEqual(res_pdf.status_code, 200)
+            self.assertEqual(res_pdf.headers["content-type"], "application/pdf")
+
+            # Validar exportación Word con ciclo decenal
+            res_word = self.client.get(f"/api/ots/{ot_id}/export/word", headers=self.admin_headers)
+            self.assertEqual(res_word.status_code, 200)
 
 if __name__ == "__main__":
     unittest.main()

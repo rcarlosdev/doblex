@@ -1,11 +1,13 @@
 import axios from 'axios';
 import { isTokenExpired, clearSecuritySession } from '../lib/security';
 
-// URL del backend local (FastAPI corre en el puerto 8000)
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+// En producción se usa VITE_API_URL si está definido; en desarrollo local sin variable se usa
+// la ruta relativa '/api', permitiendo que el proxy de Vite enrute sin importar la IP del dispositivo.
+const API_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = API_URL ? `${API_URL.replace(/\/+$/, '')}/api` : '/api';
 
 const client = axios.create({
-  baseURL: `${API_URL}/api`,
+  baseURL: BASE_URL,
   timeout: 15000,
   headers: {
     'Content-Type': 'application/json',

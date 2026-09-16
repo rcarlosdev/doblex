@@ -1,0 +1,2863 @@
+{
+  "TIPOLOGIA_1": {
+    "id": "TIPOLOGIA_1",
+    "numero": 1,
+    "nombre_corto": "SPT",
+    "nombre_completo": "SPT - SISTEMA PUESTA A TIERRA",
+    "subsistema_key": "SPT - SISTEMA PUESTA A TIERRA",
+    "items": [
+      {
+        "codigo_sap": "3045889",
+        "texto_sap": "MO SE APERTURA BRECHA ANCHO 0,3MX0,8M",
+        "alcance": "APERTURA BRECHA DE 0,3 M DE ANCHO X 0,8 M DE PROFUNDIDAD EN\nTERRENO ROCOSO.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046179",
+        "texto_sap": "MT SE SUM CABLE ALUMINIO THW #4/0AWG",
+        "alcance": "SUM CABLE DE ALUMINIO THW # 4/0 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046050",
+        "texto_sap": "MO SE INSCABLE DE ALUMINIO THW #4/0AWG",
+        "alcance": "INS.CABLE DE ALUMINIO THW # 4/0 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046055",
+        "texto_sap": "MO SE INSCABLE DE ALUMINIO THW #6AWG",
+        "alcance": "INS.CABLE DE ALUMINIO THW # 6 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046184",
+        "texto_sap": "MT SE SUM CABLE ALUMINIO THW #6AWG",
+        "alcance": "SUM. CABLE DE ALUMINIO THW # 6 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046128",
+        "texto_sap": "MT SE SUMINISTRO HIDROSOLTA (BULTOX15KG)",
+        "alcance": "SUMINISTRO HIDROSOLTA (BULTO X 15 KG)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3026117",
+        "texto_sap": "MF CINTA BANDIT ACERADA DE 1/2''*",
+        "alcance": "MO/ INS MF CINTA BANDIT ACERADA DE 1/2''*",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046299",
+        "texto_sap": "MT SE SUM HEBILLA 1/2\" ACERO INOXIDABLE",
+        "alcance": "HEBILLA 1/2\" DE ACERO INOXIDABLE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046190",
+        "texto_sap": "MT SE SUM TERMINAL CU ESTAÑADO 1 OJO 4/0",
+        "alcance": "SUM. TERMINALES DE COBRE ESTAÑADO DE UN OJO 4/0",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046419",
+        "texto_sap": "MT SE SUM TERMINALES ESTAÑADA 2 OJOS #6",
+        "alcance": "SUMINISTROS TERMINALES ESTAÑADAS BARRIL LARGO DE 2 OJOS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046038",
+        "texto_sap": "MO SE INST ELECTROD CU5/8\"X2,4M TER ROCO",
+        "alcance": "INST. ELECTRODO DE COBRE 5/8\" X 2,4 M EN TERRENO ROCOSO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045958",
+        "texto_sap": "MO SE TRATAMIENTO TERRENO SUELO ARTIFIC",
+        "alcance": "TRATAMIENTO DEL TERRENO CON SUELO ARTIFICIAL PARA EL MEJORAMIENTO DE LA PUESTA A TIERRA INCLUYE MEDICIÓN DE LA RESISTENCIA DE PUESTA A TIERRA, ANTES Y DESPUÉS DEL TRATAMIENTO CON ENTREGA DE INFORME. \nINCLUYE, INSTALACIÓN DE ALAMBRE DE COBRE, VARILLA Y ACCESORIOS DE PUESTA A TIERRA. PREVIO ESTUDIO Y MEDICIONES SOLICITADAS POR COMCEL.",
+        "unidad": "M³",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046612",
+        "texto_sap": "MO MT SE SUM/INST BUSBAR BARRAJE CNX TIE",
+        "alcance": "SUMINISTRO E INSTALACION BUSBAR. BARRAJE COMUN PARA CONEXIONES DE TIERRA EN EXTERIORES DE 40X25 30 PERFORACIONES, INCLUYE TODOS LOS ACCESORIOS: TORNILLOS, INCLUYENDO DOS AISLADORES PARA ANCLAJE AL MURO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046558",
+        "texto_sap": "MT SE SUM AMARRE PLASTICO 37CM NEGX100U",
+        "alcance": "SUMINISTRO AMARRES PLASTICOS 37 CM NEGROS(EXTERIORES) *100 UNIDADES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045888",
+        "texto_sap": "MO SE PUNTO SOLDADURA EXOTERMICA + MOLDE",
+        "alcance": "PUNTO DE SOLDADURA EXOTERMICA + MOLDE. INCLUYE SUMINISTROS.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046187",
+        "texto_sap": "MT SE SUM CABLE COBRE DESNUDO 2/0",
+        "alcance": "SUM. CABLE DE COBRE DESNUDO CALIBRE 2/0",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046169",
+        "texto_sap": "MT SE SUM PARARRAYO TRR FRANKLIN TP BOLA",
+        "alcance": "SUMINISTRO PARARRAYOS TORRE FRANKLIN TIPO BOLA.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046106",
+        "texto_sap": "MO SE RETIRO PLATINA DE TIERRA (BUSBAR)",
+        "alcance": "RETIRO DE PLATINA DE TIERRA (BUSBAR)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046125",
+        "texto_sap": "MT SE SUMINISTRO GRASA DIELECTRICA 3ONZA",
+        "alcance": "SUMINISTRO DE GRASA DIELÉCTRICA 3 ONZA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046163",
+        "texto_sap": "MT SE SUM ELECTRODO COPPERWELD 5/8\"X2,4M",
+        "alcance": "SUM. ELECTRODO COPPERWELD 5/8\" X 2,4 M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046191",
+        "texto_sap": "MT SE SUM TERMINAL CU ESTAÑAD DOB OJO2/0",
+        "alcance": "SUM. TERMINALES DE COBRE ESTAÑADO DE DOBLE OJO 2/0",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046193",
+        "texto_sap": "MO MT SUMINISTR INSTALACION CONECTORES C",
+        "alcance": "SUMINISTRO E INSTALACIÓN CONECTORES EN C",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046003",
+        "texto_sap": "MO SE INST PARARRAY TORR FRANKLIN T BOLA",
+        "alcance": "INSTALACIÓN PARARRAYOS TORRE FRANKLIN TIPO BOLA.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046079",
+        "texto_sap": "MO SE PRUEB/MEDICION SPT TELUROMET RESUL",
+        "alcance": "PRUEBAS Y MEDICIONES SPT CON TELUROMETRO Y ENTREGA DE RESULTADOS EN INFORME.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3051373",
+        "texto_sap": "SRV SUM/INS CONECTR COMP C1/0-4/0-6-2AWG",
+        "alcance": "CONECTOR DE COMPRENSION  TIPO H CAL. 1/0AWG – 4/0AWG 6AWG – 2AWG",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046333",
+        "texto_sap": "MT SE SUM TUBO GALVANIZ 2''X3MT CON UNION",
+        "alcance": "TUBO GALVANIZADO 2\" X 3 MTS CON UNION",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3017640",
+        "texto_sap": "MO CINTAS IMPLEMENTACION",
+        "alcance": "CINTAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3042100",
+        "texto_sap": "SRV TRANSPORTE VEHÍCULO 4X4 (LPU)",
+        "alcance": "DE ACUERDO A LAS DISTANCIA DESDE LA CIUDAD BASE AL SITIO DE LA OT",
+        "unidad": "VIAJE",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3042226",
+        "texto_sap": "SRV TRANSPORTE FLUVIAL (LANCHA/PANGA/CANOA)",
+        "alcance": "DE ACUERDO A LA NECESIDAD DE AL ACCESO O TRASLADO A SITIO",
+        "unidad": "VIAJE",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3041820",
+        "texto_sap": "SRV TRANSPORTE ESPECIAL (COTEROS O SEMOVIENTE)",
+        "alcance": "DE ACUERDO A LA NECESIDAD DE AL ACCESO O TRASLADO A SITIO",
+        "unidad": "DIA",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      }
+    ]
+  },
+  "TIPOLOGIA_2": {
+    "id": "TIPOLOGIA_2",
+    "numero": 2,
+    "nombre_corto": "PE",
+    "nombre_completo": "PE - GRUPO ELECTROGENO",
+    "subsistema_key": "PE - GRUPO ELECTROGENO",
+    "items": [
+      {
+        "codigo_sap": "3050506",
+        "texto_sap": "SRV REPOTENCIALIZACION PLANTA ELECTRICA",
+        "alcance": "SRV REPOTENCIALIZACION PLANTA ELECTRICA",
+        "unidad": "GLOBAL",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045686",
+        "texto_sap": "MT GE/ATS MANGUERA CAUCHO LONA½XMT150PSI",
+        "alcance": "MT GE/ATS MANGUERA CAUCHO LONA½XMT150PSI",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045755",
+        "texto_sap": "MT GE/ATS SUM MANG CAUCH LON3/8XMT150PSI",
+        "alcance": "MT GE/ATS SUM MANG CAUCH LON3/8XMT150PSI",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045721",
+        "texto_sap": "MT GE/ATS SUM LAMP/BOMB SEÑALIZACION STA",
+        "alcance": "MT GE/ATS SUM LAMP/BOMB SEÑALIZACION STA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045647",
+        "texto_sap": "MO GE/ATS CAMBIO BORNES CONEXION BATERIA",
+        "alcance": "MO GE/ATS CAMBIO BORNES CONEXION BATERIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045644",
+        "texto_sap": "MO GE/ATS CAMBIO CONTACTO AUXILIAR",
+        "alcance": "MO GE/ATS CAMBIO CONTACTO AUXILIAR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045645",
+        "texto_sap": "MO GE/ATS CAMBIO SELECTORES",
+        "alcance": "MO GE/ATS CAMBIO SELECTORES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045715",
+        "texto_sap": "MT GE/ATS SUM FUSIBLES GRUPOS ELECTROGEN",
+        "alcance": "MT GE/ATS SUM FUSIBLES GRUPOS ELECTROGEN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045749",
+        "texto_sap": "MT GE/ATS SUM LLAVE PASO1/2\" TANQ COMBUS",
+        "alcance": "MT GE/ATS SUM LLAVE PASO1/2\" TANQ COMBUS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045757",
+        "texto_sap": "MT GE/ATS SUM REFRIG ANTICORROS QT/CUART",
+        "alcance": "MT GE/ATS SUM REFRIG ANTICORROS QT/CUART",
+        "unidad": "GALON",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045643",
+        "texto_sap": "MO GE/ATS CAMBIO BASE VIGILANTE TENSION",
+        "alcance": "MO GE/ATS CAMBIO BASE VIGILANTE TENSION",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045646",
+        "texto_sap": "MO GE/ATS CAMBIO RELOJ PROGRAMADOR",
+        "alcance": "MO GE/ATS CAMBIO RELOJ PROGRAMADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045642",
+        "texto_sap": "MO GE/ATS CAMBIO VIGILANTE TENSION MONOF",
+        "alcance": "MO GE/ATS CAMBIO VIGILANTE TENSION MONOF",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045641",
+        "texto_sap": "MO GE/ATS CAMBIO VIGILANTE TENSION TRIF",
+        "alcance": "MO GE/ATS CAMBIO VIGILANTE TENSION TRIF",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045747",
+        "texto_sap": "MT GE/ATS SUM LLAVE PASO3/4\" TANQ COMBUS",
+        "alcance": "MT GE/ATS SUM LLAVE PASO3/4\" TANQ COMBUS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045649",
+        "texto_sap": "MO GE/ATS CAMBIO RELE CONTACTO AUXILIAR",
+        "alcance": "MO GE/ATS CAMBIO RELE CONTACTO AUXILIAR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045640",
+        "texto_sap": "MO GE/ATS CAMBIO RELE TEMPORIZADOR",
+        "alcance": "MO GE/ATS CAMBIO RELE TEMPORIZADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045648",
+        "texto_sap": "MO GE/ATS CAMBIO RELE DE ARRANQUE",
+        "alcance": "MO GE/ATS CAMBIO RELE DE ARRANQUE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045698",
+        "texto_sap": "MO GE/ATS REPARACION CABLEAD CONTR PLANT",
+        "alcance": "MO GE/ATS REPARACION CABLEAD CONTR PLANT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099363",
+        "texto_sap": "SUM/INST EMPAQUE BOMBA DE AGUA REF.3682A011 PLANTA ELECTRICA",
+        "alcance": "SUM/INST EMPAQUE BOMBA DE AGUA REF.3682A011 PLANTA ELECTRICA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045716",
+        "texto_sap": "MT GE/ATS SUM PORTA FUSIBLES GP ELECTROG",
+        "alcance": "MT GE/ATS SUM PORTA FUSIBLES GP ELECTROG",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045746",
+        "texto_sap": "MT GE/ATS SUM ACEITE MOTOR SAE 15W-40GAL",
+        "alcance": "MT GE/ATS SUM ACEITE MOTOR SAE 15W-40GAL",
+        "unidad": "GALON",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045634",
+        "texto_sap": "MO GE/ATS CAMBIO BOMBA DE TRANSFERENCIA",
+        "alcance": "MO GE/ATS CAMBIO BOMBA DE TRANSFERENCIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045639",
+        "texto_sap": "MO GE/ATS CAMBIO PRECALENTADOR",
+        "alcance": "MO GE/ATS CAMBIO PRECALENTADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045635",
+        "texto_sap": "MO GE/ATS CAMBIO TERMOSTATO",
+        "alcance": "MO GE/ATS CAMBIO TERMOSTATO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045636",
+        "texto_sap": "MO GE/ATS CAMBIO BATERIAS",
+        "alcance": "MO GE/ATS CAMBIO BATERIAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045748",
+        "texto_sap": "MT GE/ATS SUM RELEVO AUT 12VDC70/80AMP4P",
+        "alcance": "MT GE/ATS SUM RELEVO AUT 12VDC70/80AMP4P",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045750",
+        "texto_sap": "MT GE/ATS SUM SILICONA ALTA TEMPERATURA",
+        "alcance": "MT GE/ATS SUM SILICONA ALTA TEMPERATURA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045637",
+        "texto_sap": "MO GE/ATS CAMBIO CARGADOR BATERIA",
+        "alcance": "MO GE/ATS CAMBIO CARGADOR BATERIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045706",
+        "texto_sap": "MO GE/ATS CAMBIO TAPA RADIADOR",
+        "alcance": "MO GE/ATS CAMBIO TAPA RADIADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045719",
+        "texto_sap": "MT GE/ATS SUM SELECTORES POSICION STA",
+        "alcance": "MT GE/ATS SUM SELECTORES POSICION STA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045650",
+        "texto_sap": "MO GE/ATS CAMBIO SENSOR",
+        "alcance": "MO GE/ATS CAMBIO SENSOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045720",
+        "texto_sap": "MT GE/ATS SUM BASE RELES SIST TRANSF AUT",
+        "alcance": "MT GE/ATS SUM BASE RELES SIST TRANSF AUT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045704",
+        "texto_sap": "MO GE/ATS CAMBIO CORREA PLANA MAX50KVA",
+        "alcance": "MO GE/ATS CAMBIO CORREA PLANA MAX50KVA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045734",
+        "texto_sap": "MT GE/ATS SUM BUJE ALTERNAD GE50KVA/40KW",
+        "alcance": "MT GE/ATS SUM BUJE ALTERNAD GE50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045652",
+        "texto_sap": "MO GE/ATS CAMB TB ALIM BOM INY50KVA/40KW",
+        "alcance": "MO GE/ATS CAMB TB ALIM BOM INY50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045662",
+        "texto_sap": "MO GE/ATS CAMBIO ENCLAVAMIENTO MECANICO",
+        "alcance": "MO GE/ATS CAMBIO ENCLAVAMIENTO MECANICO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045728",
+        "texto_sap": "MT GE/ATS SUM EMPAQUE CULAT GE50KVA/40KW",
+        "alcance": "MT GE/ATS SUM EMPAQUE CULAT GE50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045651",
+        "texto_sap": "MO GE/ATS CAMBIO TUB ALIMEN BOMBA INYECC",
+        "alcance": "MO GE/ATS CAMBIO TUB ALIMEN BOMBA INYECC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045725",
+        "texto_sap": "MT GE/ATS SUM RETENED TRAS GE 50KVA/40KW",
+        "alcance": "MT GE/ATS SUM RETENED TRAS GE 50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099337",
+        "texto_sap": "SUM/INST MARCO PARA ENFOCADOR DE PLANTA ELECTRICA",
+        "alcance": "SUM/INST MARCO PARA ENFOCADOR DE PLANTA ELECTRICA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045692",
+        "texto_sap": "MO GE/ATS VERIF/CAMB CONEXION SALIDA GAS",
+        "alcance": "MO GE/ATS VERIF/CAMB CONEXION SALIDA GAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099174",
+        "texto_sap": "SUMI/INST EMPAQUETADURA GRUPO ELECTROGENOS 30-50KVA",
+        "alcance": "SUMI/INST EMPAQUETADURA GRUPO ELECTROGENOS 30-50KVA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045669",
+        "texto_sap": "MO GE/ATS CAMB ELEMENTO MEDIDA TIP PANEL",
+        "alcance": "MO GE/ATS CAMB ELEMENTO MEDIDA TIP PANEL",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045656",
+        "texto_sap": "MO GE/ATS CAMBIO MOTOR DE ARRANQUE",
+        "alcance": "MO GE/ATS CAMBIO MOTOR DE ARRANQUE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045741",
+        "texto_sap": "MT GE/ATS SUM VOLTIMETRO GRUP ELECTROGEN",
+        "alcance": "MT GE/ATS SUM VOLTIMETRO GRUP ELECTROGEN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045739",
+        "texto_sap": "MT GE/ATS SUM AMPERIMET ANALOG CONMUT 4P",
+        "alcance": "MT GE/ATS SUM AMPERIMET ANALOG CONMUT 4P",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045655",
+        "texto_sap": "MO GE/ATS CAMBIO ALTERNADOR",
+        "alcance": "MO GE/ATS CAMBIO ALTERNADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045756",
+        "texto_sap": "MT GE/ATS SUM MANGUERA PRECALENTADOR 5/8",
+        "alcance": "MT GE/ATS SUM MANGUERA PRECALENTADOR 5/8",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045730",
+        "texto_sap": "MT GE/ATS SUM ESPARRA/TORNI GE50KVA/40KW",
+        "alcance": "MT GE/ATS SUM ESPARRA/TORNI GE50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045633",
+        "texto_sap": "MO GE/ATS ATENCION EMERG/CORREC MENOR PE",
+        "alcance": "MO GE/ATS ATENCION EMERG/CORREC MENOR PE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045665",
+        "texto_sap": "MO GE/ATS CAMB TRANSF SENC MAX50KVA/40KW",
+        "alcance": "MO GE/ATS CAMB TRANSF SENC MAX50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045705",
+        "texto_sap": "MO GE/ATS CAMB MANGUERA SUM RETOR COMBUS",
+        "alcance": "MO GE/ATS CAMB MANGUERA SUM RETOR COMBUS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045714",
+        "texto_sap": "MT GE/ATS SUM SENSOR TEMPERAT GP ELECTRO",
+        "alcance": "MT GE/ATS SUM SENSOR TEMPERAT GP ELECTRO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045744",
+        "texto_sap": "MT GE/ATS SUM FLOTADOR RACOR ACCES PLANT",
+        "alcance": "MT GE/ATS SUM FLOTADOR RACOR ACCES PLANT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045678",
+        "texto_sap": "MO GE/ATS CAMB TARJETA CONTROL EN SITIO",
+        "alcance": "MO GE/ATS CAMB TARJETA CONTROL EN SITIO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045681",
+        "texto_sap": "MO GE/ATS CAMB/CONF TARJETA CONTR ANALOG",
+        "alcance": "MO GE/ATS CAMB/CONF TARJETA CONTR ANALOG",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045680",
+        "texto_sap": "MO GE/ATS CAMBIO/CONFIG TARJETA CONTROL",
+        "alcance": "MO GE/ATS CAMBIO/CONFIG TARJETA CONTROL",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045709",
+        "texto_sap": "MT GE/ATS SUM RACORES GRUPO ELECTROGENO",
+        "alcance": "MT GE/ATS SUM RACORES GRUPO ELECTROGENO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045653",
+        "texto_sap": "MO GE/ATS CAMBIO INYECTORES",
+        "alcance": "MO GE/ATS CAMBIO INYECTORES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045712",
+        "texto_sap": "MT GE/ATS SUM SENSOR NIV REFRI GP ELECTR",
+        "alcance": "MT GE/ATS SUM SENSOR NIV REFRI GP ELECTR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045689",
+        "texto_sap": "MO GE/ATS CAMBIO CHAPAS CABINA",
+        "alcance": "MO GE/ATS CAMBIO CHAPAS CABINA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045710",
+        "texto_sap": "MT GE/ATS SUM HOROMETRO GRUP ELECTROGENO",
+        "alcance": "MT GE/ATS SUM HOROMETRO GRUP ELECTROGENO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045679",
+        "texto_sap": "MO GE/ATS CAMB/CONF TAR AVR/MOD EIM-PLUS",
+        "alcance": "MO GE/ATS CAMB/CONF TAR AVR/MOD EIM-PLUS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045707",
+        "texto_sap": "MO GE/ATS CAMBIO CORREA DENTADA MAX50KVA",
+        "alcance": "MO GE/ATS CAMBIO CORREA DENTADA MAX50KVA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045677",
+        "texto_sap": "MO GE/ATS CAMBIO SOLENOIDE",
+        "alcance": "MO GE/ATS CAMBIO SOLENOIDE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045723",
+        "texto_sap": "MO MT GE/ATS SUM/CAMB PROTECC SOBRETENS",
+        "alcance": "MO MT GE/ATS SUM/CAMB PROTECC SOBRETENS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099199",
+        "texto_sap": "MO GE/ATS ATENCION EMERG/CORREC MENOR PE MEDIA",
+        "alcance": "MO GE/ATS ATENCION EMERG/CORREC MENOR PE MEDIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045736",
+        "texto_sap": "MT GE/ATS SUM MAGNET PICKUP GE50KVA/40KW",
+        "alcance": "MT GE/ATS SUM MAGNET PICKUP GE50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045676",
+        "texto_sap": "MO GE/ATS CAMB SELLO INYECT/TUBO PRESION",
+        "alcance": "MO GE/ATS CAMB SELLO INYECT/TUBO PRESION",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045663",
+        "texto_sap": "MO GE/ATS CAMBIO BARRAJE",
+        "alcance": "MO GE/ATS CAMBIO BARRAJE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045683",
+        "texto_sap": "MO GE/ATS REPARAC/LIMP SISTEMA DE ESCAPE",
+        "alcance": "MO GE/ATS REPARAC/LIMP SISTEMA DE ESCAPE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099189",
+        "texto_sap": "MO ASEGURAMIENTO DE ELEMENTOS DE PLANTA ELECTRICA",
+        "alcance": "MO ASEGURAMIENTO DE ELEMENTOS DE PLANTA ELECTRICA",
+        "unidad": "UNIDAD/EQUIPO",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045740",
+        "texto_sap": "MT GE/ATS SUM TACOMETRO GRUPO ELECTROGEN",
+        "alcance": "MT GE/ATS SUM TACOMETRO GRUPO ELECTROGEN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045753",
+        "texto_sap": "MT GE/ATS SUM SOP ANTIVIB COFRE TJ COMAP",
+        "alcance": "MT GE/ATS SUM SOP ANTIVIB COFRE TJ COMAP",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045752",
+        "texto_sap": "MT GE/ATS SUM NIPLE 1/2 GALVANIZADO 10CM",
+        "alcance": "MT GE/ATS SUM NIPLE 1/2 GALVANIZADO 10CM",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045737",
+        "texto_sap": "MT GE/ATS SUM MPU GRUPOS ELECTROGENOS",
+        "alcance": "MT GE/ATS SUM MPU GRUPOS ELECTROGENOS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045684",
+        "texto_sap": "MO GE/ATS BASE CONCRET SOP GR ELECTROGEN",
+        "alcance": "MO GE/ATS BASE CONCRET SOP GR ELECTROGEN",
+        "unidad": "M³",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045654",
+        "texto_sap": "MO GE/ATS AJUSTE VALVULAS",
+        "alcance": "MO GE/ATS AJUSTE VALVULAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045735",
+        "texto_sap": "MT GE/ATS SUM SOLENOIDE BOMBA INYECCI GE",
+        "alcance": "MT GE/ATS SUM SOLENOIDE BOMBA INYECCI GE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045699",
+        "texto_sap": "MO GE/ATS ALQUILER PLANTA MAX50KVA/40KW",
+        "alcance": "MO GE/ATS ALQUILER PLANTA MAX50KVA/40KW",
+        "unidad": "DIA",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045687",
+        "texto_sap": "MO GE/ATS CORRECION FILT AGUA CAB INSONO",
+        "alcance": "MO GE/ATS CORRECION FILT AGUA CAB INSONO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045682",
+        "texto_sap": "MO GE/ATS CORRECCION FUGAS EN RADIADOR",
+        "alcance": "MO GE/ATS CORRECCION FUGAS EN RADIADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045717",
+        "texto_sap": "MT GE/ATS SUM VIGILANT TENSION ST TRANSF",
+        "alcance": "MT GE/ATS SUM VIGILANT TENSION ST TRANSF",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099198",
+        "texto_sap": "MO GE/ATS ATENCION EMERG/CORREC MENOR PE C/ALTA",
+        "alcance": "MO GE/ATS ATENCION EMERG/CORREC MENOR PE C/ALTA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045708",
+        "texto_sap": "MT GE/ATS SUM TAPA RADIADOR GR ELECTROG",
+        "alcance": "MT GE/ATS SUM TAPA RADIADOR GR ELECTROG",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045664",
+        "texto_sap": "MO GE/ATS CAMBIO PLC",
+        "alcance": "MO GE/ATS CAMBIO PLC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045694",
+        "texto_sap": "MO GE/ATS APLICACION PINTU EPOXI ANSI-61",
+        "alcance": "MO GE/ATS APLICACION PINTU EPOXI ANSI-61",
+        "unidad": "M²",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045696",
+        "texto_sap": "MO GE/ATS CAMB SOPORTE ANTIVIBRAT PLANTA",
+        "alcance": "MO GE/ATS CAMB SOPORTE ANTIVIBRAT PLANTA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045703",
+        "texto_sap": "MO GE/ATS MONTAJE TUB ESCAPE PLANT ELECT",
+        "alcance": "MO GE/ATS MONTAJE TUB ESCAPE PLANT ELECT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045713",
+        "texto_sap": "MT GE/ATS SUM PERA PRESION ACEIT GP ELEC",
+        "alcance": "MT GE/ATS SUM PERA PRESION ACEIT GP ELEC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045711",
+        "texto_sap": "MT GE/ATS SUM PRECALENTADR 1000-1500W GE",
+        "alcance": "MT GE/ATS SUM PRECALENTADR 1000-1500W GE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045672",
+        "texto_sap": "MO GE/ATS CAMBIO EMPAQUETADURA SUPERIOR",
+        "alcance": "MO GE/ATS CAMBIO EMPAQUETADURA SUPERIOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045718",
+        "texto_sap": "MT GE/ATS SUM RELAY TEMPORIZA MODELO ATS",
+        "alcance": "MT GE/ATS SUM RELAY TEMPORIZA MODELO ATS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045675",
+        "texto_sap": "MO GE/ATS CAMBIO MANGUERA RADIADOR",
+        "alcance": "MO GE/ATS CAMBIO MANGUERA RADIADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045691",
+        "texto_sap": "MO GE/ATS AJUSTE/CALIB TIEMPOS DEL MOTOR",
+        "alcance": "MO GE/ATS AJUSTE/CALIB TIEMPOS DEL MOTOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045670",
+        "texto_sap": "MO GE/ATS CAMBIO EMPAQUETADURA FRONTAL",
+        "alcance": "MO GE/ATS CAMBIO EMPAQUETADURA FRONTAL",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045657",
+        "texto_sap": "MO GE/ATS CAMBIO RETENEDOR DELANTERO",
+        "alcance": "MO GE/ATS CAMBIO RETENEDOR DELANTERO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045690",
+        "texto_sap": "MO GE/ATS PROGRAM MOD CONTR ELECT PLANTA",
+        "alcance": "MO GE/ATS PROGRAM MOD CONTR ELECT PLANTA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045668",
+        "texto_sap": "MO GE/ATS DESMONTAJ/ADEC/EMBALAJE PLANTA",
+        "alcance": "MO GE/ATS DESMONTAJ/ADEC/EMBALAJE PLANTA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045632",
+        "texto_sap": "MO GE/ATS MANTENIMIENTO PREVENTIVO PE",
+        "alcance": "MO GE/ATS MANTENIMIENTO PREVENTIVO PE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045732",
+        "texto_sap": "MT GE/ATS SUM BOMBA LEVANTE MEC/ELECT GE",
+        "alcance": "MT GE/ATS SUM BOMBA LEVANTE MEC/ELECT GE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045674",
+        "texto_sap": "MO GE/ATS CAMB ESCOBILL/BUJE MOTOR ARRAN",
+        "alcance": "MO GE/ATS CAMB ESCOBILL/BUJE MOTOR ARRAN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099349",
+        "texto_sap": "SUM/MO BASE FILTRO PARA PLANTA ELECTRICA",
+        "alcance": "SUM/MO BASE FILTRO PARA PLANTA ELECTRICA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045751",
+        "texto_sap": "MT GE/ATS SUM NIPLE 3/8 GALVANIZADO 15CM",
+        "alcance": "MT GE/ATS SUM NIPLE 3/8 GALVANIZADO 15CM",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045727",
+        "texto_sap": "MT GE/ATS SUM KIT EMPAQ INF GE50KVA/40KW",
+        "alcance": "MT GE/ATS SUM KIT EMPAQ INF GE50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045673",
+        "texto_sap": "MO GE/ATS CAMB ESCOBILLA/BUJE ALTERNADOR",
+        "alcance": "MO GE/ATS CAMB ESCOBILLA/BUJE ALTERNADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045666",
+        "texto_sap": "MO GE/ATS CAMB TRANSF DUAL MAX50KVA/40KW",
+        "alcance": "MO GE/ATS CAMB TRANSF DUAL MAX50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045667",
+        "texto_sap": "MO GE/ATS MONTAJ/ADEC PLAN MAX50KVA/40KW",
+        "alcance": "MO GE/ATS MONTAJ/ADEC PLAN MAX50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045659",
+        "texto_sap": "MO GE/ATS CAMB MOTOR PLANT MAX50KVA/40KW",
+        "alcance": "MO GE/ATS CAMB MOTOR PLANT MAX50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045685",
+        "texto_sap": "MO GE/ATS CAMBIO BOMBA INYECC 50KVA/40KW",
+        "alcance": "MO GE/ATS CAMBIO BOMBA INYECC 50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045729",
+        "texto_sap": "MT GE/ATS SUM BOMBA TRANSF GE 50KVA/40KW",
+        "alcance": "MT GE/ATS SUM BOMBA TRANSF GE 50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045722",
+        "texto_sap": "MO MT GE/ATS SUM/INST ARNES CABLEA MOTOG",
+        "alcance": "MO MT GE/ATS SUM/INST ARNES CABLEA MOTOG",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045754",
+        "texto_sap": "MT GE/ATS SUM MANGUERA COMBUSTIBLE 5/16",
+        "alcance": "MT GE/ATS SUM MANGUERA COMBUSTIBLE 5/16",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045693",
+        "texto_sap": "MO GE/ATS APERTURA VALV DRENA SEDIM/AGUA",
+        "alcance": "MO GE/ATS APERTURA VALV DRENA SEDIM/AGUA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045638",
+        "texto_sap": "MO GE/ATS CALIBRA BOMBA INYEC PLANT ELEC",
+        "alcance": "MO GE/ATS CALIBRA BOMBA INYEC PLANT ELEC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045701",
+        "texto_sap": "MO GE/ATS RECTIF CULATA MOTOR KW/KVA<=25",
+        "alcance": "MO GE/ATS RECTIF CULATA MOTOR KW/KVA<=25",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045697",
+        "texto_sap": "MO GE/ATS REPARACION PRECALENTADOR",
+        "alcance": "MO GE/ATS REPARACION PRECALENTADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045700",
+        "texto_sap": "MO GE/ATS RECTIFIC CULATA KW/KVA>25MAX50",
+        "alcance": "MO GE/ATS RECTIFIC CULATA KW/KVA>25MAX50",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045743",
+        "texto_sap": "MT GE/ATS SUM ENCLAVAMIEN SIST TRANS AUT",
+        "alcance": "MT GE/ATS SUM ENCLAVAMIEN SIST TRANS AUT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045733",
+        "texto_sap": "MT GE/ATS SUM SOPORTE ALTERNADOR GE",
+        "alcance": "MT GE/ATS SUM SOPORTE ALTERNADOR GE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045724",
+        "texto_sap": "MT GE/ATS SUM BOMBA AGUA GE 50KVA/40KW",
+        "alcance": "MT GE/ATS SUM BOMBA AGUA GE 50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045688",
+        "texto_sap": "MO GE/ATS AJUSTE PARTE MOVIL CAB INSONO",
+        "alcance": "MO GE/ATS AJUSTE PARTE MOVIL CAB INSONO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099440",
+        "texto_sap": "SUM TARJETA DE CONTROL DEEP SEA 7420 PARA CONTROL DE PLANTA ELECTRICA",
+        "alcance": "SUM TARJETA DE CONTROL DEEP SEA 7420 PARA CONTROL DE PLANTA ELECTRICA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099462",
+        "texto_sap": "VIGILANTE DE TENSION DC PARA CICLADO DE PLANTA ELECTRICA",
+        "alcance": "VIGILANTE DE TENSION DC PARA CICLADO DE PLANTA ELECTRICA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045661",
+        "texto_sap": "MO GE/ATS CALIB INYEC PLAN MAX50KVA/40KW",
+        "alcance": "MO GE/ATS CALIB INYEC PLAN MAX50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045660",
+        "texto_sap": "MO GE/ATS CAMBIO GENERADOR",
+        "alcance": "MO GE/ATS CAMBIO GENERADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045658",
+        "texto_sap": "MO GE/ATS CAMBIO MOTOR",
+        "alcance": "MO GE/ATS CAMBIO MOTOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045671",
+        "texto_sap": "MO GE/ATS CAMBIO EMPAQUETADURA INFERIOR",
+        "alcance": "MO GE/ATS CAMBIO EMPAQUETADURA INFERIOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045726",
+        "texto_sap": "MT GE/ATS SUM KIT EMPAQ SUP GE50KVA/40KW",
+        "alcance": "MT GE/ATS SUM KIT EMPAQ SUP GE50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045742",
+        "texto_sap": "MT GE/ATS SUM PLC SIST TRANSFE AUTOMATIC",
+        "alcance": "MT GE/ATS SUM PLC SIST TRANSFE AUTOMATIC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045731",
+        "texto_sap": "MT GE/ATS SUM MOTOR ARRANQ GE 50KVA/40KW",
+        "alcance": "MT GE/ATS SUM MOTOR ARRANQ GE 50KVA/40KW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045702",
+        "texto_sap": "MO GE/ATS INSTAL MANGUERA PLAS TRANS3/4\"",
+        "alcance": "MO GE/ATS INSTAL MANGUERA PLAS TRANS3/4\"",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045695",
+        "texto_sap": "MO GE/ATS REPARACION/CALIB BOMBA INYECCI",
+        "alcance": "MO GE/ATS REPARACION/CALIB BOMBA INYECCI",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045738",
+        "texto_sap": "MT GE/ATS SUM AVR GRUPOS ELECTROGENOS",
+        "alcance": "MT GE/ATS SUM AVR GRUPOS ELECTROGENOS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045745",
+        "texto_sap": "MO GE/ATS INSTAL FLOTADOR RACOR ACC PLAN",
+        "alcance": "MO GE/ATS INSTAL FLOTADOR RACOR ACC PLAN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099351",
+        "texto_sap": "SUM ALTERNADOR PARA PLANTA ELECTRICA HASTA 50KVA",
+        "alcance": "SUM ALTERNADOR PARA PLANTA ELECTRICA HASTA 50KVA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      }
+    ]
+  },
+  "TIPOLOGIA_3": {
+    "id": "TIPOLOGIA_3",
+    "numero": 3,
+    "nombre_corto": "AA",
+    "nombre_completo": "AA - AIRES ACONDICIONADOS",
+    "subsistema_key": "AA - AIRES ACONDICIONADOS",
+    "items": [
+      {
+        "codigo_sap": "3045806",
+        "texto_sap": "MT OTR SUMINISTRO REFRIGERANTE R410A",
+        "alcance": "REFRIGERANTE R410A",
+        "unidad": "LB",
+        "cantidad_sugerida": 15,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045398",
+        "texto_sap": "MO AA AJUSTE RECARGA REFRIGERANTE MAX5TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR AJUSTE O RECARGA DE REFRIGERANTE DE AIRE ACONDICIONADO CON CAPACIDAD HASTA 5 TR (R22 - R407C - R410A)",
+        "unidad": "UNIDAD/EQUIPO",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045471",
+        "texto_sap": "MO AA CAMB/CONVERS REFRIGE EQ AA MAX10TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR LAS MODIFICACIONES, CONFIGURACION Y AJUSTES NECESARIOS PARA CONVERSIÓN A REFRIGERANTE ECOLÓGICO EN LOS EQUIPOS DE ACONDICIONAMIENTO DE AIRE CON CAPACIDADES HASTA 10 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045516",
+        "texto_sap": "MT AA SUMINISTRO COMPRESOR 3,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 3,5 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045517",
+        "texto_sap": "MT AA SUMINISTRO COMPRESOR 5,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 5,0 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045518",
+        "texto_sap": "MT AA SUM COMPRESOR HERM MINI SPLIT MONO",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESORES TIPO \"HERMETICO\" PARA MINI SPLIT /\nMONOFASICOS A 220 VAC -60HZ - R407C.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045519",
+        "texto_sap": "MT AA SUM COMPRESOR HERM MINI SPLIT1,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESORES TIPO \"HERMETICO\" PARA MINI SPLIT /\nMONOFASICOS A 220 VAC -60HZ - R407C. CAPACIDAD DE 1,5 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045520",
+        "texto_sap": "MT AA SUM COMPRESOR HERM MINI SPLIT2,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESORES TIPO \"HERMETICO\" PARA MINI SPLIT /\nMONOFASICOS A 220 VAC -60HZ - R407C. CON CAPACIDAD DE 2,0 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045521",
+        "texto_sap": "MT AA SUM COMPRESOR HERM MINI SPLIT2,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESORES TIPO \"HERMETICO\" PARA MINI SPLIT /\nMONOFASICOS A 220 VAC -60HZ - R407C. CAPACIDAD DE 2,5 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045522",
+        "texto_sap": "MT AA SUM COMPRESOR HERM MINI SPLIT3,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESORES TIPO \"HERMETICO\" PARA MINI SPLIT /\nMONOFASICOS A 220 VAC -60HZ - R407C. CAPACIDAD DE 3,0 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045523",
+        "texto_sap": "MT AA SUM COMPRESOR HERM MINI SPLIT3,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESORES TIPO \"HERMETICO\" PARA MINI SPLIT /\nMONOFASICOS A 220 VAC -60HZ - R407C. CAPACIDAD DE 3,5 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045524",
+        "texto_sap": "MT AA SUM COMPRESOR 2,0TR COPELAND HERM",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 2,0 TR. COMPRESORES \"COPELAND\" TIPO \"HERMETICO\" / MONOFASICOS A 220 VAC -60HZ - R407C / SERIE \"CR\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045525",
+        "texto_sap": "MT AA SUM COMPRESOR 2,5TR COPELAND HERM",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 2,5 TR. COMPRESORES \"COPELAND\" TIPO \"HERMETICO\" / MONOFASICOS A 220 VAC -60HZ - R407C / SERIE \"CR\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045526",
+        "texto_sap": "MT AA SUM COMPRESOR 3,0TR COPELAND HERM",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 3,0 TR. COMPRESORES \"COPELAND\" TIPO \"HERMETICO\" / MONOFASICOS A 220 VAC -60HZ - R407C / SERIE \"CR\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045527",
+        "texto_sap": "MT AA SUM COMPRESOR 3,5TR COPELAND HERM",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 3,5 TR. COMPRESORES \"COPELAND\" TIPO \"HERMETICO\" / MONOFASICOS A 220 VAC -60HZ - R407C / SERIE \"CR\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045528",
+        "texto_sap": "MT AA SUM COMPRESOR 5,0TR COPELAND HERM",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR COMPRESOR CON CAPACIDAD DE 5,0 TR. COMPRESORES \"COPELAND\" TIPO \"HERMETICO\" / MONOFASICOS A 220 VAC -60HZ - R407C / SERIE \"CR\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045402",
+        "texto_sap": "MO AA CAMBIO COMPRESORES MAX 5TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR CAMBIO DE COMPRESORES DE CAPACIDAD HASTA 5 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045508",
+        "texto_sap": "MT AA SUMINISTRO FILTRO SECADOR 1/4\"",
+        "alcance": "EL PROVEEDOR DEBE SUMINISTRAR FILTRO SECADOR DE 1/4 PULGADAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045510",
+        "texto_sap": "MT AA SUMINISTRO FILTRO SECADOR 1/2\"",
+        "alcance": "EL PROVEEDOR DEBE SUMINISTRAR FILTRO SECADOR DE 1/2 PULGADAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045512",
+        "texto_sap": "MT AA SUMINISTRO FILTRO SECADOR 3/4\"",
+        "alcance": "EL PROVEEDOR DEBE SUMINISTRAR FILTRO SECADOR DE 3/4 PULGADAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045509",
+        "texto_sap": "MT AA SUMINISTRO FILTRO SECADOR 3/8\"",
+        "alcance": "EL PROVEEDOR DEBE SUMINISTRAR FILTRO SECADOR DE 3/8 PULGADAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045511",
+        "texto_sap": "MT AA SUMINISTRO FILTRO SECADOR 5/8\"",
+        "alcance": "EL PROVEEDOR DEBE SUMINISTRAR FILTRO SECADOR DE 5/8 PULGADAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045332",
+        "texto_sap": "EL PROVEEDOR DEBE REALIZAR CAMBIO DE FILTRO SECADOR",
+        "alcance": "EL PROVEEDOR DEBE CAMBIAR FILTRO SECADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045805",
+        "texto_sap": "MT OTR SUMINISTRO NITROGENO",
+        "alcance": "NITROGENO",
+        "unidad": "M³",
+        "cantidad_sugerida": 3,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045459",
+        "texto_sap": "MO AA BARRIDO CON NITROGENO X CIRCUITO",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR BARRIDO CON NITRÓGENO POR CIRCUITO.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045549",
+        "texto_sap": "MT AA SUMINISTRO TUBERIA DE COBRE 1/4\"",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR TUBERIA DE COBRE DE 1/4 PULGADAS: INCLUYE SUMINISTRO DE SOPORTES ESTRUCTURALES TIPO \"RIEL\" DONDE SEA NECESARIO.",
+        "unidad": "ML",
+        "cantidad_sugerida": 5,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045551",
+        "texto_sap": "MT AA SUMINISTRO TUBERIA DE COBRE 1/2\"",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR TUBERIA DE COBRE DE 1/2 PULGADAS: INCLUYE SUMINISTRO DE\nSOPORTES ESTRUCTURALES TIPO \"RIEL\" DONDE SEA NECESARIO.",
+        "unidad": "ML",
+        "cantidad_sugerida": 5,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045553",
+        "texto_sap": "MT AA SUMINISTRO TUBERIA DE COBRE 3/4\"",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR TUBERIA DE COBRE DE 3/4 PULGADAS: INCLUYE SUMINISTRO DE\nSOPORTES ESTRUCTURALES TIPO \"RIEL\" DONDE SEA NECESARIO.",
+        "unidad": "ML",
+        "cantidad_sugerida": 5,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045550",
+        "texto_sap": "MT AA SUMINISTRO TUBERIA DE COBRE 3/8\"",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR TUBERIA DE COBRE DE 3/8 PULGADAS: INCLUYE SUMINISTRO DE\nSOPORTES ESTRUCTURALES TIPO \"RIEL\" DONDE SEA NECESARIO.",
+        "unidad": "ML",
+        "cantidad_sugerida": 5,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045552",
+        "texto_sap": "MT AA SUMINISTRO TUBERIA DE COBRE 5/8\"",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR TUBERIA DE COBRE DE 5/8 PULGADAS: INCLUYE SUMINISTRO DE\nSOPORTES ESTRUCTURALES TIPO \"RIEL\" DONDE SEA NECESARIO.",
+        "unidad": "ML",
+        "cantidad_sugerida": 5,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045425",
+        "texto_sap": "MO AA INSTAL MONTAJE TUB CU 1/4\" MAX5M",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR INSTALACION - MONTAJE DE TUBERIA DE COBRE DE 1/4 PULGADAS HASTA 5M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 5,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045427",
+        "texto_sap": "MO AA INSTAL MONTAJE TUB CU 1/2\" MAX5M",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR INSTALACION - MONTAJE DETUBERIA DE COBRE DE 1/2 PULGADAS HASTA 5M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 5,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045426",
+        "texto_sap": "MO AA INSTAL MONTAJE TUB CU 3/8\" MAX5M",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR INSTALACION - MONTAJE DETUBERIA DE COBRE DE 3/8 PULGADAS HASTA 5M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 5,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045430",
+        "texto_sap": "MO AA INSTAL MONTAJE TUB CU 3/4\" MAX5M",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR INSTALACION - MONTAJE DETUBERIA DE COBRE DE 3/4 PULGADAS HASTA 5M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 5,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045428",
+        "texto_sap": "MO AA INSTAL MONTAJE TUB CU 5/8\" MAX5M",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR INSTALACION - MONTAJE DETUBERIA DE COBRE DE 5/8 PULGADAS HASTA 5M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 5,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045615",
+        "texto_sap": "MT AA SUMINIST DRENAJES TUBERIA PVC 1/2\"",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR, SUMINISTRO DE DRENAJES EN TUBERIA PVC DE 1/2\" PARA EQUIPOS DE AIRE ACONDICIONADO. INCLUYE ACCESORIOS.",
+        "unidad": "ML",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045611",
+        "texto_sap": "MT AA SUM MOTOR EL MO220V-AC1 1/4HP COND",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR MOTOR ELECTRICO MONOFASICO A 220 V-AC DE 1 1/4 HP PARA CONDENSADORA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045415",
+        "texto_sap": "MO AA CAMBIO BLOWER Y/O MOTOR(ES) MAX5TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR CAMBIO CONJUNTO DE BLOWERS Y/O MOTOR(ES) DE LA UNIDAD EVAPORADORA O CONDENSADORA. CAPACIDADES HASTA 5 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045543",
+        "texto_sap": "MT AA SUM CAPACITOR ARRAN COMPRES MAX5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR CAPACITOR DE ARRANQUE DE COMPRESOR (CAPACIDAD HASTA 5 TR)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045395",
+        "texto_sap": "MO AA CAMBIO CAPACITORES ARRANQ COMPRESR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR CAMBIO DE CAPACITORES DE ARRANQUE DEL COMPRESOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045548",
+        "texto_sap": "MT AA SUMIN AISLAMIENTO TERMICO RUBATEX",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR AISLAMIENTO TERMICO - \"RUBATEX\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 15,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045803",
+        "texto_sap": "MT OTR SUM RUBATEX CINTA R1/8X2\"ESPX915M",
+        "alcance": "RUBATEX CINTA ROLLO 1/8\" X 2\"ESP. X 9.15M",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 15,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046398",
+        "texto_sap": "MT SE SUM CABLE ENCAUCHETADO 3X10",
+        "alcance": "CABLE ENCAUCHETADO 3X10",
+        "unidad": "ML",
+        "cantidad_sugerida": 15,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046401",
+        "texto_sap": "MT SE SUM CABLE ENCAUCHETADO 3X8",
+        "alcance": "CABLE ENCAUCHETADO 3X8",
+        "unidad": "ML",
+        "cantidad_sugerida": 15,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045420",
+        "texto_sap": "MO AA DESMONTE SERPENTIN UNIDAD MAX5TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR DESMONTE DE SERPENTIN DE UNIDAD EVAPORADORA, EN EQUIPOS DEL TIPO \"MINI-SPLIT\" CON CAPACIDAD HASTA 5 TR, LAVADO Y LIMPIEZA DEL MISMO, MONTAJE E INSTALACION NUEVAMENTE Y PUESTA EN OPERACIÓN DEL AA.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045404",
+        "texto_sap": "MO AA CAMBIO SERPENTIN AA MAX 2TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR CAMBIO DE SERPENTIN DE AA CON CAPACIDAD DE HASTA 2 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045405",
+        "texto_sap": "MO AA CAMBIO SERPENTIN AA 2 - 10TR",
+        "alcance": "EL PROVEEDOR DEBE REALIZAR CAMBIO DE SERPENTIN DE AA CON CAPACIDAD MAYOR A 2 Y HASTA 10 TR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045529",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 1,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 1,0 TR DE CAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045530",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 1,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 1,5 TR DE CAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045533",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 3,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 3,0 TR DE CAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045534",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 3,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 3,5 TR DE\nCAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045531",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 2,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 2,0 TR DE CAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045535",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 5,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 5,0 TR DE\nCAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045532",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 2,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 2,5 TR DE CAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045536",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 7,5TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 7,5 TR DE\nCAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045537",
+        "texto_sap": "MT AA SUMINISTRO SERPENTIN AA 10,0TR",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR SERPENTIN PARA AIRE ACONDICIONADO DE 10,0 TR DE\nCAPACIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 2,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3042100",
+        "texto_sap": "SRV TRANSPORTE VEHÍCULO 4X4 (LPU)",
+        "alcance": "DE ACUERDO A LAS DISTANCIA DESDE LA CIUDAD BASE AL SITIO DE LA OT",
+        "unidad": "VIAJE",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3042226",
+        "texto_sap": "SRV TRANSPORTE FLUVIAL (LANCHA/PANGA/CANOA)",
+        "alcance": "DE ACUERDO A LA NECESIDAD DE AL ACCESO O TRASLADO A SITIO",
+        "unidad": "VIAJE",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3041820",
+        "texto_sap": "SRV TRANSPORTE ESPECIAL (COTEROS O SEMOVIENTE)",
+        "alcance": "DE ACUERDO A LA NECESIDAD DE AL ACCESO O TRASLADO A SITIO",
+        "unidad": "DIA",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      }
+    ]
+  },
+  "TIPOLOGIA_4": {
+    "id": "TIPOLOGIA_4",
+    "numero": 4,
+    "nombre_corto": "PW",
+    "nombre_completo": "PW - POWER",
+    "subsistema_key": "PW - POWER",
+    "items": [
+      {
+        "codigo_sap": "3045854",
+        "texto_sap": "MO PW/BT CAMBIO GMT APLICA TODO POWER",
+        "alcance": "MO PW/BT CAMBIO GMT APLICA TODO POWER",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3034600",
+        "texto_sap": "8.2.5.DESMONTE REINSTALACION BATERIAS",
+        "alcance": "8.2.5.DESMONTE REINSTALACION BATERIAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045853",
+        "texto_sap": "MO PW/BT CAMBIO FILTRO APLICA TODO POWER",
+        "alcance": "MO PW/BT CAMBIO FILTRO APLICA TODO POWER",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045883",
+        "texto_sap": "MO MT PW/BT SUM CAMBIO CHAPAS POWER",
+        "alcance": "MO MT PW/BT SUM CAMBIO CHAPAS POWER",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3034944",
+        "texto_sap": "MO COMP INST-CAMBIO RECTIFICADORES",
+        "alcance": "MO COMP INST-CAMBIO RECTIFICADORES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045647",
+        "texto_sap": "MO GE/ATS CAMBIO BORNES CONEXION BATERIA",
+        "alcance": "MO GE/ATS CAMBIO BORNES CONEXION BATERIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045868",
+        "texto_sap": "MO PW/BT REEMPLAZO CONECTOR TERMINAL BAT",
+        "alcance": "MO PW/BT REEMPLAZO CONECTOR TERMINAL BAT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045858",
+        "texto_sap": "MO PW/BT CAMBIO MODULO RECTIFIC TODO PW",
+        "alcance": "MO PW/BT CAMBIO MODULO RECTIFIC TODO PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045864",
+        "texto_sap": "MO PW/BT PRUEBA ALARMA GENERACION OT/LOG",
+        "alcance": "MO PW/BT PRUEBA ALARMA GENERACION OT/LOG",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045867",
+        "texto_sap": "MO PW/BT PRUEBA INSTAL ALARMA INT/EXTERN",
+        "alcance": "MO PW/BT PRUEBA INSTAL ALARMA INT/EXTERN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045847",
+        "texto_sap": "MO PW/BT CAMBIO BARRAJE PREFORMADO",
+        "alcance": "MO PW/BT CAMBIO BARRAJE PREFORMADO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045849",
+        "texto_sap": "MO PW/BT CAMBIO CORAZA TERMIN MAL ESTADO",
+        "alcance": "MO PW/BT CAMBIO CORAZA TERMIN MAL ESTADO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045856",
+        "texto_sap": "MO PW/BT CAMBIO KIT ADICIONAL FAN",
+        "alcance": "MO PW/BT CAMBIO KIT ADICIONAL FAN",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045840",
+        "texto_sap": "MO PW/BT INSTAL CONTROLADOR EQ RECTIFICA",
+        "alcance": "MO PW/BT INSTAL CONTROLADOR EQ RECTIFICA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046089",
+        "texto_sap": "MO SE ORGANIZA/LIMPI BANCO BATERIA ELTEK",
+        "alcance": "MO SE ORGANIZA/LIMPI BANCO BATERIA ELTEK",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045857",
+        "texto_sap": "MO PW/BT CAMBIO LVD B O L APLICA TODO PW",
+        "alcance": "MO PW/BT CAMBIO LVD B O L APLICA TODO PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045842",
+        "texto_sap": "MO PW/BT INSTALACION POWER CORE EQ RECTI",
+        "alcance": "MO PW/BT INSTALACION POWER CORE EQ RECTI",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045848",
+        "texto_sap": "MO PW/BT CAMBIO CONTROL FAN RELEE (RPM)",
+        "alcance": "MO PW/BT CAMBIO CONTROL FAN RELEE (RPM)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045852",
+        "texto_sap": "MO PW/BT CAMBIO FAN MODULO RECTIFICADOR",
+        "alcance": "MO PW/BT CAMBIO FAN MODULO RECTIFICADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045841",
+        "texto_sap": "MO PW/BT INSTAL MOD RECTIFICAD EQ RECTIF",
+        "alcance": "MO PW/BT INSTAL MOD RECTIFICAD EQ RECTIF",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045862",
+        "texto_sap": "MO PW/BT INSTALACION SENSOR PUERTA",
+        "alcance": "MO PW/BT INSTALACION SENSOR PUERTA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045636",
+        "texto_sap": "MO GE/ATS CAMBIO BATERIAS",
+        "alcance": "MO GE/ATS CAMBIO BATERIAS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045855",
+        "texto_sap": "MO PW/BT CAMBIO INTERCAMBIADOR CALOR ZTE",
+        "alcance": "MO PW/BT CAMBIO INTERCAMBIADOR CALOR ZTE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045637",
+        "texto_sap": "MO GE/ATS CAMBIO CARGADOR BATERIA",
+        "alcance": "MO GE/ATS CAMBIO CARGADOR BATERIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045844",
+        "texto_sap": "MO PW/BT INSTAL TARJET ALARMA CUALQ VERS",
+        "alcance": "MO PW/BT INSTAL TARJET ALARMA CUALQ VERS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045845",
+        "texto_sap": "MO PW/BT INSTAL TARJET ALARMA EQ RECTIFI",
+        "alcance": "MO PW/BT INSTAL TARJET ALARMA EQ RECTIFI",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046090",
+        "texto_sap": "MO SE IGUALACION BATERIAS (MANUAL BOOST)",
+        "alcance": "MO SE IGUALACION BATERIAS (MANUAL BOOST)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046088",
+        "texto_sap": "MO SE PRUEBAS DE BATERIAS (BATTERY TEST)",
+        "alcance": "MO SE PRUEBAS DE BATERIAS (BATTERY TEST)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045869",
+        "texto_sap": "MO PW/BT REORGANIZ CORAZ/CAB ESCALERILLA",
+        "alcance": "MO PW/BT REORGANIZ CORAZ/CAB ESCALERILLA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045843",
+        "texto_sap": "MO PW/BT INSTAL SHELF (BACKPLANE RECTIF)",
+        "alcance": "MO PW/BT INSTAL SHELF (BACKPLANE RECTIF)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045884",
+        "texto_sap": "MT PW/BT SUM CONTROLADOR EQ RECTIFICADOR",
+        "alcance": "MT PW/BT SUM CONTROLADOR EQ RECTIFICADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099398",
+        "texto_sap": "SUM VENTILADOR PARA LOS MODULOS RECTIFICADORES Y CONVERSORES DC-DC",
+        "alcance": "SUM VENTILADOR PARA LOS MODULOS RECTIFICADORES Y CONVERSORES DC-DC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099295",
+        "texto_sap": "MT OTR CARGADOR DE BATERIA 12 VDC-10 AMP AUTOMATICO",
+        "alcance": "MT OTR CARGADOR DE BATERIA 12 VDC-10 AMP AUTOMATICO",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045879",
+        "texto_sap": "MO PW/BT CONFIG ACTUALIZ SW FW EQ RECTIF",
+        "alcance": "MO PW/BT CONFIG ACTUALIZ SW FW EQ RECTIF",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045859",
+        "texto_sap": "MO PW/BT CAMBIO OVP APLICA TODO POWER",
+        "alcance": "MO PW/BT CAMBIO OVP APLICA TODO POWER",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045873",
+        "texto_sap": "MO PW/BT CAMBIO SIST TEC PELTIER APL ZTE",
+        "alcance": "MO PW/BT CAMBIO SIST TEC PELTIER APL ZTE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045878",
+        "texto_sap": "MO PW/BT CAMBIO TARJETA INTERFAC EQ RECT",
+        "alcance": "MO PW/BT CAMBIO TARJETA INTERFAC EQ RECT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045875",
+        "texto_sap": "MO PW/BT CAMBIO TARJETA INTERFAC TODO PW",
+        "alcance": "MO PW/BT CAMBIO TARJETA INTERFAC TODO PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045846",
+        "texto_sap": "MO PW/BT INSTAL VENTILADOR EQ RECTIFICAD",
+        "alcance": "MO PW/BT INSTAL VENTILADOR EQ RECTIFICAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045881",
+        "texto_sap": "MO PW/BT DESINST TAB AC DAT CJ ALAR30X30",
+        "alcance": "MO PW/BT DESINST TAB AC DAT CJ ALAR30X30",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045882",
+        "texto_sap": "MO PW/BT DETECCION FALS CONTACT PW PLANT",
+        "alcance": "MO PW/BT DETECCION FALS CONTACT PW PLANT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045816",
+        "texto_sap": "MT OTR SUM CARGADOR BATERIA 12VDC-5AMP",
+        "alcance": "MT OTR SUM CARGADOR BATERIA 12VDC-5AMP",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099309",
+        "texto_sap": "MT PW/BT ATENCION EMERG CORRECT MENOR PW BAJA",
+        "alcance": "MT PW/BT ATENCION EMERG CORRECT MENOR PW BAJA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045863",
+        "texto_sap": "MO PW/BT NIVELACION BATERIAS X UNI BATER",
+        "alcance": "MO PW/BT NIVELACION BATERIAS X UNI BATER",
+        "unidad": "SITIO",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045871",
+        "texto_sap": "MO PW/BT CAMBIO PROTECC BANC BAT TODO PW",
+        "alcance": "MO PW/BT CAMBIO PROTECC BANC BAT TODO PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045874",
+        "texto_sap": "MO PW/BT CAMBIO TARJETA COM5 APL TODO PW",
+        "alcance": "MO PW/BT CAMBIO TARJETA COM5 APL TODO PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045876",
+        "texto_sap": "MO PW/BT CAMBIO TARJETA SIB APLIC PW ZTE",
+        "alcance": "MO PW/BT CAMBIO TARJETA SIB APLIC PW ZTE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045865",
+        "texto_sap": "MO PW/BT PRUEBA BATERIAS (BATTERY TEST)",
+        "alcance": "MO PW/BT PRUEBA BATERIAS (BATTERY TEST)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099188",
+        "texto_sap": "MO ASEGURAMIENTO DE BATERIA Y CARGADOR EN ANGULO",
+        "alcance": "MO ASEGURAMIENTO DE BATERIA Y CARGADOR EN ANGULO",
+        "unidad": "UNIDAD/EQUIPO",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045837",
+        "texto_sap": "MT PW/BT ATENCION EMERG CORRECT MENOR PW",
+        "alcance": "MT PW/BT ATENCION EMERG CORRECT MENOR PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045866",
+        "texto_sap": "MO PW/BT PRUEBA CARGA-DESCARGA BANCO BAT",
+        "alcance": "MO PW/BT PRUEBA CARGA-DESCARGA BANCO BAT",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3034947",
+        "texto_sap": "MO COMP INSTA BANCO BATERIAS",
+        "alcance": "MO COMP INSTA BANCO BATERIAS",
+        "unidad": "SITIO",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099370",
+        "texto_sap": "SUM BREAKER DE BATERIAS DE MARCA RECONOCIDA",
+        "alcance": "SUM BREAKER DE BATERIAS DE MARCA RECONOCIDA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045817",
+        "texto_sap": "MT OTR SUM CARGADOR BATERIA 24VDC-10AMP",
+        "alcance": "MT OTR SUM CARGADOR BATERIA 24VDC-10AMP",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099223",
+        "texto_sap": "MO DESMONTE DE BATERIAS X UNIDAD",
+        "alcance": "MO DESMONTE DE BATERIAS X UNIDAD",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099350",
+        "texto_sap": "SUM/INST/CONF PUESTA EN MARCHA SWITCH ALTERNANC CICLADO PLT-BATERIA",
+        "alcance": "SUM/INST/CONF PUESTA EN MARCHA SWITCH ALTERNANC CICLADO PLT-BATERIA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045839",
+        "texto_sap": "MO PW/BT DIAGN-EVAL-REPA-INSTA BASTID PW",
+        "alcance": "MO PW/BT DIAGN-EVAL-REPA-INSTA BASTID PW",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045824",
+        "texto_sap": "MT OTR SUMINISTRO BATERIA 31H-1200",
+        "alcance": "MT OTR SUMINISTRO BATERIA 31H-1200",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045821",
+        "texto_sap": "MT OTR SUMINISTRO BATERIA 4D-1400",
+        "alcance": "MT OTR SUMINISTRO BATERIA 4D-1400",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045822",
+        "texto_sap": "MT OTR SUMINISTRO BATERIA 4D-1500 MAC",
+        "alcance": "MT OTR SUMINISTRO BATERIA 4D-1500 MAC",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045823",
+        "texto_sap": "MT OTR SUMINISTRO BATERIA 8D-1600",
+        "alcance": "MT OTR SUMINISTRO BATERIA 8D-1600",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045838",
+        "texto_sap": "MO PW/BT ALQUIL BANC RESISTIVO PRUEB CAP",
+        "alcance": "MO PW/BT ALQUIL BANC RESISTIVO PRUEB CAP",
+        "unidad": "DIA",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3099366",
+        "texto_sap": "SUM BACK PLANE MODULOS RECTIFICADORES",
+        "alcance": "SUM BACK PLANE MODULOS RECTIFICADORES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099391",
+        "texto_sap": "SUM SHELF BACKPLANE RECTIFICADOR",
+        "alcance": "SUM SHELF BACKPLANE RECTIFICADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099368",
+        "texto_sap": "SUM BASTIDORES DE EQUIPOS RECTIFICADORES",
+        "alcance": "SUM BASTIDORES DE EQUIPOS RECTIFICADORES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099393",
+        "texto_sap": "SUM SISTEMA DE REFRIGERACION PARA EL EQUIPO RECTIFICADOR",
+        "alcance": "SUM SISTEMA DE REFRIGERACION PARA EL EQUIPO RECTIFICADOR",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099405",
+        "texto_sap": "SUM FLATPACK 2 HE 48/300U RECTIFICADOR DC POTENCIA 3000W",
+        "alcance": "SUM FLATPACK 2 HE 48/300U RECTIFICADOR DC POTENCIA 3000W",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099377",
+        "texto_sap": "SUM MT/CONST CUBIERTAS EQ RECTIFICADORES",
+        "alcance": "SUM MT/CONST CUBIERTAS EQ RECTIFICADORES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099401",
+        "texto_sap": "SUM BATERIA PLOMO ACIDO OPZV-2V 800AH",
+        "alcance": "SUM BATERIA PLOMO ACIDO OPZV-2V 800AH",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099408",
+        "texto_sap": "SUM GE RECTIFIER NE075AC48ATEZ RECTIFICADOR DC POTENCIA 4085W",
+        "alcance": "SUM GE RECTIFIER NE075AC48ATEZ RECTIFICADOR DC POTENCIA 4085W",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099400",
+        "texto_sap": "SUM BATERIA EVOLION® 3.9KWH LI-ION - 77AH",
+        "alcance": "SUM BATERIA EVOLION® 3.9KWH LI-ION - 77AH",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      }
+    ]
+  },
+  "TIPOLOGIA_5": {
+    "id": "TIPOLOGIA_5",
+    "numero": 5,
+    "nombre_corto": "MT-BT",
+    "nombre_completo": "MT-BT - MEDIA Y BAJA TENSION",
+    "subsistema_key": "MT-BT - MEDIA Y BAJA TENSION",
+    "items": [
+      {
+        "codigo_sap": "3046131",
+        "texto_sap": "MT SE SUMINISTRO PARARRAYOS 15KV",
+        "alcance": "PARARRAYOS 15KV TIPO ESTACION POLIMERICO OHIO BRASS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046260",
+        "texto_sap": "MT SE SUM CORTACIRCUITO MONOPOL 15KV100A",
+        "alcance": "CORTACIRCUITO MONOPOLAR 15 KV 100A",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046292",
+        "texto_sap": "MT SE SUM FUSIBLE DUAL 3.1 A 15KV",
+        "alcance": "FUSIBLE DUAL 3.1 A 15 KV",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046152",
+        "texto_sap": "MO SE INST/RET PARARRAYO 9-10-27KV 10KA",
+        "alcance": "INSTALACIÓN O RETIRO DE PARARRAYOS DE 9 KV, 10 KV, 27 KV HASTA 10 KA. POR UNIDAD. INCLUYE EL RETIRO Y MONTAJE DE PARARRAYOS DE 9 KV, 10 KV, 27 KV HASTA 10 KA. POR UNIDAD. INCLUYE SUMINISTRO E INSTALACIÓN DE ACCESORIOS. INCLUYE LA APERTURA Y CIERRE DE CIRCUITOS DONDE FUERA NECESARIO PARA EJECUTAR LOS TRABAJOS.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045980",
+        "texto_sap": "MO SE CAMB CORTACIRC CAÑUELA SUBEST CONV",
+        "alcance": "CAMBIO CORTACIRCUITOS DE CAÑUELA EN SUBESTACIÓN CONVENCIONAL POR UNIDAD. INCLUYE CONEXIONADO Y CAMBIO DE FUSIBLE, CABLES Y CONECTORES, CAMBIO DE TERMINALES Y/O CABLES DE CONEXIONADO EN CASO NECESARIO. INCLUYE ADAPTACIÓN DEL SOPORTE Y CONEXIÓN A LAS BARRAS O CAMBIO DE FUSIBLE Y DE CONECTORES. INCLUYE REINTEGRO A BODEGA DEL MATERIAL RETIRADO. INCLUYE LA APERTURA Y CIERRE DE CIRCUITOS EN DONDE FUERA NECESARIO PARA EJECUTAR EL TRABAJO.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046047",
+        "texto_sap": "MO SE INS CABLE COBRE THHN/THWN #2AWG",
+        "alcance": "INS. CABLE DE COBRE THHN/THWN # 2 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046176",
+        "texto_sap": "MT SE SUM CABLE COBRE THHN/THWN #2AWG",
+        "alcance": "SUM. CABLE DE COBRE THHN/THWN # 2 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046048",
+        "texto_sap": "MO SE INS CABLE DE COBRE THHN/THWN #4AWG",
+        "alcance": "INS. CABLE DE COBRE THHN/THWN # 4 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046185",
+        "texto_sap": "MT SE SUM CABLE COBRE TIPO VEHICULO #4",
+        "alcance": "SUM. CABLE DE COBRE TIPO VEHÍCULO #4.",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046049",
+        "texto_sap": "MO SE INS CABLE DE COBRE THHN/THWN #6AWG",
+        "alcance": "INS. CABLE DE COBRE THHN/THWN # 6 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046178",
+        "texto_sap": "MT SE SUM CABLE COBRE THHN/THWN #6AWG",
+        "alcance": "SUM. CABLE DE COBRE THHN/THWN # 6 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046412",
+        "texto_sap": "MT SE SUM TERMIN ESTAÑAD/TERMO PLATEAD#4",
+        "alcance": "SUMINISTRO TERMINALES ESTAÑADAS O TERMO PLATEADAS DE #4",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046413",
+        "texto_sap": "MT SE SUM TERMIN ESTAÑAD/TERMO PLATEAD#2",
+        "alcance": "SUMINISTRO TERMINALES ESTAÑADAS O TERMO PLATEADAS DE #2",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046419",
+        "texto_sap": "MT SE SUM TERMINALES ESTAÑADA 2 OJOS #6",
+        "alcance": "SUMINISTROS TERMINALES ESTAÑADAS BARRIL LARGO DE 2 OJOS",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046333",
+        "texto_sap": "MT SE SUM TUBO GALVANIZ 2''X3MT CON UNION",
+        "alcance": "TUBO GALVANIZADO 2\" X 3 MTS CON UNION",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046299",
+        "texto_sap": "MT SE SUM HEBILLA 1/2'' ACERO INOXIDABLE",
+        "alcance": "HEBILLA 1/2\" DE ACERO INOXIDABLE",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3026117",
+        "texto_sap": "MO MF CINTA BANDIT ACERADA DE 1/2''",
+        "alcance": "MO/ INS MF CINTA BANDIT ACERADA DE 1/2''*",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046139",
+        "texto_sap": "MT SE PROTECCION CLAS I+II SOBRETENS S/E",
+        "alcance": "PROTECCIÓN CLASE I+II CONTRA SOBRETENSIONES EN S/E: SUMINISTRO DPS CLASE I+II, 3P+NPE, 320V, 100KA (10/350), 100KA (8/20) POR VÍA, UP≤1700V. INCLUYE TERMINALES, ELEMENTOS DE CONEXIÓN Y ELEMENTOS DE FIJACIÓN.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3045971",
+        "texto_sap": "MO SE CAMBIO DESCARGADOR SOBRETENS POST",
+        "alcance": "CAMBIO DE DESCARGADOR DE SOBRETENSIONES EN POSTE EXISTENTE (SIN CAMBIO DE CRUCETA) POR UNIDAD. INCLUYE CONEXIONADO, CAMBIO\nDE CABLES Y CONECTORES EN CASO NECESARIO. INCLUYE RETIRO, INSTALACIÓN Y REINTEGRO A BODEGA DEL MATERIAL RETIRADO.\nINCLUYE LA APERTURA Y CIERRE DE CIRCUITOS EN\nDONDE FUERA NECESARIO PARA EJECUTAR LOS TRABAJOS.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045987",
+        "texto_sap": "MO SE CAMBIO TRANSFORMADOR TRIFAS POSTE",
+        "alcance": "CAMBIO DE TRANSFORMADOR TRIFÁSICO EN POSTE INCLUYE RETIRO E INSTALACIÓN DE PROTECCIONES EN MT Y BT Y TODAS LAS TAREAS COMPLEMENTARIAS NECESARIAS PARA LA REALIZACIÓN DEL TRABAJO Y LA ENERGIZACIÓN DEL TRANSFORMADOR, REINTEGRO DEL TRANSFORMADOR Y MATERIALES RETIRADOS A BODEGA. INCLUYE TAMBIÉN EL CAMBIO DE ABRAZADERAS, VIGAS DE MADERA Y HERRAJES EN CASO NECESARIO.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046329",
+        "texto_sap": "MT SE SUM TRANSF 1F15KVA13,2KV/240-120V",
+        "alcance": "TRANSFORMADOR 1F 15KVA 13,2KV/240-120V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046330",
+        "texto_sap": "MT SE SUM TRANSF 1F25KVA13,2KV/240-120V",
+        "alcance": "TRANSFORMADOR 1F 25KVA 13,2KV/240-120V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046331",
+        "texto_sap": "MT SE SUM TRANSF 3F30KVA11,4KV/208-120V",
+        "alcance": "TRANSFORMADOR 3F 30KVA 11,4KV/208-120V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046332",
+        "texto_sap": "MT SE SUM TRANSF 3F30KVA13,2KV/214-123V",
+        "alcance": "TRANSFORMADOR 3F 30KVA 13,2KV/214-123V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099424",
+        "texto_sap": "SUM TRANSFORMADOR 3F 75KVA 13,2KV/214-123V",
+        "alcance": "SUM. TRANSFORMADOR 3F 75KVA 13,2KV/214-123V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099444",
+        "texto_sap": "SUM TRANSFORMADOR 1F 10KVA 13, 2KV/240-120V",
+        "alcance": "SUM.TRANSFORMADOR 1F 10KVA 13,2KV/240-120V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099445",
+        "texto_sap": "SUM TRANSFORMADOR 1F 15KVA 7, 6KV/240-120V",
+        "alcance": "SUM.TRANSFORMADOR 1F 15KVA 7,6KV/240-120V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3099446",
+        "texto_sap": "SUM TRANSFORMADOR 3F 15KVA 13, 2KV/214-123V",
+        "alcance": "SUM.TRANSFORMADOR 3F 15KVA 13,2KV/214-123V",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046450",
+        "texto_sap": "MT SE SUM TABLERO AC COMPL INCLU BREAKER",
+        "alcance": "SUMINISTRO TABLERO AC COMPLETO INCLUYE BREAKERS (SEGÚN ESTANDAR VIGENTE DE COMCEL. TODOS LOS\nBREAKERS SON TIPO INDUSTRIAL DE 25 KA DE RUPTURA) ESTANDAR ADJUNTO. TABLERO CONSTRUIDO EN LAMINA COLD ROLL CAL.18 CON TRATAMIENTO SUPERFICIAL Y ACABADO DE PINTURA.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046144",
+        "texto_sap": "MT SE SUMINIST CINTA MARCACION INSTAL AC",
+        "alcance": "SUMINISTRO DE CINTAS DE MARCACION INSTALACIONES AC (BLANCA, ROJA, VERDE, AMARILLA, AZUL, NEGRA)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046555",
+        "texto_sap": "MT SE SUMIN AMARRA PLASTICA 25CMX100UN",
+        "alcance": "SUMINISTRO AMARRAS PLASTICAS 25 CM *100 UNIDADES",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046438",
+        "texto_sap": "MT SE SUM INTERRUPTOR PRINCIPAL 3X125AMP",
+        "alcance": "SUMINISTRO DE INTERRUPTOR PRINCIPAL DE 3X125 AMP ICC=45 KA. MARCA MERLIN GERIN O\nSIEMENS. PARA SISTEMA MONOFASICO. INCLUYE DESISNTALACION DE BREAKER EXISTENTE.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046439",
+        "texto_sap": "MO SE INSTAL INTERRUPTOR PRINCI 3X125AMP",
+        "alcance": "INSTALACION DE INTERRUPTOR PRINCIPAL DE 3X125 AMP ICC=45 KA. MARCA MERLIN GERIN O SIEMENS. PARA SISTEMA MONOFASICO. INCLUYE DESISNTALACION DE BREAKER EXISTENTE.",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3045588",
+        "texto_sap": "MT AA SUM BREAKER TOTALIZAD IND 3X80AMP",
+        "alcance": "EL PROVEEDOR DEBERÁ SUMINISTRAR BREAKER TIPO TOTALIZADOR INDUSTRIAL DE 3X80 AMP. - 25 KA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046448",
+        "texto_sap": "MT SE SUM BREAKER TOTALIZ3*100A65KA RUPT",
+        "alcance": "BREAKER TOTALIZADOR 3*100A, 65 KA DE RUPTURA",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046457",
+        "texto_sap": "MT SE SUM CAJA CONTAD TRIF+TOTALIZAET918",
+        "alcance": "CAJA CONTADOR TRIFASICO + TOTALIZADOR ET918",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046229",
+        "texto_sap": "MT SE SUM CONECTOR TRANSVERSAL #2",
+        "alcance": "CONECTOR TRANSVERSAL #2",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046225",
+        "texto_sap": "MT SE SUM CAPACETE METALICO 2''",
+        "alcance": "CAPACETE METALICO 2\"",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046052",
+        "texto_sap": "MO SE INS CABLE DE ALUMINIO THW #1/0AWG",
+        "alcance": "INS. CABLE DE ALUMINIO THW # 1/0 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046181",
+        "texto_sap": "MT SE SUM CABLE ALUMINIO THW #1/0AWG",
+        "alcance": "SUM. CABLE DE ALUMINIO THW # 1/0 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046053",
+        "texto_sap": "MO SE INSCABLE DE ALUMINIO THW #2AWG",
+        "alcance": "INS.CABLE DE ALUMINIO THW # 2 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046182",
+        "texto_sap": "MT SE SUM CABLE ALUMINIO THW #2AWG",
+        "alcance": "SUM. CABLE DE ALUMINIO THW # 2 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046054",
+        "texto_sap": "MO SE INSCABLE DE ALUMINIO THW #4AWG",
+        "alcance": "INS.CABLE DE ALUMINIO THW # 4 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046183",
+        "texto_sap": "MT SE SUM CABLE ALUMINIO THW #4AWG",
+        "alcance": "SUM. CABLE DE ALUMINIO THW # 4 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046055",
+        "texto_sap": "MO SE INSCABLE DE ALUMINIO THW #6AWG",
+        "alcance": "INS.CABLE DE ALUMINIO THW # 6 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046184",
+        "texto_sap": "MT SE SUM CABLE ALUMINIO THW #6AWG",
+        "alcance": "SUM. CABLE DE ALUMINIO THW # 6 AWG",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046064",
+        "texto_sap": "MO SE INSTAL TERMIN PIN HUEC #4 CB TIERR",
+        "alcance": "INSTALACION DE TERMINAL PIN HUECO NO.4 PARA CABLE DE TIERRAS (CONECTA TIERRAS A BARRAJES)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046418",
+        "texto_sap": "MT SE SUM TERMIN PIN HUECO #4 CAB TIERRA",
+        "alcance": "SUMINISTRO DE TERMINAL PIN HUECO NO.4 PARA CABLE DE TIERRAS (CONECTA TIERRAS A BARRAJES)",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046410",
+        "texto_sap": "MT SE SUM TERMINALES TERMO PLATEADAS 1/0",
+        "alcance": "SUMINISTRO TERMINALES TERMO PLATEADAS DE 1/0",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3046609",
+        "texto_sap": "MT SE SUM ABRAZADERA ANTIVANDALICA 200MM",
+        "alcance": "ABRAZADERA ANTIVANDALICA 200MM",
+        "unidad": "UNIDAD",
+        "cantidad_sugerida": 1,
+        "tipo": "Material"
+      },
+      {
+        "codigo_sap": "3042100",
+        "texto_sap": "SRV TRANSPORTE VEHÍCULO 4X4 (LPU)",
+        "alcance": "DE ACUERDO A LAS DISTANCIA DESDE LA CIUDAD BASE AL SITIO DE LA OT",
+        "unidad": "VIAJE",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3042226",
+        "texto_sap": "SRV TRANSPORTE FLUVIAL (LANCHA/PANGA/CANOA)",
+        "alcance": "DE ACUERDO A LA NECESIDAD DE AL ACCESO O TRASLADO A SITIO",
+        "unidad": "VIAJE",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3041820",
+        "texto_sap": "SRV TRANSPORTE ESPECIAL (COTEROS O SEMOVIENTE)",
+        "alcance": "DE ACUERDO A LA NECESIDAD DE AL ACCESO O TRASLADO A SITIO",
+        "unidad": "DIA",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046002",
+        "texto_sap": "MO SE INSTAL ACOMETIDA ELECTRIC BT AEREA",
+        "alcance": "INSTALACIÓN DE ACOMETIDA ELÉCTRICA EN BT AÉREA DESDE SECUNDARIO DEL TRANSFORMADOR HASTA BREAKER O EL MEDIDOR DE ENERGÍA.",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      },
+      {
+        "codigo_sap": "3046001",
+        "texto_sap": "MO SE INSTAL ACOMETIDA ELECTRIC BT SUBTE",
+        "alcance": "INSTALACIÓN DE ACOMETIDA ELÉCTRICA EN BT SUBTERRÁNEA DESDE EL TRANSFORMADOR HASTA EL MEDIDOR DE ENERGÍA",
+        "unidad": "ML",
+        "cantidad_sugerida": 1,
+        "tipo": "Mano de Obra"
+      }
+    ]
+  }
+}

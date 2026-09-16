@@ -14,10 +14,14 @@ class EmpleadoBase(BaseModel):
     estado: str = "activo"  # activo, inactivo
 
 class EmpleadoCreate(EmpleadoBase):
-    pass
+    habilitar_acceso: Optional[bool] = False
+    username: Optional[str] = None
+    password: Optional[str] = None
 
 class EmpleadoUpdate(EmpleadoBase):
-    pass
+    habilitar_acceso: Optional[bool] = False
+    username: Optional[str] = None
+    password: Optional[str] = None
 
 class CuadrillaBrief(BaseModel):
     id: int

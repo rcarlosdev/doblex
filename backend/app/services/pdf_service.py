@@ -49,20 +49,56 @@ def generate_ot_pdf(ot: Ot) -> io.BytesIO:
 
     story = []
 
+    # Determinar título dinámico según tipo de actividad
+    t_act = (ot.tipo_actividad or ot.tipo_mantenimiento or "").lower()
+    rutina_info = ""
+    form_data = ot.datos_formulario or {}
+    if isinstance(form_data, str):
+        import json
+        try:
+            form_data = json.loads(form_data)
+        except Exception:
+            form_data = {}
+
+    if isinstance(form_data, dict) and form_data.get("numero_rutina_7x24"):
+        rutina_info = form_data["numero_rutina_7x24"]
+    elif ot.subsistema and "Rutina" in ot.subsistema:
+        for r_num in ["Rutina 1", "Rutina 2", "Rutina 3"]:
+            if r_num in ot.subsistema:
+                rutina_info = r_num
+                break
+
+    if "7x24" in t_act or (ot.subsistema and "7x24" in ot.subsistema.lower()):
+        rutina_label = f" ({rutina_info})" if rutina_info else " (Rutina 1)"
+        titulo_doc = f"INFORME TÉCNICO DE RUTINA MP 7X24{rutina_label} - {ot.codigo}"
+    elif "obra_civil" in t_act:
+        titulo_doc = f"INFORME TÉCNICO DE OBRA CIVIL - {ot.codigo}"
+    elif "360" in t_act:
+        titulo_doc = f"INFORME TÉCNICO DE RELEVAMIENTO 360 - {ot.codigo}"
+    elif "preventivo" in t_act:
+        sub_nombre = "AIRE" if "aire" in t_act else "PLANTA"
+        titulo_doc = f"INFORME TÉCNICO DE MANTENIMIENTO PREVENTIVO {sub_nombre} - {ot.codigo}"
+    else:
+        titulo_doc = f"INFORME TÉCNICO DE ORDEN DE TRABAJO - {ot.codigo}"
+
     # Encabezado
-    story.append(Paragraph(f"INFORME TÉCNICO DE OBRA CIVIL - {ot.codigo}", title_style))
-    story.append(Paragraph("DOBLEX S.A.S. - Sistema de Mantenimiento y Obra (SMU)", subtitle_style))
+    story.append(Paragraph(titulo_doc, title_style))
+    story.append(Paragraph("DOBLEX S.A.S. - Sistema de Mantenimiento y Operaciones (SMU)", subtitle_style))
     story.append(Spacer(1, 15))
 
     # Tabla de datos
     assigned_name = ot.assigned_user.name if ot.assigned_user else "Sin Asignar"
     cuadrilla_name = ot.cuadrilla.nombre if ot.cuadrilla else "N/A"
 
+    tipo_label = ot.tipo_actividad or ot.tipo_mantenimiento
+    if ("7x24" in t_act or (ot.subsistema and "7x24" in ot.subsistema.lower())) and rutina_info:
+        tipo_label = f"{tipo_label} ({rutina_info})"
+
     data = [
         ["Código:", ot.codigo, "Estado:", ot.estado.upper()],
         ["Descripción:", ot.descripcion, "Progreso:", f"{ot.progreso}%"],
         ["Ubicación:", ot.ubicacion, "Sitio:", ot.sitio or "N/A"],
-        ["Prioridad:", ot.prioridad, "Tipo:", ot.tipo_mantenimiento],
+        ["Prioridad:", ot.prioridad, "Tipo:", tipo_label],
         ["Asignado a:", assigned_name, "Cuadrilla:", cuadrilla_name],
         ["Fecha Inicio:", str(ot.fecha_inicio or ""), "Límite SLA:", str(ot.fecha_limite_sla or "N/A")]
     ]

@@ -146,5 +146,107 @@ class SecurityTestSuite(unittest.TestCase):
         ok4, _ = validate_password_strength("Doblex2026*")
         self.assertTrue(ok4)
 
+    def test_07_crear_empleado_con_acceso_y_login(self):
+        """Verificar creación de empleado con usuario de inicio de sesión y autenticación posterior."""
+        # 1. Autenticarse como admin
+        res_admin = self.client.post("/api/login", json={
+            "username": "admin.doblex",
+            "password": "admin123"
+        })
+        self.assertEqual(res_admin.status_code, 200)
+        token_admin = res_admin.json()["token"]
+        headers = {"Authorization": f"Bearer {token_admin}"}
+
+        # 2. Registrar empleado con acceso habilitado
+        unique_doc = "9988776655"
+        unique_user = "tecnico.prueba"
+        unique_pwd = "Password2026*"
+
+        # Limpiar por si existe previamente de una corrida previa
+        from app.db.session import SessionLocal
+        from app.models.empleado import Empleado
+        from app.models.user import User
+        db = SessionLocal()
+        try:
+            prev_emp = db.query(Empleado).filter(Empleado.documento == unique_doc).first()
+            if prev_emp:
+                db.delete(prev_emp)
+            prev_u = db.query(User).filter(User.username == unique_user).first()
+            if prev_u:
+                db.delete(prev_u)
+            db.commit()
+        finally:
+            db.close()
+
+        payload = {
+            "documento": unique_doc,
+            "nombre": "Pedro Prueba Seguridad",
+            "cargo": "Técnico Certificado",
+            "telefono": "3009998877",
+            "email": "pedro.prueba@doblex.com",
+            "rol": "operativo",
+            "estado": "activo",
+            "habilitar_acceso": True,
+            "username": unique_user,
+            "password": unique_pwd
+        }
+
+        res_create = self.client.post("/api/empleados", json=payload, headers=headers)
+        self.assertEqual(res_create.status_code, 201)
+        data = res_create.json()["data"]
+        self.assertIsNotNone(data.get("user"))
+        self.assertEqual(data["user"]["username"], unique_user)
+
+        # 3. Intentar iniciar sesión con las nuevas credenciales creadas
+        res_login_nuevo = self.client.post("/api/login", json={
+            "username": unique_user,
+            "password": unique_pwd
+        })
+        self.assertEqual(res_login_nuevo.status_code, 200)
+        self.assertEqual(res_login_nuevo.json()["status"], "success")
+        self.assertEqual(res_login_nuevo.json()["user"]["username"], unique_user)
+        self.assertEqual(res_login_nuevo.json()["user"]["role"], "operativo")
+
+    def test_08_solo_admin_puede_asignar_rol_admin(self):
+        """Verificar que un usuario no-admin (ej: administrativo) sea rechazado con 403 si intenta asignar rol admin."""
+        # 1. Login como auxiliar técnico / administrativo
+        res_adminis = self.client.post("/api/login", json={
+            "username": "adminis.doblex",
+            "password": "adminis123"
+        })
+        self.assertEqual(res_adminis.status_code, 200)
+        token_adminis = res_adminis.json()["token"]
+        headers_adminis = {"Authorization": f"Bearer {token_adminis}"}
+
+        # 2. Intentar crear un nuevo empleado con rol 'admin'
+        payload_create = {
+            "documento": "8877665544",
+            "nombre": "Intento Escalada",
+            "cargo": "Técnico",
+            "rol": "admin",
+            "estado": "activo"
+        }
+        res_fail_create = self.client.post("/api/empleados", json=payload_create, headers=headers_adminis)
+        self.assertEqual(res_fail_create.status_code, 403)
+        self.assertIn("Solo los usuarios con rol 'admin'", res_fail_create.json()["detail"])
+
+        # 3. Intentar modificar un empleado existente para asignarle rol 'admin'
+        # Empleado Carlos Pérez (id 3 u otro existente)
+        res_list = self.client.get("/api/empleados", headers=headers_adminis)
+        empleados = res_list.json()["data"]
+        operativo_emp = next((e for e in empleados if e["rol"] == "operativo"), None)
+        self.assertIsNotNone(operativo_emp)
+
+        payload_update = {
+            "documento": operativo_emp["documento"],
+            "nombre": operativo_emp["nombre"],
+            "cargo": operativo_emp["cargo"],
+            "rol": "admin",
+            "estado": operativo_emp["estado"]
+        }
+        res_fail_update = self.client.put(f"/api/empleados/{operativo_emp['id']}", json=payload_update, headers=headers_adminis)
+        self.assertEqual(res_fail_update.status_code, 403)
+        self.assertIn("Solo los usuarios con rol 'admin'", res_fail_update.json()["detail"])
+
 if __name__ == "__main__":
     unittest.main()

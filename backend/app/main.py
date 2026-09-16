@@ -42,7 +42,7 @@ else:
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed_origins,
-    allow_origin_regex=r"^https?:\/\/.*(vercel\.app|localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=r"^https?:\/\/.*(vercel\.app|localhost|127\.0\.0\.1|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+|172\.(1[6-9]|2\d|3[01])\.\d+\.\d+)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD", "PATCH"],
     allow_headers=[
@@ -68,7 +68,8 @@ async def custom_http_exception_handler(request: Request, exc: HTTPException):
         status_code=exc.status_code,
         content={
             "status": "error",
-            "message": exc.detail
+            "message": exc.detail,
+            "detail": exc.detail
         },
         headers=exc.headers
     )

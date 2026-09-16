@@ -22,7 +22,8 @@ class RepuestoResponse(BaseModel):
         from_attributes = True
 
 class EvidenciaCreate(BaseModel):
-    tipo: str  # antes, durante, despues, transporte
+    ot_id: Optional[int] = None
+    tipo: str  # antes, durante, despues, transporte, llegada_sitio
     imagen_base64: Optional[str] = None
     imagen_url: Optional[str] = None
     latitud: Optional[float] = None
@@ -86,7 +87,7 @@ class OtCreate(BaseModel):
     tipo_estacion: Optional[str] = "MOVIL"
     site_owner: Optional[str] = None
     tipo_mantenimiento: str = "correctivo"  # preventivo, correctivo, emergencia
-    tipo_actividad: Optional[str] = "correctivo"  # correctivo, emergencia, preventivo_planta, preventivo_aire
+    tipo_actividad: Optional[str] = "correctivo"  # correctivo, emergencia, preventivo_planta, preventivo_aire, obra_civil, informe_360, rutina_7x24
     subsistema: Optional[str] = "sistema_electrico"
     tipo_gasto: Optional[str] = None
     datos_formulario: Optional[Any] = None
@@ -114,7 +115,7 @@ class OtUpdate(BaseModel):
     tipo_estacion: Optional[str] = "MOVIL"
     site_owner: Optional[str] = None
     tipo_mantenimiento: str = "correctivo"
-    tipo_actividad: Optional[str] = "correctivo"
+    tipo_actividad: Optional[str] = "correctivo"  # correctivo, emergencia, preventivo_planta, preventivo_aire, obra_civil, informe_360, rutina_7x24
     subsistema: Optional[str] = "sistema_electrico"
     tipo_gasto: Optional[str] = None
     datos_formulario: Optional[Any] = None

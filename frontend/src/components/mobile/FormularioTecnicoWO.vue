@@ -1,7 +1,9 @@
 <script setup>
-import { reactive, watch } from 'vue';
+import { reactive, watch, computed, nextTick } from 'vue';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
+import MaterialesTipologiaSelector from '@/components/mobile/MaterialesTipologiaSelector.vue';
 import { 
   IconAlertTriangle, 
   IconTool, 
@@ -11,7 +13,8 @@ import {
   IconPlus,
   IconTrash,
   IconBox,
-  IconBuildingBroadcastTower
+  IconBuildingBroadcastTower,
+  IconCamera
 } from '@tabler/icons-vue';
 
 const props = defineProps({
@@ -22,15 +25,27 @@ const props = defineProps({
   readOnly: {
     type: Boolean,
     default: false
+  },
+  tipoActividad: {
+    type: String,
+    default: ''
+  },
+  codigoOt: {
+    type: String,
+    default: ''
+  },
+  evidencias: {
+    type: Array,
+    default: () => []
   }
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(['update:modelValue', 'photo-uploaded', 'delete-photo']);
 
 const form = reactive({
   // 1. Información General y Estación
   tipo_sitio: 'Urbano',
-  subsistema: 'Planta eléctrica',
+  subsistema: 'PE - GRUPO ELECTROGENO',
   presenta_afectacion: 'No',
 
   // 2. Equipo en Falla y Diagnóstico
@@ -43,104 +58,117 @@ const form = reactive({
   descripcion_falla: '',
   descripcion_solucion: '',
 
-  // 3. Repuestos retirados e instalados
-  repuesto_retirado: {
-    descripcion: '',
-    marca: '',
-    modelo: '',
-    serial: ''
-  },
-  repuesto_instalado: {
-    descripcion: '',
-    marca: '',
-    modelo: '',
-    serial: ''
-  },
-
-  // 4. Materiales LPU utilizados
+  // 3. Materiales & Actividades LPU utilizados (Estándar de Tipologías)
   materiales: [],
 
-  // 5. Transporte Especial
-  desea_transporte_especial: 'No',
-  tipo_transporte: 'Vehículo 4x4',
-  distancia_km: null,
-  tiempo_desplazamiento: '',
-  observacion_transporte: '',
-
-  // 6. Novedades en estación
-  se_encontraron_novedades: 'No',
-  sistema_novedad: 'Planta eléctrica',
-  prioridad_novedad: 'Media',
-  descripcion_novedad: '',
-  resuelto_en_visita: 'Si',
-
-  // 7. Cierre y Supervisión
+  // 4. Cierre y Supervisión Claro
   falla_resuelta: 'Si',
   observaciones_actividad: '',
   nombre_supervisor: '',
   ...props.modelValue
 });
 
-// Inicializar al menos los sub-objetos si vienen vacíos
-if (!form.repuesto_retirado) {
-  form.repuesto_retirado = { descripcion: '', marca: '', modelo: '', serial: '' };
-}
-if (!form.repuesto_instalado) {
-  form.repuesto_instalado = { descripcion: '', marca: '', modelo: '', serial: '' };
-}
 if (!Array.isArray(form.materiales)) {
   form.materiales = [];
 }
 
+const OPCIONES_SUBSISTEMA = [
+  'SPT - SISTEMA PUESTA A TIERRA',
+  'PE - GRUPO ELECTROGENO',
+  'AA - AIRES ACONDICIONADOS',
+  'PW - POWER',
+  'MT-BT - MEDIA Y BAJA TENSION'
+];
+
+const normalizarSubsistema = (val) => {
+  if (!val) return 'PE - GRUPO ELECTROGENO';
+  const str = String(val).trim();
+  const lower = str.toLowerCase();
+  if (lower.startsWith('spt') || lower.includes('puesta a tierra') || lower.includes('tierra')) {
+    return 'SPT - SISTEMA PUESTA A TIERRA';
+  }
+  if (lower.startsWith('pe') || lower.includes('planta') || lower.includes('electrogeno') || lower.includes('ge')) {
+    return 'PE - GRUPO ELECTROGENO';
+  }
+  if (lower.startsWith('aa') || lower.includes('aire') || lower.includes('climatiz') || lower.includes('hvac')) {
+    return 'AA - AIRES ACONDICIONADOS';
+  }
+  if (lower.startsWith('pw') || lower.includes('power') || lower.includes('fuerza') || lower.includes('dc') || lower.includes('rectificador')) {
+    return 'PW - POWER';
+  }
+  if (lower.includes('mt') || lower.includes('bt') || lower.includes('media') || lower.includes('baja') || lower.includes('subestacion') || lower.includes('acometida')) {
+    return 'MT-BT - MEDIA Y BAJA TENSION';
+  }
+  return str.toUpperCase();
+};
+
+form.subsistema = normalizarSubsistema(form.subsistema);
+
+let isInternalSync = false;
+
 watch(form, (val) => {
+  if (isInternalSync) return;
   emit('update:modelValue', { ...val });
 }, { deep: true });
 
 // Sincronizar si modelValue cambia externamente (ej. carga desde API)
 watch(() => props.modelValue, (newVal) => {
   if (newVal && Object.keys(newVal).length > 0) {
-    Object.assign(form, newVal);
-    if (!form.repuesto_retirado) form.repuesto_retirado = { descripcion: '', marca: '', modelo: '', serial: '' };
-    if (!form.repuesto_instalado) form.repuesto_instalado = { descripcion: '', marca: '', modelo: '', serial: '' };
-    if (!Array.isArray(form.materiales)) form.materiales = [];
+    if (JSON.stringify(newVal) !== JSON.stringify(form)) {
+      isInternalSync = true;
+      Object.assign(form, newVal);
+      form.subsistema = normalizarSubsistema(form.subsistema);
+      if (!form.repuesto_retirado) form.repuesto_retirado = { descripcion: '', marca: '', modelo: '', serial: '' };
+      if (!form.repuesto_instalado) form.repuesto_instalado = { descripcion: '', marca: '', modelo: '', serial: '' };
+      if (!Array.isArray(form.materiales)) form.materiales = [];
+      nextTick(() => { isInternalSync = false; });
+    }
   }
 }, { deep: true });
 
-const addMaterial = () => {
-  form.materiales.push({
-    descripcion: '',
-    unidad: 'Unidad',
-    cantidad: 1
-  });
-};
 
-const removeMaterial = (index) => {
-  form.materiales.splice(index, 1);
+
+const tituloActividad = computed(() => {
+  const raw = (props.tipoActividad || form.tipo_actividad || '').toLowerCase().trim();
+  if (!raw) return 'Correctivo';
+  if (raw === 'correctivo') return 'Correctivo';
+  if (raw === 'emergencia') return 'Emergencia';
+  if (raw.startsWith('preventivo') || raw.includes('rutina') || raw.includes('7x24')) return 'Preventivo';
+  if (raw === 'obra_civil') return 'Obra Civil';
+  if (raw === 'informe_360' || raw.includes('360')) return 'Informe 360';
+  return raw.charAt(0).toUpperCase() + raw.slice(1);
+});
+
+const bannerTheme = computed(() => {
+  const t = tituloActividad.value.toLowerCase();
+  if (t === 'emergencia') {
+    return {
+      wrapper: 'bg-rose-500/10 border-rose-500/20',
+      iconBox: 'bg-rose-500/20 text-rose-600 dark:text-rose-400',
+      badge: 'border-rose-500/30 text-rose-600 dark:text-rose-400'
+    };
+  }
+  if (t === 'preventivo') {
+    return {
+      wrapper: 'bg-blue-500/10 border-blue-500/20',
+      iconBox: 'bg-blue-500/20 text-blue-600 dark:text-blue-400',
+      badge: 'border-blue-500/30 text-blue-600 dark:text-blue-400'
+    };
+  }
+  return {
+    wrapper: 'bg-amber-500/10 border-amber-500/20',
+    iconBox: 'bg-amber-500/20 text-amber-600 dark:text-amber-400',
+    badge: 'border-amber-500/30 text-amber-600 dark:text-amber-400'
+  };
+});
+
+const getEvidenciasPorTipo = (tipo) => {
+  return (props.evidencias || []).filter(e => e.tipo === tipo);
 };
 </script>
 
 <template>
   <div class="space-y-5 text-xs select-text">
-    <!-- Header de Identificación del Formato Oficial WO -->
-    <div class="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-center justify-between flex-wrap gap-2">
-      <div class="flex items-center gap-2.5">
-        <div class="p-2 bg-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl">
-          <IconTool class="w-5 h-5 stroke-[2]" />
-        </div>
-        <div>
-          <h4 class="font-extrabold text-neutral-900 dark:text-white text-xs">
-            Formato Técnico: Mantenimiento Correctivo y Emergencias (WO)
-          </h4>
-          <p class="text-[10px] text-neutral-500 dark:text-neutral-400">
-            Formato oficial Claro (Ref. WO0000005558781 - Móvil / Urbano-Rural)
-          </p>
-        </div>
-      </div>
-      <Badge variant="outline" class="border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-[10px]">
-        Correctivo & Emergencia
-      </Badge>
-    </div>
-
     <!-- 1. INFORMACIÓN GENERAL Y AFECTACIÓN DE SERVICIOS -->
     <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xs">
       <div class="flex items-center gap-2 border-b border-neutral-100 dark:border-white/5 pb-2.5">
@@ -174,13 +202,12 @@ const removeMaterial = (index) => {
             :disabled="readOnly"
             class="h-9 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#0a0b10] px-3 font-medium text-xs focus:ring-1 focus:ring-amber-500 outline-none"
           >
-            <option value="Planta eléctrica">Planta eléctrica (GE)</option>
-            <option value="Aire acondicionado">Aire acondicionado (HVAC)</option>
-            <option value="Fuerza DC / Rectificadores">Fuerza DC / Rectificadores</option>
-            <option value="Sistemas Híbridos SFV">Sistemas Híbridos SFV</option>
-            <option value="Subestación / Acometida">Subestación / Acometida</option>
-            <option value="Torre y Balizamiento">Torre y Balizamiento</option>
-            <option value="Infraestructura / Cerramiento">Infraestructura / Cerramiento</option>
+            <option v-for="opc in OPCIONES_SUBSISTEMA" :key="opc" :value="opc">
+              {{ opc }}
+            </option>
+            <option v-if="form.subsistema && !OPCIONES_SUBSISTEMA.includes(form.subsistema)" :value="form.subsistema">
+              {{ form.subsistema }}
+            </option>
           </select>
         </div>
 
@@ -278,243 +305,76 @@ const removeMaterial = (index) => {
           ></textarea>
         </div>
       </div>
+
+      <!-- Evidencias Fotográficas Obligatorias del Formato WO (Antes, Durante y Después) -->
+      <div class="pt-3 border-t border-neutral-100 dark:border-white/5 space-y-3">
+        <div class="flex items-center gap-1.5 text-neutral-800 dark:text-neutral-200">
+          <IconCamera class="w-4 h-4 text-amber-500 stroke-[2]" />
+          <span class="font-extrabold text-[11px] uppercase tracking-wider">
+            Soportes Fotográficos de la Intervención (Claro WO)
+          </span>
+        </div>
+
+        <PhotoUploader
+          tipo="antes"
+          titulo="1. Diagnóstico Inicial & Falla Encontrada"
+          descripcion="Fotografía legible del estado del equipo averiado, daño físico o alarma activa en tablero antes de iniciar labores."
+          badge-label="Antes (Falla)"
+          :codigo-ot="codigoOt"
+          :evidencias-list="getEvidenciasPorTipo('antes')"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+
+        <PhotoUploader
+          tipo="durante"
+          titulo="2. Intervención Técnica & Reparación"
+          descripcion="Registro del proceso técnico: desmonte, piezas sustituidas vs repuestos nuevos instalados."
+          badge-label="Durante (Reparación)"
+          :codigo-ot="codigoOt"
+          :evidencias-list="getEvidenciasPorTipo('durante')"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+
+        <PhotoUploader
+          tipo="despues"
+          titulo="3. Equipo Operativo en Servicio & Cierre"
+          descripcion="Equipo solucionado operando en condiciones normales, tablero sin alarmas y pruebas con carga avaladas."
+          badge-label="Después (Solucionado)"
+          :codigo-ot="codigoOt"
+          :evidencias-list="getEvidenciasPorTipo('despues')"
+          :read-only="readOnly"
+          @photo-uploaded="emit('photo-uploaded', $event)"
+          @delete-photo="emit('delete-photo', $event)"
+        />
+      </div>
     </div>
 
-    <!-- 3. TRAZABILIDAD DE REPUESTOS (RETIRADO VS INSTALADO) -->
-    <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
-      <div class="flex items-center gap-2 border-b border-neutral-100 dark:border-white/5 pb-2.5">
-        <IconPackage class="w-4 h-4 text-blue-500 stroke-[2]" />
+    <!-- 3. MATERIALES E INSUMOS LPU UTILIZADOS (ESTÁNDAR TIPOLOGÍAS) -->
+    <div class="space-y-3">
+      <div class="flex items-center gap-2 px-1">
+        <IconBox class="w-4 h-4 text-amber-500 stroke-[2.2]" />
         <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
-          3. Trazabilidad de Repuestos (Retirado vs Instalado)
+          3. Materiales & Actividades LPU Reportados en Campo
         </span>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Repuesto Retirado -->
-        <div class="p-3.5 bg-red-50/50 dark:bg-red-950/20 border border-red-200/60 dark:border-red-900/30 rounded-xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-extrabold text-red-700 dark:text-red-400 text-[11px] uppercase">Repuesto Retirado (Dañado)</span>
-            <Badge variant="outline" class="border-red-300 text-red-600 text-[9px] font-bold">Baja</Badge>
-          </div>
-          <Input v-model="form.repuesto_retirado.descripcion" placeholder="Descripción de la pieza retirada" :disabled="readOnly" class="h-8 text-xs bg-white dark:bg-black/20" />
-          <div class="grid grid-cols-3 gap-1.5">
-            <Input v-model="form.repuesto_retirado.marca" placeholder="Marca" :disabled="readOnly" class="h-8 text-[11px] bg-white dark:bg-black/20" />
-            <Input v-model="form.repuesto_retirado.modelo" placeholder="Modelo" :disabled="readOnly" class="h-8 text-[11px] bg-white dark:bg-black/20" />
-            <Input v-model="form.repuesto_retirado.serial" placeholder="Serial" :disabled="readOnly" class="h-8 text-[11px] bg-white dark:bg-black/20 font-mono" />
-          </div>
-        </div>
-
-        <!-- Repuesto Instalado -->
-        <div class="p-3.5 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200/60 dark:border-emerald-900/30 rounded-xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="font-extrabold text-emerald-700 dark:text-emerald-400 text-[11px] uppercase">Repuesto Instalado (Nuevo)</span>
-            <Badge variant="outline" class="border-emerald-300 text-emerald-600 text-[9px] font-bold">Operativo</Badge>
-          </div>
-          <Input v-model="form.repuesto_instalado.descripcion" placeholder="Descripción de la pieza nueva" :disabled="readOnly" class="h-8 text-xs bg-white dark:bg-black/20" />
-          <div class="grid grid-cols-3 gap-1.5">
-            <Input v-model="form.repuesto_instalado.marca" placeholder="Marca" :disabled="readOnly" class="h-8 text-[11px] bg-white dark:bg-black/20" />
-            <Input v-model="form.repuesto_instalado.modelo" placeholder="Modelo" :disabled="readOnly" class="h-8 text-[11px] bg-white dark:bg-black/20" />
-            <Input v-model="form.repuesto_instalado.serial" placeholder="Serial" :disabled="readOnly" class="h-8 text-[11px] bg-white dark:bg-black/20 font-mono" />
-          </div>
-        </div>
-      </div>
+      <MaterialesTipologiaSelector
+        v-model="form.materiales"
+        :subsistema="form.subsistema"
+        :read-only="readOnly"
+      />
     </div>
 
-    <!-- 4. LISTADO DE MATERIALES UTILIZADOS EN LA ACTIVIDAD -->
-    <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-3.5 shadow-xs">
-      <div class="flex items-center justify-between border-b border-neutral-100 dark:border-white/5 pb-2.5">
-        <div class="flex items-center gap-2">
-          <IconBox class="w-4 h-4 text-amber-500 stroke-[2]" />
-          <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
-            4. Materiales e Insumos Menores Utilizados
-          </span>
-        </div>
-        <button
-          v-if="!readOnly"
-          type="button"
-          @click="addMaterial"
-          class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 px-2.5 py-1 rounded-xl hover:bg-amber-100 transition-all active:scale-95 cursor-pointer"
-        >
-          <IconPlus class="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>Agregar Material</span>
-        </button>
-      </div>
-
-      <div v-if="form.materiales.length === 0" class="text-center py-4 text-slate-400 dark:text-slate-500 text-[11px] border border-dashed border-neutral-200 dark:border-white/10 rounded-xl">
-        Sin materiales menores registrados para esta actividad.
-      </div>
-
-      <div v-else class="space-y-2">
-        <div 
-          v-for="(mat, idx) in form.materiales" 
-          :key="idx" 
-          class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center p-2.5 rounded-xl bg-neutral-50 dark:bg-[#0a0b10] border border-neutral-200/80 dark:border-white/5"
-        >
-          <div class="sm:col-span-6">
-            <Input v-model="mat.descripcion" placeholder="Descripción del material (ej. Refrigerante, Cinta vulcanizada)" :disabled="readOnly" class="h-8 text-xs" />
-          </div>
-          <div class="sm:col-span-3">
-            <select 
-              v-model="mat.unidad" 
-              :disabled="readOnly"
-              class="h-8 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-black/20 px-2 font-medium text-xs outline-none"
-            >
-              <option value="Unidad">Unidad (UND)</option>
-              <option value="Galón">Galón</option>
-              <option value="Metro">Metro</option>
-              <option value="Kg">Kg</option>
-              <option value="Rollo">Rollo</option>
-              <option value="Litro">Litro</option>
-            </select>
-          </div>
-          <div class="sm:col-span-2">
-            <Input type="number" step="0.5" min="0.1" v-model="mat.cantidad" placeholder="Cant." :disabled="readOnly" class="h-8 text-xs font-bold" />
-          </div>
-          <div v-if="!readOnly" class="sm:col-span-1 flex justify-end">
-            <button 
-              type="button" 
-              @click="removeMaterial(idx)"
-              class="p-1.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/50 rounded-lg transition-all cursor-pointer"
-            >
-              <IconTrash class="w-4 h-4 stroke-[2]" />
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. REGISTRO DE TRANSPORTE ESPECIAL (SI APLICA) -->
-    <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
-      <div class="flex items-center justify-between border-b border-neutral-100 dark:border-white/5 pb-2.5">
-        <div class="flex items-center gap-2">
-          <IconTruck class="w-4 h-4 text-purple-500 stroke-[2]" />
-          <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
-            5. Registro de Transporte Especial (LPU)
-          </span>
-        </div>
-        <select 
-          v-model="form.desea_transporte_especial" 
-          :disabled="readOnly"
-          class="h-8 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#0a0b10] px-2.5 text-xs font-bold text-purple-600 outline-none"
-        >
-          <option value="No">No requirió transporte especial</option>
-          <option value="Si">Sí requirió transporte especial</option>
-        </select>
-      </div>
-
-      <div v-if="form.desea_transporte_especial === 'Si'" class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div>
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Tipo de Transporte</label>
-          <select 
-            v-model="form.tipo_transporte" 
-            :disabled="readOnly"
-            class="h-9 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#0a0b10] px-3 font-medium text-xs outline-none"
-          >
-            <option value="Vehículo 4x4">Vehículo 4x4 Campero</option>
-            <option value="Lancha Fluvial">Lancha Fluvial / Canoa</option>
-            <option value="Mular / Bestia">Mular / Bestia de Carga</option>
-            <option value="Caminata / Ayudantía">Caminata / Ayudantía en Hombro</option>
-            <option value="Aéreo">Aéreo / Helicóptero</option>
-            <option value="Otro">Otro medio especial</option>
-          </select>
-        </div>
-        <div>
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Distancia Recorrida (Km)</label>
-          <Input type="number" step="0.1" v-model="form.distancia_km" placeholder="Ej. 25.5" :disabled="readOnly" class="h-9 text-xs" />
-        </div>
-        <div>
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Tiempo de Desplazamiento</label>
-          <Input v-model="form.tiempo_desplazamiento" placeholder="Ej. 2h 15min" :disabled="readOnly" class="h-9 text-xs" />
-        </div>
-        <div class="sm:col-span-3">
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Observaciones de Transporte</label>
-          <Input v-model="form.observacion_transporte" placeholder="Detalle estado de la trocha, caudal del río o transbordos realizados..." :disabled="readOnly" class="h-9 text-xs" />
-        </div>
-      </div>
-    </div>
-
-    <!-- 6. NOVEDADES Y HALLAZGOS EN LA ESTACIÓN -->
-    <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
-      <div class="flex items-center justify-between border-b border-neutral-100 dark:border-white/5 pb-2.5">
-        <div class="flex items-center gap-2">
-          <IconAlertTriangle class="w-4 h-4 text-rose-500 stroke-[2]" />
-          <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
-            6. Novedades y Hallazgos en Estación
-          </span>
-        </div>
-        <select 
-          v-model="form.se_encontraron_novedades" 
-          :disabled="readOnly"
-          class="h-8 rounded-xl border border-neutral-200 dark:border-white/10 bg-neutral-50 dark:bg-[#0a0b10] px-2.5 text-xs font-bold outline-none"
-          :class="form.se_encontraron_novedades === 'Si' ? 'text-rose-600' : 'text-slate-600 dark:text-slate-400'"
-        >
-          <option value="No">No se encontraron novedades</option>
-          <option value="Si">Sí se encontraron novedades</option>
-        </select>
-      </div>
-
-      <div v-if="form.se_encontraron_novedades === 'Si'" class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3.5 bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200/60 dark:border-rose-900/30 rounded-xl">
-        <div>
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Sistema Afectado</label>
-          <select 
-            v-model="form.sistema_novedad" 
-            :disabled="readOnly"
-            class="h-9 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 font-medium text-xs outline-none"
-          >
-            <option value="Planta eléctrica">Planta eléctrica</option>
-            <option value="Aire acondicionado">Aire acondicionado</option>
-            <option value="Cerramiento y Balizamiento">Cerramiento y Balizamiento</option>
-            <option value="Torre / Obra Civil">Torre / Obra Civil</option>
-            <option value="Subestación / Red Comercial">Subestación / Red Comercial</option>
-            <option value="Baterías y Rectificador">Baterías y Rectificador</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Prioridad del Hallazgo</label>
-          <select 
-            v-model="form.prioridad_novedad" 
-            :disabled="readOnly"
-            class="h-9 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 font-bold text-xs outline-none"
-            :class="form.prioridad_novedad === 'Alta' ? 'text-red-600' : form.prioridad_novedad === 'Media' ? 'text-amber-600' : 'text-blue-600'"
-          >
-            <option value="Alta">Alta (Riesgo inminente de corte)</option>
-            <option value="Media">Media (Desgaste preventivo)</option>
-            <option value="Baja">Baja (Mejora estética/menor)</option>
-          </select>
-        </div>
-
-        <div>
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">¿Resuelto en la Visita?</label>
-          <select 
-            v-model="form.resuelto_en_visita" 
-            :disabled="readOnly"
-            class="h-9 w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] px-3 font-medium text-xs outline-none"
-          >
-            <option value="Si">Sí (Solucionado en sitio)</option>
-            <option value="No">No (Requiere nuevo reporte)</option>
-          </select>
-        </div>
-
-        <div class="sm:col-span-3">
-          <label class="block font-bold text-neutral-600 dark:text-neutral-400 text-[10px] uppercase mb-1">Descripción de la Novedad / Hallazgo</label>
-          <textarea 
-            v-model="form.descripcion_novedad" 
-            :disabled="readOnly"
-            rows="2" 
-            placeholder="Detalle los hallazgos que ponen en riesgo el servicio del sitio para trámite escalonado..."
-            class="w-full rounded-xl border border-neutral-200 dark:border-white/10 bg-white dark:bg-[#0a0b10] p-3 text-xs focus:ring-1 focus:ring-rose-500 outline-none leading-relaxed"
-          ></textarea>
-        </div>
-      </div>
-    </div>
-
-    <!-- 7. CIERRE TÉCNICO Y SUPERVISIÓN -->
+    <!-- 4. CIERRE TÉCNICO Y SUPERVISIÓN -->
     <div class="bg-white dark:bg-[#121215] border border-neutral-200 dark:border-white/10 rounded-2xl p-4 sm:p-5 space-y-4 shadow-xs">
       <div class="flex items-center gap-2 border-b border-neutral-100 dark:border-white/5 pb-2.5">
         <IconCheck class="w-4 h-4 text-emerald-500 stroke-[2.5]" />
         <span class="font-black text-neutral-800 dark:text-neutral-200 uppercase tracking-wider text-[11px]">
-          7. Cierre Técnico & Supervisión Claro
+          4. Cierre Técnico & Supervisión Claro
         </span>
       </div>
 
