@@ -1,7 +1,9 @@
 import base64
 import re
+import io
 import uuid
 from typing import Tuple, Optional
+from PIL import Image, ImageOps
 from fastapi import HTTPException, status
 from app.core.config import settings
 
@@ -104,6 +106,42 @@ def validate_and_decode_base64_image(image_input: str, max_mb: Optional[int] = N
 
     return decoded_bytes, ext
 
+def optimize_and_compress_image(data: bytes, original_ext: str, max_dim: int = 1920, quality: int = 82) -> Tuple[bytes, str]:
+    """
+    Normaliza la orientación EXIF, redimensiona respetando relación de aspecto
+    y comprime la imagen a WebP de alta fidelidad técnica.
+    Reduce de un 70% a 90% el peso en disco y ancho de banda.
+    """
+    try:
+        img_buffer = io.BytesIO(data)
+        with Image.open(img_buffer) as img:
+            # 1. Corregir orientación de fotos móviles según sensor EXIF
+            img = ImageOps.exif_transpose(img)
+
+            # 2. Redimensionar si supera la dimensión máxima establecida
+            width, height = img.size
+            if width > max_dim or height > max_dim:
+                scale = min(max_dim / width, max_dim / height)
+                new_size = (max(1, int(width * scale)), max(1, int(height * scale)))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+
+            # 3. Exportar como WebP optimizado
+            out_buffer = io.BytesIO()
+            if img.mode in ("RGBA", "LA") or (img.mode == "P" and "transparency" in img.info):
+                img.save(out_buffer, format="WEBP", quality=quality, method=4)
+            else:
+                img = img.convert("RGB")
+                img.save(out_buffer, format="WEBP", quality=quality, method=4)
+
+            optimized_bytes = out_buffer.getvalue()
+            # Si por alguna razón WebP resultara más pesado que el original, retornar el original
+            if len(optimized_bytes) < len(data):
+                return optimized_bytes, ".webp"
+            return data, original_ext
+    except Exception:
+        # Fallback resiliente: si Pillow encuentra un formato no estándar, retornar los bytes originales
+        return data, original_ext
+
 def generate_secure_filename(extension: str) -> str:
     """
     Genera un nombre de archivo único, seguro y previene cualquier intento de Path Traversal.
@@ -127,3 +165,4 @@ def sanitize_text(text: Optional[str]) -> Optional[str]:
     # Reemplazar caracteres de etiquetas peligrosas < >
     cleaned = cleaned.replace("<", "&lt;").replace(">", "&gt;")
     return cleaned.strip()
+

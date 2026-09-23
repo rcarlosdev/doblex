@@ -303,5 +303,29 @@ class TestDoblexAPI(unittest.TestCase):
             res_word = self.client.get(f"/api/ots/{ot_id}/export/word", headers=self.admin_headers)
             self.assertEqual(res_word.status_code, 200)
 
+    def test_13_pagination_and_filters(self):
+        # 1. Paginación básica
+        res = self.client.get("/api/ots?skip=0&limit=2", headers=self.admin_headers)
+        self.assertEqual(res.status_code, 200)
+        body = res.json()
+        self.assertIn("total", body)
+        self.assertIn("X-Total-Count", res.headers)
+        self.assertLessEqual(len(body["data"]), 2)
+        total_ots = body["total"]
+        self.assertGreaterEqual(total_ots, 1)
+
+        # 2. Filtro por prioridad
+        res_p1 = self.client.get("/api/ots?prioridad=P1", headers=self.admin_headers)
+        self.assertEqual(res_p1.status_code, 200)
+        for ot in res_p1.json()["data"]:
+            self.assertEqual(ot["prioridad"], "P1")
+
+        # 3. Búsqueda por texto (código o descripción)
+        res_search = self.client.get(f"/api/ots?search={self.test_code}", headers=self.admin_headers)
+        self.assertEqual(res_search.status_code, 200)
+        found_codes = [ot["codigo"] for ot in res_search.json()["data"]]
+        self.assertIn(self.test_code, found_codes)
+
 if __name__ == "__main__":
     unittest.main()
+

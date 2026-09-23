@@ -1,0 +1,14 @@
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.db
+*.sqlite3
+uploads/*
+!uploads/.gitkeep
+tests_*.py
+.vscode/
+.env.local
+.git/

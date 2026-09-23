@@ -1,5 +1,5 @@
-from typing import List, Any
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Any, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Response, Query
 from sqlalchemy.orm import Session
 
 from app.db.session import get_db
@@ -18,14 +18,46 @@ serialize_ot = ot_service.serialize_ot
 parse_datetime = ot_service.parse_datetime
 
 @router.get("/ots")
-def list_ots(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def list_ots(
+    response: Response,
+    skip: int = Query(0, ge=0, description="Registros a omitir"),
+    limit: Optional[int] = Query(None, ge=1, le=1000, description="Límite de registros por página"),
+    estado: Optional[str] = Query(None, description="Filtrar por estado"),
+    prioridad: Optional[str] = Query(None, description="Filtrar por prioridad (P1, P2, P3)"),
+    tipo_mantenimiento: Optional[str] = Query(None, description="Filtrar por tipo de mantenimiento"),
+    search: Optional[str] = Query(None, description="Búsqueda por código, sitio o descripción"),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
     """
     Listar Órdenes de Trabajo según el rol del usuario autenticado.
-    Arquitectura desacoplada delegando en OtService.
+    Soporta filtros opcionales, paginación y expone cabecera X-Total-Count.
     """
-    data = ot_service.list_ots(db=db, current_user=current_user)
+    total = ot_service.count_ots(
+        db=db,
+        current_user=current_user,
+        estado=estado,
+        prioridad=prioridad,
+        tipo_mantenimiento=tipo_mantenimiento,
+        search=search
+    )
+    response.headers["X-Total-Count"] = str(total)
+
+    data = ot_service.list_ots(
+        db=db,
+        current_user=current_user,
+        skip=skip,
+        limit=limit,
+        estado=estado,
+        prioridad=prioridad,
+        tipo_mantenimiento=tipo_mantenimiento,
+        search=search
+    )
     return {
         "status": "success",
+        "total": total,
+        "skip": skip,
+        "limit": limit,
         "data": data
     }
 

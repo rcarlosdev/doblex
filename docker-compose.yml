@@ -1,17 +1,68 @@
 services:
+  # 1. Base de Datos Relacional PostgreSQL 16
   db:
     image: postgres:16-alpine
     container_name: doblex_postgres_db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: doblex_smu
-      POSTGRES_USER: doblex_user
-      POSTGRES_PASSWORD: doblex_password
+      POSTGRES_DB: ${POSTGRES_DB:-doblex_smu}
+      POSTGRES_USER: ${POSTGRES_USER:-doblex_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-doblex_password}
     ports:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-doblex_user} -d ${POSTGRES_DB:-doblex_smu}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - doblex_net
+
+  # 2. Backend FastAPI (Python 3.13)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: doblex_backend_api
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+psycopg2://${POSTGRES_USER:-doblex_user}:${POSTGRES_PASSWORD:-doblex_password}@db:5432/${POSTGRES_DB:-doblex_smu}
+      SECRET_KEY: ${SECRET_KEY:-doblex_super_secret_jwt_key_change_in_production}
+      CORS_ORIGINS: http://localhost,http://localhost:80,http://localhost:5173,http://127.0.0.1
+      UPLOAD_DIR: /app/uploads
+      TIMEZONE: America/Bogota
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
+    networks:
+      - doblex_net
+
+  # 3. Frontend SPA Vue 3 (Servido con Nginx)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: doblex_frontend_web
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - doblex_net
 
 volumes:
   db_data:
     driver: local
+  uploads_data:
+    driver: local
+
+networks:
+  doblex_net:
+    driver: bridge

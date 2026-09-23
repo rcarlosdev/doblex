@@ -17,6 +17,7 @@ from app.core.config import settings
 from app.core.utils import now_utc, to_colombia_datetime
 from app.core.file_validator import (
     validate_and_decode_base64_image,
+    optimize_and_compress_image,
     generate_secure_filename,
     sanitize_text
 )
@@ -183,15 +184,54 @@ class OtService:
             "avances": avances_list
         }
 
-    def list_ots(self, db: Session, current_user: User) -> List[dict]:
+    def list_ots(
+        self,
+        db: Session,
+        current_user: User,
+        skip: Optional[int] = None,
+        limit: Optional[int] = None,
+        estado: Optional[str] = None,
+        prioridad: Optional[str] = None,
+        tipo_mantenimiento: Optional[str] = None,
+        search: Optional[str] = None
+    ) -> List[dict]:
         if current_user.role not in ["admin", "administrativo", "operativo"]:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Rol de usuario no autorizado."
             )
 
-        ots = ot_repository.list_by_role(db, current_user)
+        ots = ot_repository.list_by_role(
+            db=db,
+            current_user=current_user,
+            skip=skip,
+            limit=limit,
+            estado=estado,
+            prioridad=prioridad,
+            tipo_mantenimiento=tipo_mantenimiento,
+            search=search
+        )
         return [self.serialize_ot(ot) for ot in ots]
+
+    def count_ots(
+        self,
+        db: Session,
+        current_user: User,
+        estado: Optional[str] = None,
+        prioridad: Optional[str] = None,
+        tipo_mantenimiento: Optional[str] = None,
+        search: Optional[str] = None
+    ) -> int:
+        if current_user.role not in ["admin", "administrativo", "operativo"]:
+            return 0
+        return ot_repository.count_by_role(
+            db=db,
+            current_user=current_user,
+            estado=estado,
+            prioridad=prioridad,
+            tipo_mantenimiento=tipo_mantenimiento,
+            search=search
+        )
 
     def get_ot(self, db: Session, ot_id: int, current_user: User) -> dict:
         ot = ot_repository.get_with_relations(db, ot_id)
@@ -530,11 +570,12 @@ class OtService:
         url_final = None
         if payload.imagen_base64:
             decoded_bytes, ext = validate_and_decode_base64_image(payload.imagen_base64)
-            filename = generate_secure_filename(ext)
+            optimized_bytes, final_ext = optimize_and_compress_image(decoded_bytes, ext)
+            filename = generate_secure_filename(final_ext)
             filepath = os.path.join(settings.UPLOAD_DIR, filename)
             try:
                 with open(filepath, "wb") as f:
-                    f.write(decoded_bytes)
+                    f.write(optimized_bytes)
                 url_final = f"/uploads/{filename}"
             except Exception as e:
                 raise HTTPException(

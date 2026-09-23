@@ -1272,22 +1272,24 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue';
 import { useRoute } from 'vue-router';
 import client from '@/api/client';
 import SlaBadge from '@/components/common/SlaBadge.vue';
 import PhotoUploader from '@/components/mobile/PhotoUploader.vue';
-import FormularioTecnicoWO from '@/components/mobile/FormularioTecnicoWO.vue';
-import FormularioTecnicoMP from '@/components/mobile/FormularioTecnicoMP.vue';
-import FormularioTecnico360 from '@/components/mobile/FormularioTecnico360.vue';
-import CloseOtModal from '@/components/mobile/CloseOtModal.vue';
-import ManageRepuestosModal from '@/components/mobile/ManageRepuestosModal.vue';
-import ConfirmDialogModal from '@/components/common/ConfirmDialogModal.vue';
-import LlegadaSitioModal from '@/components/mobile/LlegadaSitioModal.vue';
-import TransporteEspecialManager from '@/components/mobile/TransporteEspecialManager.vue';
-import NovedadesHallazgosManager from '@/components/mobile/NovedadesHallazgosManager.vue';
-import RepuestosCambiosManager from '@/components/mobile/RepuestosCambiosManager.vue';
-import SinglePhotoCapture from '@/components/mobile/SinglePhotoCapture.vue';
+
+// Carga asíncrona bajo demanda (Code Splitting) de formularios de protocolo y componentes pesados
+const FormularioTecnicoWO = defineAsyncComponent(() => import('@/components/mobile/FormularioTecnicoWO.vue'));
+const FormularioTecnicoMP = defineAsyncComponent(() => import('@/components/mobile/FormularioTecnicoMP.vue'));
+const FormularioTecnico360 = defineAsyncComponent(() => import('@/components/mobile/FormularioTecnico360.vue'));
+const CloseOtModal = defineAsyncComponent(() => import('@/components/mobile/CloseOtModal.vue'));
+const ManageRepuestosModal = defineAsyncComponent(() => import('@/components/mobile/ManageRepuestosModal.vue'));
+const ConfirmDialogModal = defineAsyncComponent(() => import('@/components/common/ConfirmDialogModal.vue'));
+const LlegadaSitioModal = defineAsyncComponent(() => import('@/components/mobile/LlegadaSitioModal.vue'));
+const TransporteEspecialManager = defineAsyncComponent(() => import('@/components/mobile/TransporteEspecialManager.vue'));
+const NovedadesHallazgosManager = defineAsyncComponent(() => import('@/components/mobile/NovedadesHallazgosManager.vue'));
+const RepuestosCambiosManager = defineAsyncComponent(() => import('@/components/mobile/RepuestosCambiosManager.vue'));
+const SinglePhotoCapture = defineAsyncComponent(() => import('@/components/mobile/SinglePhotoCapture.vue'));
 import { 
   IconArrowLeft, 
   IconRefresh, 
@@ -1522,19 +1524,59 @@ let isAutoSaving = false;
 let autosaveTimeout = null;
 let initialDataLoaded = false;
 
+const getDraftKey = (otId) => `smu_draft_ot_${otId}`;
+
+const saveDraftLocally = (otId, data) => {
+  try {
+    if (!otId || !data) return;
+    localStorage.setItem(getDraftKey(otId), JSON.stringify(data));
+  } catch (e) {
+    console.warn('No se pudo guardar borrador en localStorage:', e);
+  }
+};
+
+const removeDraftLocally = (otId) => {
+  try {
+    if (!otId) return;
+    localStorage.removeItem(getDraftKey(otId));
+  } catch (e) {
+    // ignorar
+  }
+};
+
+const getLocalDraft = (otId) => {
+  try {
+    if (!otId) return null;
+    const raw = localStorage.getItem(getDraftKey(otId));
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) {
+    return null;
+  }
+};
+
 watch(() => ot.value, (newOt) => {
   if (newOt && !initialDataLoaded) {
+    let serverData = {};
     if (newOt.datos_formulario && typeof newOt.datos_formulario === 'object') {
-      otFormularioData.value = { ...newOt.datos_formulario };
+      serverData = { ...newOt.datos_formulario };
     } else if (typeof newOt.datos_formulario === 'string') {
       try {
-        otFormularioData.value = JSON.parse(newOt.datos_formulario);
+        serverData = JSON.parse(newOt.datos_formulario);
       } catch (e) {
-        otFormularioData.value = {};
+        serverData = {};
       }
-    } else {
-      otFormularioData.value = {};
     }
+
+    // Verificar si existe un borrador local no sincronizado por pérdida previa de señal
+    const localDraft = getLocalDraft(newOt.id);
+    if (localDraft && Object.keys(localDraft).length > 0 && !['solucionada', 'finalizada'].includes(newOt.estado)) {
+      otFormularioData.value = { ...serverData, ...localDraft };
+      autoSaveStatus.value = 'unsaved';
+      showNotification('info', 'Borrador Offline Recuperado', 'Se recuperaron cambios no sincronizados previamente en este dispositivo.');
+    } else {
+      otFormularioData.value = serverData;
+    }
+
     if (!otFormularioData.value.llegada_foto) {
       otFormularioData.value.llegada_foto = 
         otFormularioData.value.llegada_sitio || 
@@ -1566,6 +1608,8 @@ const ejecutarGuardadoFormulario = async (silencioso = true) => {
     if (res.data?.status === 'success') {
       lastSavedSnapshot = currentSnapshot;
       autoSaveStatus.value = 'saved';
+      // Limpiar borrador local una vez sincronizado exitosamente con la nube
+      removeDraftLocally(ot.value.id);
 
       // Si el backend reemplazó fotos en base64 por rutas /uploads/, sincronizar solo esos campos
       if (res.data.data?.datos_formulario) {
@@ -1585,14 +1629,16 @@ const ejecutarGuardadoFormulario = async (silencioso = true) => {
       }
 
       if (!silencioso) {
-        showNotification('success', 'Formato Guardado', 'El formulario técnico de campo se ha guardado exitosamente.');
+        showNotification('success', 'Formato Guardado', 'El formulario técnico de campo se ha guardado exitosamente en el servidor.');
       }
     }
   } catch (err) {
     autoSaveStatus.value = 'unsaved';
+    // En caso de fallo de conexión (modo offline en campo), preservar datos en localStorage
+    saveDraftLocally(ot.value.id, otFormularioData.value);
     if (!silencioso) {
-      const msg = err.response?.data?.message || 'Error al guardar el formulario técnico.';
-      showNotification('error', 'Error al Guardar', msg);
+      const msg = err.response?.data?.message || 'Sin conexión celular. El formulario se guardó localmente en su dispositivo y se sincronizará al recuperar señal.';
+      showNotification('warning', 'Guardado Local Offline', msg);
     }
   } finally {
     isAutoSaving = false;
@@ -1616,6 +1662,9 @@ watch(otFormularioData, () => {
   if (currentSnapshot === lastSavedSnapshot) return;
 
   autoSaveStatus.value = 'unsaved';
+  // Proteger inmediatamente en el almacenamiento local ante cualquier corte repentino
+  saveDraftLocally(ot.value.id, otFormularioData.value);
+
   if (autosaveTimeout) clearTimeout(autosaveTimeout);
   autosaveTimeout = setTimeout(() => {
     ejecutarGuardadoFormulario(true);
